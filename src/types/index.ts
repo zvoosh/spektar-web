@@ -4,6 +4,7 @@ export interface User {
   email: string;
   bio?: string;
   avatar?: string;
+  banner?: string;
   karma: number;
   role: string;
   createdAt: string;
@@ -22,6 +23,7 @@ export interface Community {
   location?: string;
   ownerId: string;
   createdAt: string;
+  isMember?: boolean;
 }
 
 export interface Post {
@@ -80,6 +82,13 @@ export interface Notification {
   createdAt: string;
 }
 
+export interface ConversationMember {
+  userId: string;
+  user: User;
+  role: string;
+  leftAt?: string;
+}
+
 export interface Conversation {
   id: string;
   type: "dm" | "group" | "community_room";
@@ -90,6 +99,7 @@ export interface Conversation {
   lastMessageAt?: string;
   lastMessage?: string;
   createdAt: string;
+  members?: ConversationMember[];
 }
 
 export interface Message {

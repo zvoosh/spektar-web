@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/authStore";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { notificationsApi } from "@/api/notifications";
+import { Search, Bell, PenSquare, Menu, User, Bookmark, LogOut } from "lucide-react";
 
 const Navbar = ({
   onMenuClick,
@@ -10,10 +13,29 @@ const Navbar = ({
   onMenuClick?: () => void;
   showMenuButton?: boolean;
 }) => {
-  const { user, logout } = useAuthStore();
+  const { user, logout, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
   const [searchFocused, setSearchFocused] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { isMobile } = useBreakpoint();
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const { data: unreadCount } = useQuery({
+    queryKey: ["notifications", "unread"],
+    queryFn: notificationsApi.getUnreadCount,
+    enabled: isAuthenticated,
+    refetchInterval: 60_000,
+  });
 
   const handleLogout = () => {
     logout();
@@ -22,243 +44,140 @@ const Navbar = ({
 
   return (
     <div
-      className={`justify-between w-full h-14.5 max-w-480 flex items-center sticky top-0 z-99 ${isMobile ? "px-3 gap-2" : "px-6 gap-8"}`}
+      className={`justify-between w-full h-14 max-w-[1920px] flex items-center ${
+        isMobile ? "px-3 gap-2" : "px-8 gap-6"
+      }`}
     >
       {showMenuButton && (
         <button
           onClick={onMenuClick}
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 8,
-            border: "1px solid var(--color-border)",
-            background: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            fontSize: 16,
-            flexShrink: 0,
-          }}
+          className="w-9 h-9 rounded-xl border border-border bg-white flex items-center justify-center cursor-pointer text-text-2 hover:bg-surface-2 transition-colors shrink-0"
         >
-          ☰
+          <Menu size={17} strokeWidth={2} />
         </button>
       )}
 
       {/* Logo */}
       <div
         onClick={() => navigate("/")}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          cursor: "pointer",
-          flexShrink: 0,
-        }}
+        className="flex items-center gap-2.5 cursor-pointer shrink-0"
       >
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            background: "var(--color-accent)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 16,
-            flexShrink: 0,
-          }}
-        >
-          🗺
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-accent to-accent-hover flex items-center justify-center shadow-[0_2px_8px_rgba(26,138,87,0.35)] shrink-0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
         </div>
         {!isMobile && (
           <div>
-            <div
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: 17,
-                color: "var(--color-text-1)",
-                lineHeight: 1,
-              }}
-            >
+            <div className="font-serif font-bold text-[17px] text-text-1 leading-none tracking-tight">
               Spektar
             </div>
-            <div
-              style={{
-                fontSize: 10,
-                color: "var(--color-text-3)",
-                letterSpacing: "0.05em",
-              }}
-            >
-              Beograd · zajednica
+            <div className="text-[10px] font-semibold text-text-3 tracking-widest uppercase mt-0.5">
+              Beograd
             </div>
           </div>
         )}
       </div>
 
-      {/* Search — hidden on mobile (accessible via bottom nav) */}
+      {/* Search */}
       {!isMobile && (
-        <div style={{ flex: 1, maxWidth: 480, position: "relative" }}>
-          <div
-            style={{
-              position: "absolute",
-              left: 12,
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "var(--color-text-3)",
-              fontSize: 14,
-            }}
-          >
-            🔍
-          </div>
+        <div className="flex-1 max-w-[480px] relative">
+          <Search
+            size={15}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-3 pointer-events-none"
+            strokeWidth={2}
+          />
           <input
-            onFocus={() => setSearchFocused(true)}
+            onFocus={() => { setSearchFocused(true); navigate("/search"); }}
             onBlur={() => setSearchFocused(false)}
             placeholder="Pretraži zajednice, postove, ljude..."
-            style={{
-              width: "100%",
-              padding: "9px 40px 9px 36px",
-              borderRadius: 10,
-              border: `1px solid ${searchFocused ? "var(--color-accent)" : "var(--color-border)"}`,
-              background: searchFocused ? "#fff" : "var(--color-bg)",
-              fontSize: 13,
-              color: "var(--color-text-1)",
-              outline: "none",
-              fontFamily: "var(--font-sans)",
-              boxShadow: searchFocused
-                ? "0 0 0 3px var(--color-accent-soft)"
-                : "none",
-              transition: "all 0.15s",
-            }}
+            className={`w-full py-2 pl-9.5 pr-10 rounded-xl border text-[13px] text-text-1 outline-none font-sans transition-all duration-200 ${
+              searchFocused
+                ? "border-accent bg-white shadow-[0_0_0_3px_rgba(26,138,87,0.12)]"
+                : "border-border bg-surface-2 hover:bg-white hover:border-border-strong"
+            }`}
           />
-          <div
-            style={{
-              position: "absolute",
-              right: 10,
-              top: "50%",
-              transform: "translateY(-50%)",
-              fontSize: 10,
-              color: "var(--color-text-3)",
-              background: "var(--color-surface-2)",
-              padding: "2px 6px",
-              borderRadius: 4,
-              fontFamily: "monospace",
-            }}
-          >
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-text-3 bg-white border border-border px-1.5 py-0.5 rounded font-mono shadow-[0_1px_2px_rgba(0,0,0,0.06)] pointer-events-none">
             ⌘K
-          </div>
+          </kbd>
         </div>
       )}
 
-      <div
-        style={{
-          marginLeft: "auto",
-          display: "flex",
-          alignItems: "center",
-          gap: isMobile ? 6 : 10,
-          flexShrink: 0,
-        }}
-      >
-        {/* New post — icon-only on mobile */}
+      <div className={`ml-auto flex items-center shrink-0 ${isMobile ? "gap-1.5" : "gap-2"}`}>
+        {/* New post */}
         <button
           onClick={() => navigate("/new-post")}
-          style={{
-            padding: isMobile ? "8px 10px" : "8px 18px",
-            borderRadius: 8,
-            background: "var(--color-accent)",
-            color: "#fff",
-            border: "none",
-            fontSize: 13,
-            fontWeight: 500,
-            cursor: "pointer",
-            fontFamily: "var(--font-sans)",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-          }}
+          className={`rounded-xl bg-accent hover:bg-accent-hover text-white border-none text-[13px] font-semibold cursor-pointer flex items-center gap-1.5 transition-colors shadow-[0_2px_8px_rgba(26,138,87,0.3)] ${
+            isMobile ? "px-2.5 py-2" : "px-4 py-2"
+          }`}
         >
-          <span style={{ fontSize: 16, lineHeight: 1 }}>+</span>
+          <PenSquare size={14} strokeWidth={2.5} />
           {!isMobile && "Novi post"}
         </button>
 
         {/* Notifications */}
-        <div
-          style={{
-            position: "relative",
-            width: 36,
-            height: 36,
-            borderRadius: 8,
-            border: "1px solid var(--color-border)",
-            background: "#fff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            fontSize: 16,
-          }}
+        <button
+          onClick={() => navigate("/notifications")}
+          className="relative w-9 h-9 rounded-xl border border-border bg-white flex items-center justify-center cursor-pointer text-text-2 hover:bg-surface-2 hover:text-accent transition-colors"
         >
-          🔔
-          <div
-            style={{
-              position: "absolute",
-              top: 6,
-              right: 6,
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              background: "var(--color-accent)",
-              border: "2px solid #fff",
-            }}
-          />
-        </div>
-
-        {/* User — avatar-only on mobile */}
-        <div
-          onClick={handleLogout}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: isMobile ? "4px" : "4px 10px",
-            borderRadius: 8,
-            border: "1px solid var(--color-border)",
-            cursor: "pointer",
-            background: "#fff",
-          }}
-        >
-          <div
-            style={{
-              width: 26,
-              height: 26,
-              borderRadius: "50%",
-              background: "var(--color-accent-soft)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 11,
-              fontWeight: 600,
-              color: "var(--color-accent)",
-            }}
-          >
-            {user?.username.slice(0, 2).toUpperCase()}
-          </div>
-          {!isMobile && (
-            <>
-              <span
-                style={{
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: "var(--color-text-1)",
-                  fontFamily: "var(--font-sans)",
-                }}
-              >
-                {user?.username}
-              </span>
-              <span style={{ fontSize: 10, color: "var(--color-text-3)" }}>
-                ▾
-              </span>
-            </>
+          <Bell size={16} strokeWidth={2} />
+          {(unreadCount ?? 0) > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-accent border-2 border-white flex items-center justify-center text-[9px] font-bold text-white px-0.5">
+              {unreadCount! > 9 ? "9+" : unreadCount}
+            </span>
           )}
+        </button>
+
+        {/* User dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setDropdownOpen((v) => !v)}
+            className={`flex items-center gap-2 rounded-xl border border-border cursor-pointer bg-white hover:bg-surface-2 transition-colors ${
+              isMobile ? "p-1.5" : "py-1.5 px-2.5"
+            }`}
+          >
+            <div className="w-6 h-6 rounded-full bg-accent-soft flex items-center justify-center text-[10px] font-bold text-accent shrink-0 overflow-hidden border border-border">
+              {user?.avatar ? (
+                <img src={user.avatar} alt={user.username} className="w-full h-full object-cover" />
+              ) : (
+                user?.username.slice(0, 2).toUpperCase()
+              )}
+            </div>
+            {!isMobile && (
+              <span className="text-[13px] font-semibold text-text-1">{user?.username}</span>
+            )}
+          </button>
+
+          {/* Dropdown */}
+          {dropdownOpen && <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-border rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.1)] py-1.5 z-50">
+            <div className="px-4 py-2 border-b border-surface-2 mb-1">
+              <div className="text-[13px] font-semibold text-text-1">{user?.username}</div>
+              <div className="text-[11px] text-text-3">{user?.email}</div>
+            </div>
+            <button
+              onClick={() => navigate("/profile")}
+              className="w-full text-left px-4 py-2 text-[13px] text-text-2 hover:bg-surface-2 hover:text-text-1 bg-transparent border-none cursor-pointer flex items-center gap-2.5 transition-colors"
+            >
+              <User size={14} className="text-text-3" />
+              Moj profil
+            </button>
+            <button
+              onClick={() => navigate("/saved")}
+              className="w-full text-left px-4 py-2 text-[13px] text-text-2 hover:bg-surface-2 hover:text-text-1 bg-transparent border-none cursor-pointer flex items-center gap-2.5 transition-colors"
+            >
+              <Bookmark size={14} className="text-text-3" />
+              Sačuvano
+            </button>
+            <div className="my-1 mx-3 border-t border-surface-2" />
+            <button
+              onClick={handleLogout}
+              className="w-full text-left px-4 py-2 text-[13px] text-danger hover:bg-danger-soft bg-transparent border-none cursor-pointer flex items-center gap-2.5 transition-colors"
+            >
+              <LogOut size={14} />
+              Odjavi se
+            </button>
+          </div>}
         </div>
       </div>
     </div>

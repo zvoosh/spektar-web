@@ -3,15 +3,62 @@ import { communitiesApi } from "@/api/communities";
 import { postsApi } from "@/api/posts";
 import { useState } from "react";
 import PostCard from "./PostCard";
+import type { Community } from "@/types";
+import { Users, Zap, UserPlus, Share2, ChevronDown } from "lucide-react";
 
 const FILTERS = [
-  { label: "Svi postovi", value: "" },
+  { label: "Svi", value: "" },
   { label: "Diskusije", value: "discussion" },
   { label: "Pitanja", value: "question" },
   { label: "Događaji", value: "event" },
   { label: "Preporuke", value: "recommendation" },
   { label: "Obaveštenja", value: "announcement" },
 ];
+
+const CommunityBanner = ({ community }: { community?: Community }) => (
+  <div className="relative rounded-2xl overflow-hidden mb-5 h-52 shadow-[0_4px_20px_rgba(0,0,0,0.12)]">
+    <img
+      src={community?.banner ?? "/hero/kalemegdan.jpg"}
+      alt={community?.name ?? "Spektar Beograda"}
+      className="w-full h-full object-cover"
+    />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+
+    <div className="absolute bottom-0 left-0 right-0 p-5">
+      <div className="flex items-end justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="font-serif text-[24px] text-white leading-tight mb-1.5 drop-shadow-sm">
+            {community?.name ?? "Spektar Beograda"}
+          </h1>
+          <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
+            <div className="flex items-center gap-1.5 text-[12.5px] text-white/90 font-medium">
+              <Users size={13} strokeWidth={2.5} />
+              {(community?.membersCount ?? 12458).toLocaleString("sr-RS")} članova
+            </div>
+            <div className="flex items-center gap-1.5 text-[12.5px] text-white/70">
+              <Zap size={11} strokeWidth={2.5} className="text-green-400" />
+              348 aktivnih danas
+            </div>
+          </div>
+          <p className="text-[12px] text-white/60 leading-relaxed max-w-md hidden sm:block">
+            {community?.description ?? "Mesto za povezivanje, deljenje preporuka, događaja i priča iz našeg grada."}
+          </p>
+        </div>
+
+        <div className="flex gap-2 shrink-0">
+          <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-accent hover:bg-accent-hover text-white text-[13px] font-semibold cursor-pointer border-none transition-colors shadow-[0_2px_12px_rgba(26,138,87,0.4)]">
+            <UserPlus size={14} strokeWidth={2.5} />
+            <span className="hidden sm:inline">Pridruži se</span>
+          </button>
+          <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[13px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors">
+            <Share2 size={14} strokeWidth={2} />
+            <span className="hidden sm:inline">Podeli</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 const FeedPage = () => {
   const [activeFilter, setActiveFilter] = useState("");
@@ -24,56 +71,61 @@ const FeedPage = () => {
   const firstCommunity = communities?.[0];
 
   const { data: posts, isLoading } = useQuery({
-    queryKey: ["posts", firstCommunity?.id],
-    queryFn: () => postsApi.getByCommunity(firstCommunity!.id),
-    enabled: !!firstCommunity,
+    queryKey: ["posts", "feed"],
+    queryFn: postsApi.getFeed,
   });
 
-  const filtered = activeFilter
-    ? posts?.filter((p) => p.type === activeFilter)
-    : posts;
+  const filtered = activeFilter ? posts?.filter((p) => p.type === activeFilter) : posts;
 
   return (
     <div>
+      <CommunityBanner community={firstCommunity} />
+
       {/* Filter bar */}
-      <div className="flex items-center gap-1.5 mb-4 flex-wrap">
+      <div className="flex items-center gap-1.5 mb-4 flex-wrap bg-white border border-border rounded-xl px-3 py-2 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
         {FILTERS.map((f) => (
           <button
             key={f.value}
             onClick={() => setActiveFilter(f.value)}
             className={[
-              "px-4 py-1.75 rounded-full text-[13px] border cursor-pointer transition-all duration-150",
+              "px-3.5 py-1.5 rounded-lg text-[12.5px] border-none cursor-pointer transition-all duration-150 font-medium",
               activeFilter === f.value
-                ? "border-accent bg-accent text-white font-medium"
-                : "border-border bg-white text-text-2 font-normal",
+                ? "bg-accent text-white shadow-[0_2px_8px_rgba(26,138,87,0.3)]"
+                : "bg-transparent text-text-3 hover:bg-surface-2 hover:text-text-1",
             ].join(" ")}
           >
             {f.label}
           </button>
         ))}
-        <div className="xl:ml-auto">
-          <button className="flex items-center gap-1.25 px-3.5 py-1.75 rounded-full text-xs border border-border bg-white text-text-2 cursor-pointer">
-            Najnovije ▾
-          </button>
-        </div>
+        <button className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12.5px] bg-surface-2 text-text-2 cursor-pointer border-none font-medium hover:bg-border transition-colors">
+          Najnovije <ChevronDown size={13} strokeWidth={2.5} />
+        </button>
       </div>
 
-      {/* Posts */}
       {isLoading && (
-        <div className="text-center p-10 text-text-3">
-          Učitavam postove...
+        <div className="flex flex-col gap-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white border border-border rounded-2xl p-5 animate-pulse">
+              <div className="flex gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full bg-surface-2" />
+                <div className="flex-1">
+                  <div className="h-3 bg-surface-2 rounded w-1/3 mb-2" />
+                </div>
+              </div>
+              <div className="h-4 bg-surface-2 rounded w-3/4 mb-2" />
+              <div className="h-3 bg-surface-2 rounded w-1/2" />
+            </div>
+          ))}
         </div>
       )}
 
       {!isLoading && filtered?.length === 0 && (
-        <div className="text-center p-10 bg-white rounded-[14px] border border-border text-text-3">
-          <div className="text-[32px] mb-3">📭</div>
-          <div className="text-[15px] font-(--font-serif)">
-            Nema postova
+        <div className="text-center p-12 bg-white rounded-2xl border border-border shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
+          <div className="w-16 h-16 rounded-2xl bg-surface-2 flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">📭</span>
           </div>
-          <div className="text-[13px] mt-1">
-            Budi prvi koji će nešto objaviti!
-          </div>
+          <div className="font-serif text-[16px] text-text-1 mb-1">Nema postova</div>
+          <div className="text-[13px] text-text-3">Budi prvi koji će nešto objaviti!</div>
         </div>
       )}
 

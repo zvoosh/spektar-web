@@ -54,4 +54,24 @@ export const postsApi = {
     const res = await api.delete(`/posts/${id}`);
     return res.data;
   },
+
+  getByUser: async (userId: string) => {
+    const res = await api.get<Post[]>(`/posts/by-user/${userId}`);
+    return res.data;
+  },
+
+  getFeed: async () => {
+    const res = await api.get<Post[]>('/posts/feed');
+    return res.data;
+  },
+
+  getPopular: async (period: 'day' | 'week' | 'month' | 'all' = 'week') => {
+    const res = await api.get<Post[]>(`/posts/popular?period=${period}`);
+    return res.data;
+  },
+
+  search: async (q: string) => {
+    const res = await api.get<Post[]>(`/posts/search?q=${encodeURIComponent(q)}`);
+    return res.data;
+  },
 };

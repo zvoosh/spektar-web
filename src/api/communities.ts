@@ -26,4 +26,64 @@ export const communitiesApi = {
     const res = await api.get(`/communities/${id}/gallery`);
     return res.data;
   },
+
+  search: async (q: string) => {
+    const res = await api.get<Community[]>(`/communities/search?q=${encodeURIComponent(q)}`);
+    return res.data;
+  },
+
+  getMembers: async (id: string) => {
+    const res = await api.get(`/communities/${id}/members`);
+    return res.data;
+  },
+
+  directAddMember: async (communityId: string, userId: string) => {
+    const res = await api.post(`/communities/${communityId}/add-member/${userId}`);
+    return res.data;
+  },
+
+  getPendingGallery: async (communityId: string) => {
+    const res = await api.get(`/communities/${communityId}/gallery/pending`);
+    return res.data;
+  },
+
+  approveGalleryImage: async (imageId: string) => {
+    const res = await api.patch(`/communities/gallery/${imageId}/approve`);
+    return res.data;
+  },
+
+  rejectGalleryImage: async (imageId: string) => {
+    const res = await api.patch(`/communities/gallery/${imageId}/reject`);
+    return res.data;
+  },
+
+  setMemberRole: async (communityId: string, userId: string, role: 'moderator' | 'member') => {
+    const res = await api.patch(`/communities/${communityId}/members/${userId}/role`, { role });
+    return res.data;
+  },
+
+  getMyRole: async (communityId: string) => {
+    const res = await api.get<{ role: string } | string>(`/communities/${communityId}/my-role`);
+    return res.data;
+  },
+
+  update: async (id: string, data: { name?: string; description?: string; location?: string; avatar?: string }) => {
+    const res = await api.patch(`/communities/${id}`, data);
+    return res.data;
+  },
+
+  updateBanner: async (id: string, bannerUrl: string) => {
+    const res = await api.patch(`/communities/${id}/banner`, { bannerUrl });
+    return res.data;
+  },
+
+  getTrendingTags: async () => {
+    const res = await api.get<{ tag: string; count: number }[]>('/communities/meta/trending-tags');
+    return res.data;
+  },
+
+  getUpcomingEvents: async () => {
+    const res = await api.get<{ id: string; title: string; eventDate: string; eventLocation?: string; communityName: string; communitySlug: string }[]>('/communities/meta/upcoming-events');
+    return res.data;
+  },
 };
