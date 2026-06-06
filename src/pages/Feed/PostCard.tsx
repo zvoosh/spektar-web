@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postsApi } from "@/api/posts";
@@ -109,7 +109,7 @@ const PostCard = ({ post }: { post: Post }) => {
   });
 
   return (
-    <div className="bg-white border border-border rounded-2xl mb-3 transition-all duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-px group">
+    <div className="bg-surface border border-border rounded-2xl mb-3 transition-all duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-px group">
       <div className={isMobile ? "px-4 py-3.5" : "px-5 py-4"}>
         {/* Meta row */}
         <div className="flex items-center gap-2 mb-3">
@@ -256,7 +256,7 @@ const PostCard = ({ post }: { post: Post }) => {
 
           <button
             onClick={() => navigate(`/post/${post.id}`)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] text-text-3 hover:text-text-1 hover:bg-surface-2 bg-transparent border-none cursor-pointer transition-all font-medium"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] text-text-3 hover:text-text-1 hover:bg-surface-2-2 bg-transparent border-none cursor-pointer transition-all font-medium"
           >
             <MessageSquare size={14} strokeWidth={2} />
             {!isMobile && <span>{post.commentsCount}</span>}
@@ -270,7 +270,7 @@ const PostCard = ({ post }: { post: Post }) => {
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] border-none cursor-pointer transition-all font-medium ${
               isSaved
                 ? "text-accent bg-accent-soft"
-                : "text-text-3 hover:text-text-1 hover:bg-surface-2 bg-transparent"
+                : "text-text-3 hover:text-text-1 hover:bg-surface-2-2 bg-transparent"
             }`}
           >
             <Bookmark
@@ -288,7 +288,7 @@ const PostCard = ({ post }: { post: Post }) => {
                 `${window.location.origin}/post/${post.id}`,
               );
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] text-text-3 hover:text-text-1 hover:bg-surface-2 bg-transparent border-none cursor-pointer transition-all font-medium"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] text-text-3 hover:text-text-1 hover:bg-surface-2-2 bg-transparent border-none cursor-pointer transition-all font-medium"
           >
             <Share2 size={14} strokeWidth={2} />
             {!isMobile && <span>Podeli</span>}
@@ -300,19 +300,19 @@ const PostCard = ({ post }: { post: Post }) => {
                 e.stopPropagation();
                 setMenuOpen((v) => !v);
               }}
-              className="w-7 h-7 rounded-lg border border-border bg-white text-text-3 cursor-pointer flex items-center justify-center hover:bg-surface-2 transition-colors"
+              className="w-7 h-7 rounded-lg border border-border bg-surface text-text-3 cursor-pointer flex items-center justify-center hover:bg-surface-2-2 transition-colors"
             >
               <MoreHorizontal size={14} strokeWidth={2} />
             </button>
             {menuOpen && (
-              <div className="absolute right-0 bottom-full mb-1 w-40 bg-white border border-border rounded-xl shadow-lg py-1 z-20">
+              <div className="absolute right-0 bottom-full mb-1 w-40 bg-surface border border-border rounded-xl shadow-lg py-1 z-20">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/post/${post.id}`);
                     setMenuOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-[13px] text-text-2 hover:bg-surface-2 bg-transparent border-none cursor-pointer"
+                  className="w-full text-left px-4 py-2 text-[13px] text-text-2 hover:bg-surface-2-2 bg-transparent border-none cursor-pointer"
                 >
                   Otvori post
                 </button>
@@ -325,7 +325,7 @@ const PostCard = ({ post }: { post: Post }) => {
                     );
                     setMenuOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-[13px] text-text-2 hover:bg-surface-2 bg-transparent border-none cursor-pointer"
+                  className="w-full text-left px-4 py-2 text-[13px] text-text-2 hover:bg-surface-2-2 bg-transparent border-none cursor-pointer"
                 >
                   Kopiraj link
                 </button>

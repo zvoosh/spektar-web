@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+﻿import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { chatApi } from "@/api/chat";
 import { uploadApi } from "@/api/upload";
@@ -9,6 +9,7 @@ import { useBreakpoint } from "@/hooks/useBreakpoint";
 import type { Conversation, Message, User } from "@/types";
 import { useNavigate } from "react-router-dom";
 import { PenSquare, Search, X, UserPlus } from "lucide-react";
+import ImageLightbox from "@/components/shared/ImageLightbox";
 
 const formatTime = (date: string) =>
   new Date(date).toLocaleTimeString("sr-RS", { hour: "2-digit", minute: "2-digit" });
@@ -55,7 +56,7 @@ const ConversationItem = ({
     <div
       onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
-        active ? "bg-accent-soft" : "hover:bg-surface-2"
+        active ? "bg-accent-soft" : "hover:bg-surface-2-2"
       }`}
     >
       <div className="w-10 h-10 rounded-full bg-accent-soft border border-border flex items-center justify-center text-sm font-semibold text-accent shrink-0 overflow-hidden">
@@ -88,10 +89,12 @@ const MessageBubble = ({
   message,
   isOwn,
   onDelete,
+  onImageClick,
 }: {
   message: Message;
   isOwn: boolean;
   onDelete: (id: string) => void;
+  onImageClick: (url: string) => void;
 }) => (
   <div className={`flex items-end gap-2 mb-3 ${isOwn ? "flex-row-reverse" : ""}`}>
     {!isOwn && (
@@ -115,12 +118,17 @@ const MessageBubble = ({
       <div
         className={`px-3.5 py-2.5 rounded-[14px] text-[13px] leading-relaxed relative ${
           isOwn
-            ? "bg-accent text-white rounded-br-[4px]"
-            : "bg-white border border-border text-text-1 rounded-bl-[4px]"
-        }`}
+            ? "bg-surface-2 text-white rounded-br-[4px]"
+            : "bg-surface border border-border text-text-1 rounded-bl-[4px]"
+        }`} 
       >
         {message.imageUrl && (
-          <img src={message.imageUrl} alt="" className="rounded-lg mb-1.5 max-w-[200px]" />
+          <img
+            src={message.imageUrl}
+            alt=""
+            onClick={() => onImageClick(message.imageUrl!)}
+            className="rounded-lg mb-1.5 max-w-[200px] cursor-zoom-in hover:opacity-90 transition-opacity"
+          />
         )}
         {message.content}
         {isOwn && (
@@ -142,7 +150,7 @@ const MessageBubble = ({
 const UserRow = ({ u, selected, onClick }: { u: User; selected?: boolean; onClick: () => void }) => (
   <div
     onClick={onClick}
-    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-colors ${selected ? "bg-accent-soft" : "hover:bg-surface-2"}`}
+    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-colors ${selected ? "bg-accent-soft" : "hover:bg-surface-2-2"}`}
   >
     <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent overflow-hidden shrink-0 border border-border">
       {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover" /> : u.username.slice(0, 2).toUpperCase()}
@@ -185,7 +193,7 @@ const NewChatModal = ({ onClose, onStart }: { onClose: () => void; onStart: (con
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[300] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+      <div className="bg-surface rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <span className="font-semibold text-[15px] text-text-1">Nova poruka</span>
           <button onClick={onClose} className="w-7 h-7 rounded-lg bg-surface-2 flex items-center justify-center border-none cursor-pointer text-text-3 hover:bg-border">
@@ -199,7 +207,7 @@ const NewChatModal = ({ onClose, onStart }: { onClose: () => void; onStart: (con
             <button
               key={m}
               onClick={() => { setMode(m); setSelected([]); }}
-              className={`flex-1 py-2.5 text-[13px] font-medium border-none cursor-pointer border-b-2 -mb-px transition-colors ${mode === m ? "border-accent text-accent bg-white" : "border-transparent text-text-3 bg-white hover:text-text-1"}`}
+              className={`flex-1 py-2.5 text-[13px] font-medium border-none cursor-pointer border-b-2 -mb-px transition-colors ${mode === m ? "border-accent text-accent bg-surface" : "border-transparent text-text-3 bg-surface hover:text-text-1"}`}
             >
               {m === "dm" ? "Direktna poruka" : "Nova grupa"}
             </button>
@@ -212,7 +220,7 @@ const NewChatModal = ({ onClose, onStart }: { onClose: () => void; onStart: (con
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
               placeholder="Naziv grupe..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-border text-[13px] outline-none focus:border-accent mb-3 font-sans bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-border text-[13px] outline-none focus:border-accent mb-3 font-sans bg-surface"
             />
           )}
 
@@ -283,7 +291,7 @@ const InviteModal = ({ conversationId, onClose }: { conversationId: string; onCl
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[300] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+      <div className="bg-surface rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <span className="font-semibold text-[15px] text-text-1">Dodaj u grupu</span>
           <button onClick={onClose} className="w-7 h-7 rounded-lg bg-surface-2 flex items-center justify-center border-none cursor-pointer text-text-3 hover:bg-border">
@@ -333,6 +341,7 @@ const ChatPage = () => {
   const [inputText, setInputText] = useState("");
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -430,8 +439,23 @@ const ChatPage = () => {
   const showSidebar = !isMobile || showList;
   const showChat = !isMobile || !showList;
 
+  // Sve slike u trenutnoj konverzaciji (za prev/next u lightboxu)
+  const chatImages = messages
+    .filter((m) => m.imageUrl)
+    .map((m) => ({ src: m.imageUrl!, caption: m.sender?.username ? `📸 ${m.sender.username}` : undefined }));
+  const lightboxIndex = lightboxUrl ? chatImages.findIndex((img) => img.src === lightboxUrl) : -1;
+
   return (
-    <div className="flex bg-white border border-border rounded-[14px] overflow-hidden" style={{ height: "calc(100vh - 120px)" }}>
+    <div className="flex bg-surface border border-border rounded-[14px] overflow-hidden" style={{ height: "calc(100vh - 120px)" }}>
+      {lightboxUrl && lightboxIndex !== -1 && (
+        <ImageLightbox
+          images={chatImages}
+          index={lightboxIndex}
+          onClose={() => setLightboxUrl(null)}
+          onPrev={() => setLightboxUrl(chatImages[Math.max(0, lightboxIndex - 1)].src)}
+          onNext={() => setLightboxUrl(chatImages[Math.min(chatImages.length - 1, lightboxIndex + 1)].src)}
+        />
+      )}
       {showNewChat && (
         <NewChatModal
           onClose={() => setShowNewChat(false)}
@@ -535,7 +559,7 @@ const ChatPage = () => {
                   return canInvite ? (
                     <button
                       onClick={() => setShowInvite(true)}
-                      className="w-8 h-8 rounded-xl border border-border bg-white flex items-center justify-center cursor-pointer text-text-2 hover:bg-accent-soft hover:text-accent transition-colors shrink-0"
+                      className="w-8 h-8 rounded-xl border border-border bg-surface flex items-center justify-center cursor-pointer text-text-2 hover:bg-accent-soft hover:text-accent transition-colors shrink-0"
                       title="Dodaj u grupu"
                     >
                       <UserPlus size={15} strokeWidth={2} />
@@ -559,6 +583,7 @@ const ChatPage = () => {
                         message={msg}
                         isOwn={msg.senderId === user?.id}
                         onDelete={deleteMessage}
+                        onImageClick={setLightboxUrl}
                       />
                     ))}
                   </div>
@@ -604,7 +629,7 @@ const ChatPage = () => {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={imageUploading}
-                  className="w-8 h-8 rounded-lg border border-border bg-white text-text-3 cursor-pointer text-sm flex items-center justify-center shrink-0 hover:bg-surface-2 disabled:opacity-50"
+                  className="w-8 h-8 rounded-lg border border-border bg-surface text-text-3 cursor-pointer text-sm flex items-center justify-center shrink-0 hover:bg-surface-2-2 disabled:opacity-50"
                 >
                   📷
                 </button>

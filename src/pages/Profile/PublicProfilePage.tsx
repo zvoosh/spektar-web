@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+﻿import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { usersApi } from "@/api/users";
 import { postsApi } from "@/api/posts";
@@ -72,7 +72,7 @@ const PublicProfilePage = () => {
       </button>
 
       {/* Profile card */}
-      <div className="bg-white border border-border rounded-2xl overflow-hidden mb-4 shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
+      <div className="bg-surface border border-border rounded-2xl overflow-hidden mb-4 shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
         {/* Banner */}
         <div className="h-32 overflow-hidden">
           {user.banner ? (
@@ -84,7 +84,7 @@ const PublicProfilePage = () => {
 
         <div className="px-5 pb-5">
           <div className="flex items-end justify-between -mt-10 mb-4">
-            <div className="w-20 h-20 rounded-2xl bg-accent-soft border-4 border-white flex items-center justify-center text-xl font-bold text-accent overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
+            <div className="w-20 h-20 rounded-2xl bg-accent-soft border-4 border-surface flex items-center justify-center text-xl font-bold text-accent overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.12)]">
               {user.avatar ? (
                 <img src={user.avatar} alt={user.username} className="w-full h-full object-cover" />
               ) : (
@@ -97,7 +97,7 @@ const PublicProfilePage = () => {
               <button
                 onClick={() => dmMutation.mutate()}
                 disabled={dmMutation.isPending}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border text-[13px] font-semibold text-text-2 bg-white cursor-pointer hover:bg-surface-2 transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border text-[13px] font-semibold text-text-2 bg-surface cursor-pointer hover:bg-surface-2-2 transition-colors disabled:opacity-50"
               >
                 <MessageCircle size={14} strokeWidth={2} />
                 Poruka
@@ -140,7 +140,7 @@ const PublicProfilePage = () => {
       )}
 
       {posts?.length === 0 && (
-        <div className="text-center py-10 bg-white rounded-2xl border border-border">
+        <div className="text-center py-10 bg-surface rounded-2xl border border-border">
           <div className="text-[36px] mb-2">📝</div>
           <div className="text-[14px] text-text-3">Nema objavljenih postova</div>
         </div>

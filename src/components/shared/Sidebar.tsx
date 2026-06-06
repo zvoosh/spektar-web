@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from "react-router-dom";
+﻿import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { communitiesApi } from "@/api/communities";
 import { notificationsApi } from "@/api/notifications";
@@ -11,6 +11,7 @@ import {
   MessageCircle,
   Plus,
   ChevronRight,
+  Search,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { icon: Bookmark, label: "Sačuvano", path: "/saved" },
   { icon: Bell, label: "Obaveštenja", path: "/notifications" },
   { icon: MessageCircle, label: "Poruke", path: "/chat" },
+  { icon: Search, label: "Pretraga", path: "/search" },
 ];
 
 const Sidebar = () => {
@@ -41,7 +43,7 @@ const Sidebar = () => {
   return (
     <div className="flex flex-col gap-3 pb-10">
       {/* Nav */}
-      <div className="bg-white border border-border rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
+      <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
         {NAV_ITEMS.map((item) => {
           const active = location.pathname === item.path;
           const Icon = item.icon;
@@ -52,7 +54,7 @@ const Sidebar = () => {
               className={`relative flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors duration-100 ${
                 active
                   ? "bg-accent-soft text-accent"
-                  : "text-text-2 hover:bg-surface-2 hover:text-text-1"
+                  : "text-text-2 hover:bg-surface-2-2 hover:text-text-1"
               }`}
             >
               {active && (
@@ -77,7 +79,7 @@ const Sidebar = () => {
       </div>
 
       {/* My communities */}
-      <div className="bg-white border border-border rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
+      <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
         <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
           <span className="text-[10.5px] font-semibold tracking-[0.12em] uppercase text-text-3">
             Moje zajednice
@@ -94,7 +96,7 @@ const Sidebar = () => {
           <div
             key={community.id}
             onClick={() => navigate(`/c/${community.slug}`)}
-            className="flex items-center gap-2.5 px-4 py-2 cursor-pointer hover:bg-surface-2 transition-colors duration-100 group"
+            className="flex items-center gap-2.5 px-4 py-2 cursor-pointer hover:bg-surface-2-2 transition-colors duration-100 group"
           >
             <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0 bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent border border-border">
               {community.avatar ? (

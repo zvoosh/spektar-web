@@ -1,4 +1,4 @@
-import { useRoutes, Navigate } from "react-router-dom";
+import { useRoutes, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import MainLayout from "./components/shared/MainLayout";
 import FeedPage from "./pages/Feed/FeedPage";
@@ -19,7 +19,8 @@ import SearchPage from "./pages/Search/SearchPage";
 
 const ProtectedLayout = () => {
   const { isAuthenticated } = useAuthStore();
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  const location = useLocation();
+  if (!isAuthenticated) return <Navigate to="/login" state={{ from: location }} replace />;
   return <MainLayout />;
 };
 

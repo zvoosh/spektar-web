@@ -21,4 +21,9 @@ export const usersApi = {
     const res = await api.get<User>(`/users/${username}`);
     return res.data;
   },
+
+  getStats: async (): Promise<{ totalUsers: number; activeToday: number }> => {
+    const res = await api.get('/users/stats');
+    return res.data;
+  },
 };

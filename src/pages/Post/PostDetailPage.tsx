@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { postsApi } from "@/api/posts";
@@ -39,6 +39,7 @@ const CommentItem = ({
   const [replyBody, setReplyBody] = useState("");
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const replyMutation = useMutation({
     mutationFn: () =>
@@ -95,7 +96,7 @@ const CommentItem = ({
                 value={replyBody}
                 onChange={(e) => setReplyBody(e.target.value)}
                 placeholder="Napiši odgovor..."
-                className="flex-1 px-3 py-2 rounded-lg border border-border text-[13px] outline-none focus:border-accent bg-white"
+                className="flex-1 px-3 py-2 rounded-lg border border-border text-[13px] outline-none focus:border-accent bg-surface"
               />
               <button
                 onClick={() => replyMutation.mutate()}
@@ -186,7 +187,7 @@ const PostDetailPage = () => {
       </button>
 
       {/* Post */}
-      <div className="bg-white border border-border rounded-[14px] p-6 mb-4">
+      <div className="bg-surface border border-border rounded-[14px] p-6 mb-4">
         {/* Meta */}
         <div className="flex items-center gap-2 mb-4">
           <div
@@ -290,7 +291,7 @@ const PostDetailPage = () => {
             <button
               onClick={() => voteMutation.mutate("up")}
               className={`w-8 h-8 rounded-[7px_3px_3px_7px] border border-border cursor-pointer text-xs flex items-center justify-center transition-all ${
-                currentUserVote === "up" ? "bg-accent text-white" : "bg-white text-text-3"
+                currentUserVote === "up" ? "bg-accent text-white" : "bg-surface text-text-3"
               }`}
             >
               ▲
@@ -301,7 +302,7 @@ const PostDetailPage = () => {
             <button
               onClick={() => voteMutation.mutate("down")}
               className={`w-8 h-8 rounded-[3px_7px_7px_3px] border border-border cursor-pointer text-xs flex items-center justify-center transition-all ${
-                currentUserVote === "down" ? "bg-blue-500 text-white" : "bg-white text-text-3"
+                currentUserVote === "down" ? "bg-blue-500 text-white" : "bg-surface text-text-3"
               }`}
             >
               ▼
@@ -332,7 +333,7 @@ const PostDetailPage = () => {
       </div>
 
       {/* Comments */}
-      <div className="bg-white border border-border rounded-[14px] p-6">
+      <div className="bg-surface border border-border rounded-[14px] p-6">
         <div className="font-serif text-[18px] text-text-1 mb-5">
           Komentari ({comments?.length ?? 0})
         </div>

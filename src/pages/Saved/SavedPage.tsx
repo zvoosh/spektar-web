@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+﻿import { useQuery } from "@tanstack/react-query";
 import { postsApi } from "@/api/posts";
 import PostCard from "@/pages/Feed/PostCard";
 
@@ -15,7 +15,7 @@ const SavedPage = () => {
       )}
 
       {!isLoading && posts?.length === 0 && (
-        <div className="text-center p-12 bg-white rounded-[14px] border border-border">
+        <div className="text-center p-12 bg-surface rounded-[14px] border border-border">
           <div className="text-[40px] mb-3">🔖</div>
           <div className="font-serif text-[15px] text-text-1 mb-1">
             Nema sačuvanih postova

@@ -1,4 +1,4 @@
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+﻿import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "./Navbar";
@@ -16,7 +16,7 @@ const WEATHER_CODES: Record<number, { label: string; icon: string }> = {
   95: { label: "Grmljavina", icon: "⛈️" },
 };
 
-const card = "bg-white border border-border rounded-2xl py-4 px-4 shadow-[0_1px_4px_rgba(0,0,0,0.05)]";
+const card = "bg-surface border border-border rounded-2xl py-4 px-4 shadow-[0_1px_4px_rgba(0,0,0,0.05)]";
 
 const RightPanel = () => {
   const navigate = useNavigate();
@@ -58,7 +58,7 @@ const RightPanel = () => {
             <div
               key={t.tag}
               onClick={() => navigate(`/search?q=${t.tag}`)}
-              className={`flex items-center py-2 cursor-pointer hover:bg-surface-2 rounded-lg px-1 -mx-1 transition-colors ${
+              className={`flex items-center py-2 cursor-pointer hover:bg-surface-2-2 rounded-lg px-1 -mx-1 transition-colors ${
                 i < trending.length - 1 ? "border-b border-surface-2" : ""
               }`}
             >
@@ -90,7 +90,7 @@ const RightPanel = () => {
               <div
                 key={event.id}
                 onClick={() => navigate(`/post/${event.id}`)}
-                className={`flex gap-3 py-2 cursor-pointer hover:bg-surface-2 rounded-lg px-1 -mx-1 transition-colors ${
+                className={`flex gap-3 py-2 cursor-pointer hover:bg-surface-2-2 rounded-lg px-1 -mx-1 transition-colors ${
                   i < events.length - 1 ? "border-b border-surface-2" : ""
                 }`}
               >
@@ -165,7 +165,7 @@ const BottomNav = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-border flex z-[200] pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_20px_rgba(0,0,0,0.07)]">
+    <div className="fixed bottom-0 left-0 right-0 bg-bg/95 backdrop-blur-md border-t border-border flex z-[200] pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_20px_rgba(0,0,0,0.07)]">
       {items.map((item) => {
         const active = location.pathname === item.path;
         const Icon = item.icon;
@@ -241,7 +241,7 @@ const MainLayout = () => {
 
   return (
     <div className={`min-h-screen bg-bg ${isMobile ? "pb-[70px]" : ""}`}>
-      <div className="bg-white/90 backdrop-blur-md border-b border-border sticky top-0 z-[100] flex justify-center shadow-[0_1px_0_rgba(0,0,0,0.05)]">
+      <div className="bg-bg/95 backdrop-blur-md border-b border-border sticky top-0 z-[100] flex justify-center shadow-[0_1px_0_rgba(0,0,0,0.05)]">
         <Navbar
           onMenuClick={() => setDrawerOpen(true)}
           showMenuButton={isMobile || isTablet}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { postsApi } from "@/api/posts";
@@ -80,7 +80,7 @@ const SearchPage = () => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Pretraži postove, zajednice..."
-          className="w-full pl-11 pr-5 py-3.5 rounded-[12px] border border-border bg-white text-[15px] text-text-1 outline-none focus:border-accent focus:shadow-[0_0_0_3px_var(--color-accent-soft)] font-sans transition-all"
+          className="w-full pl-11 pr-5 py-3.5 rounded-[12px] border border-border bg-surface text-[15px] text-text-1 outline-none focus:border-accent focus:shadow-[0_0_0_3px_var(--color-accent-soft)] font-sans transition-all"
         />
         {inputValue && (
           <button
@@ -141,7 +141,7 @@ const SearchPage = () => {
           )}
 
           {!isLoading && !hasResults && (
-            <div className="text-center py-12 bg-white rounded-[14px] border border-border">
+            <div className="text-center py-12 bg-surface rounded-[14px] border border-border">
               <div className="text-[40px] mb-3">🔍</div>
               <div className="font-serif text-[15px] text-text-1 mb-1">
                 Nema rezultata za „{query}"
@@ -168,7 +168,7 @@ const SearchPage = () => {
                 <div className="text-center py-8 text-text-3 text-[13px]">Nema korisnika</div>
               ) : (
                 users?.map((u: User) => (
-                  <div key={u.id} onClick={() => navigate(`/u/${u.username}`)} className="bg-white border border-border rounded-[14px] p-4 flex items-center gap-4 cursor-pointer hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-shadow">
+                  <div key={u.id} onClick={() => navigate(`/u/${u.username}`)} className="bg-surface border border-border rounded-[14px] p-4 flex items-center gap-4 cursor-pointer hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-shadow">
                     <div className="w-12 h-12 rounded-full bg-accent-soft flex items-center justify-center text-base font-bold text-accent shrink-0 overflow-hidden border border-border">
                       {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover" /> : u.username.slice(0, 2).toUpperCase()}
                     </div>
@@ -181,7 +181,7 @@ const SearchPage = () => {
                       {me?.id !== u.id && <FriendButton userId={u.id} size="sm" />}
                       <button
                         onClick={() => dmMutation.mutate(u.id)}
-                        className="px-3 py-1.5 rounded-lg border border-border text-text-2 text-[11px] font-semibold bg-white cursor-pointer hover:bg-surface-2"
+                        className="px-3 py-1.5 rounded-lg border border-border text-text-2 text-[11px] font-semibold bg-surface cursor-pointer hover:bg-surface-2-2"
                       >
                         Poruka
                       </button>
@@ -203,7 +203,7 @@ const SearchPage = () => {
                   <div
                     key={community.id}
                     onClick={() => navigate(`/c/${community.slug}`)}
-                    className="bg-white border border-border rounded-[14px] p-4 flex gap-4 cursor-pointer hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-shadow"
+                    className="bg-surface border border-border rounded-[14px] p-4 flex gap-4 cursor-pointer hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-shadow"
                   >
                     <div className="w-12 h-12 rounded-xl bg-accent-soft flex items-center justify-center text-xl font-semibold text-accent shrink-0 overflow-hidden">
                       {community.avatar ? (
@@ -233,7 +233,7 @@ const SearchPage = () => {
                     ) : (
                       <button
                         onClick={(e) => { e.stopPropagation(); communitiesApi.join(community.id); }}
-                        className="self-center px-3 py-1.5 rounded-lg border border-accent text-accent text-[12px] font-medium bg-white cursor-pointer shrink-0 hover:bg-accent-soft"
+                        className="self-center px-3 py-1.5 rounded-lg border border-accent text-accent text-[12px] font-medium bg-surface cursor-pointer shrink-0 hover:bg-accent-soft"
                       >
                         Pridruži se
                       </button>

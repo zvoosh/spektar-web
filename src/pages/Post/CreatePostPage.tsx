@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+﻿import { useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { communitiesApi } from "@/api/communities";
@@ -81,7 +81,7 @@ const CreatePostPage = () => {
         <h1 className="font-serif text-[22px] text-text-1">Novi post</h1>
       </div>
 
-      <div className="bg-white border border-border rounded-[14px] p-6 space-y-5">
+      <div className="bg-surface border border-border rounded-[14px] p-6 space-y-5">
         {/* Community */}
         <div>
           <label className="block text-[12px] font-semibold text-text-3 uppercase tracking-wider mb-1.5">
@@ -90,7 +90,7 @@ const CreatePostPage = () => {
           <select
             value={communityId}
             onChange={(e) => setCommunityId(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent bg-white font-sans appearance-none cursor-pointer"
+            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent bg-surface font-sans appearance-none cursor-pointer"
           >
             <option value="">Izaberi zajednicu...</option>
             {communities?.map((c) => (
@@ -114,7 +114,7 @@ const CreatePostPage = () => {
                 className={`flex items-center gap-2 px-3 py-2.5 rounded-[10px] border text-[13px] cursor-pointer transition-all min-w-0 ${
                   type === pt.value
                     ? "border-accent bg-accent-soft text-accent font-medium"
-                    : "border-border bg-white text-text-2 hover:border-accent/40"
+                    : "border-border bg-surface text-text-2 hover:border-accent/40"
                 }`}
               >
                 <span className="shrink-0">{pt.icon}</span>
@@ -134,7 +134,7 @@ const CreatePostPage = () => {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Upiši naslov..."
             maxLength={200}
-            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[14px] text-text-1 outline-none focus:border-accent font-serif bg-white"
+            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[14px] text-text-1 outline-none focus:border-accent font-serif bg-surface"
           />
           <div className="text-right text-[11px] text-text-3 mt-1">{title.length}/200</div>
         </div>
@@ -149,7 +149,7 @@ const CreatePostPage = () => {
             onChange={(e) => setBody(e.target.value)}
             placeholder="Napiši više detalja... (opciono)"
             rows={5}
-            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-2 leading-relaxed outline-none focus:border-accent resize-none font-sans bg-white"
+            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-2 leading-relaxed outline-none focus:border-accent resize-none font-sans bg-surface"
           />
         </div>
 
@@ -164,7 +164,7 @@ const CreatePostPage = () => {
                 type="datetime-local"
                 value={eventDate}
                 onChange={(e) => setEventDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-white"
+                className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-surface"
               />
             </div>
             <div>
@@ -175,7 +175,7 @@ const CreatePostPage = () => {
                 type="datetime-local"
                 value={eventEndDate}
                 onChange={(e) => setEventEndDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-white"
+                className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-surface"
               />
             </div>
             <div className="col-span-2">
@@ -186,7 +186,7 @@ const CreatePostPage = () => {
                 value={eventLocation}
                 onChange={(e) => setEventLocation(e.target.value)}
                 placeholder="npr. Kalemegdan, Beograd"
-                className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-white"
+                className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-surface"
               />
             </div>
           </div>
@@ -228,7 +228,7 @@ const CreatePostPage = () => {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex-1 py-3 rounded-[10px] border border-dashed border-border text-[13px] text-text-3 bg-white cursor-pointer hover:border-accent hover:text-accent transition-colors"
+                className="flex-1 py-3 rounded-[10px] border border-dashed border-border text-[13px] text-text-3 bg-surface cursor-pointer hover:border-accent hover:text-accent transition-colors"
               >
                 📷 Dodaj sliku sa računara
               </button>
@@ -239,7 +239,7 @@ const CreatePostPage = () => {
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               placeholder="ili unesi URL slike..."
-              className="w-full mt-2 px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-white"
+              className="w-full mt-2 px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-surface"
             />
           )}
         </div>
@@ -253,7 +253,7 @@ const CreatePostPage = () => {
             value={tags}
             onChange={(e) => setTags(e.target.value)}
             placeholder="beograd, događaj, park (odvojeni zarezom)"
-            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-white"
+            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-surface"
           />
         </div>
 
@@ -261,7 +261,7 @@ const CreatePostPage = () => {
         <div className="flex justify-end gap-3 pt-2">
           <button
             onClick={() => navigate(-1)}
-            className="px-5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-2 bg-white cursor-pointer hover:bg-surface-2"
+            className="px-5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-2 bg-surface cursor-pointer hover:bg-surface-2-2"
           >
             Otkaži
           </button>

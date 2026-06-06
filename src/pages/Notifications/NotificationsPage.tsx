@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+﻿import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { notificationsApi } from "@/api/notifications";
@@ -59,7 +59,7 @@ const NotificationItem = ({ notif }: { notif: Notification }) => {
   return (
     <div
       onClick={handleClick}
-      className={`flex items-start gap-3.5 px-5 py-4 cursor-pointer hover:bg-surface-2 transition-colors border-b border-surface-2 last:border-b-0 ${
+      className={`flex items-start gap-3.5 px-5 py-4 cursor-pointer hover:bg-surface-2-2 transition-colors border-b border-surface-2 last:border-b-0 ${
         !notif.isRead ? "bg-accent-soft/30" : ""
       }`}
     >
@@ -136,7 +136,7 @@ const NotificationsPage = () => {
         )}
       </div>
 
-      <div className="bg-white border border-border rounded-[14px] overflow-hidden">
+      <div className="bg-surface border border-border rounded-[14px] overflow-hidden">
         {isLoading && (
           <div className="text-center py-16 text-text-3 text-[13px]">
             Učitavam obaveštenja...

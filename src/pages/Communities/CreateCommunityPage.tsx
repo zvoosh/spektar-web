@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { communitiesApi } from "@/api/communities";
@@ -42,7 +42,7 @@ const CreateCommunityPage = () => {
         <h1 className="font-serif text-[22px] text-text-1">Kreiraj zajednicu</h1>
       </div>
 
-      <div className="bg-white border border-border rounded-[14px] p-6 space-y-5">
+      <div className="bg-surface border border-border rounded-[14px] p-6 space-y-5">
         {/* Name */}
         <div>
           <label className="block text-[12px] font-semibold text-text-3 uppercase tracking-wider mb-1.5">
@@ -53,7 +53,7 @@ const CreateCommunityPage = () => {
             onChange={(e) => setName(e.target.value)}
             placeholder="npr. Vračar zajednica"
             maxLength={50}
-            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[14px] text-text-1 outline-none focus:border-accent font-serif bg-white"
+            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[14px] text-text-1 outline-none focus:border-accent font-serif bg-surface"
           />
           <div className="text-right text-[11px] text-text-3 mt-1">{name.length}/50</div>
         </div>
@@ -69,7 +69,7 @@ const CreateCommunityPage = () => {
             placeholder="Opiši šta je svrha ove zajednice..."
             rows={3}
             maxLength={500}
-            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-2 leading-relaxed outline-none focus:border-accent resize-none font-sans bg-white"
+            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-2 leading-relaxed outline-none focus:border-accent resize-none font-sans bg-surface"
           />
         </div>
 
@@ -86,7 +86,7 @@ const CreateCommunityPage = () => {
                 className={`px-3.5 py-1.75 rounded-full text-[13px] border cursor-pointer transition-all ${
                   category === cat.value
                     ? "border-accent bg-accent text-white font-medium"
-                    : "border-border bg-white text-text-2 hover:border-accent/40"
+                    : "border-border bg-surface text-text-2 hover:border-accent/40"
                 }`}
               >
                 {cat.label}
@@ -112,7 +112,7 @@ const CreateCommunityPage = () => {
                 className={`p-3 rounded-[10px] border text-left cursor-pointer transition-all ${
                   type === opt.value
                     ? "border-accent bg-accent-soft"
-                    : "border-border bg-white hover:border-accent/40"
+                    : "border-border bg-surface hover:border-accent/40"
                 }`}
               >
                 <div className={`text-[13px] font-medium mb-1 ${type === opt.value ? "text-accent" : "text-text-1"}`}>
@@ -133,7 +133,7 @@ const CreateCommunityPage = () => {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="npr. Vračar, Beograd (opciono)"
-            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-white"
+            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-surface"
           />
         </div>
 
@@ -141,7 +141,7 @@ const CreateCommunityPage = () => {
         <div className="flex justify-end gap-3 pt-2">
           <button
             onClick={() => navigate(-1)}
-            className="px-5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-2 bg-white cursor-pointer hover:bg-surface-2"
+            className="px-5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-2 bg-surface cursor-pointer hover:bg-surface-2-2"
           >
             Otkaži
           </button>

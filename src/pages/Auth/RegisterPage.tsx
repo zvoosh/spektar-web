@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { authApi } from "@/api/auth";
@@ -51,7 +51,7 @@ const RegisterPage = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-white border border-border rounded-2xl p-7">
+        <div className="bg-surface border border-border rounded-2xl p-7">
           <div className="text-[18px] font-medium text-text-1 mb-5">
             Kreiraj nalog
           </div>

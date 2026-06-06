@@ -1,20 +1,25 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+﻿import { useState } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/api/auth";
 import { useAuthStore } from "@/store/authStore";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryClient = useQueryClient();
   const { setAuth } = useAuthStore();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+
+  const from = (location.state as { from?: Location })?.from?.pathname ?? "/";
 
   const mutation = useMutation({
     mutationFn: authApi.login,
     onSuccess: (data) => {
       setAuth(data.user, data.token);
-      navigate("/");
+      queryClient.invalidateQueries();
+      navigate(from, { replace: true });
     },
     onError: () => {
       setError("Pogrešan email ili lozinka");
@@ -43,7 +48,7 @@ const LoginPage = () => {
           </div>
         </div>
 
-        <div className="bg-white border border-border rounded-[16px] p-7">
+        <div className="bg-surface border border-border rounded-[16px] p-7">
           <div className="text-lg font-medium text-text-1 mb-5">
             Prijavi se
           </div>

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+﻿import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { communitiesApi } from "@/api/communities";
 
@@ -37,7 +37,7 @@ const CommunitiesPage = () => {
           <div
             key={community.id}
             onClick={() => navigate(`/c/${community.slug}`)}
-            className="bg-white border border-border rounded-[14px] p-4 flex gap-4 cursor-pointer hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-shadow"
+            className="bg-surface border border-border rounded-[14px] p-4 flex gap-4 cursor-pointer hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-shadow"
           >
             {community.avatar ? (
               <img
@@ -85,7 +85,7 @@ const CommunitiesPage = () => {
                   joinMutation.mutate(community.id);
                 }}
                 disabled={joinMutation.isPending}
-                className="self-center px-3.5 py-1.75 rounded-lg border border-accent text-accent text-[12px] font-medium bg-white cursor-pointer shrink-0 hover:bg-accent-soft disabled:opacity-50"
+                className="self-center px-3.5 py-1.75 rounded-lg border border-accent text-accent text-[12px] font-medium bg-surface cursor-pointer shrink-0 hover:bg-accent-soft disabled:opacity-50"
               >
                 Pridruži se
               </button>

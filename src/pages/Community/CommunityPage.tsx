@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+﻿import { useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { communitiesApi } from "@/api/communities";
@@ -53,7 +53,7 @@ const InviteUserModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[300] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+      <div className="bg-surface rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <span className="font-semibold text-[15px] text-text-1">Pozovi u zajednicu</span>
           <button onClick={onClose} className="w-7 h-7 rounded-lg bg-surface-2 flex items-center justify-center border-none cursor-pointer text-text-3 hover:bg-border">
@@ -77,7 +77,7 @@ const InviteUserModal = ({
               <div
                 key={u.id}
                 onClick={() => !isPending && onAdd(u.id)}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-surface-2 transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-surface-2-2 transition-colors"
               >
                 <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent overflow-hidden shrink-0 border border-border">
                   {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover" /> : u.username.slice(0, 2).toUpperCase()}
@@ -293,7 +293,7 @@ const CommunityPage = () => {
       {/* Edit modal */}
       {showEdit && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[300] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-border">
               <span className="font-semibold text-[15px] text-text-1">Uredi zajednicu</span>
               <button onClick={() => setShowEdit(false)} className="w-7 h-7 rounded-lg bg-surface-2 flex items-center justify-center border-none cursor-pointer text-text-3 hover:bg-border">
@@ -328,7 +328,7 @@ const CommunityPage = () => {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   maxLength={50}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-border text-[13px] text-text-1 outline-none focus:border-accent font-serif bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-border text-[13px] text-text-1 outline-none focus:border-accent font-serif bg-surface"
                 />
               </div>
 
@@ -339,7 +339,7 @@ const CommunityPage = () => {
                   onChange={(e) => setEditDescription(e.target.value)}
                   rows={3}
                   maxLength={500}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-border text-[13px] text-text-2 outline-none focus:border-accent resize-none font-sans bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-border text-[13px] text-text-2 outline-none focus:border-accent resize-none font-sans bg-surface"
                 />
               </div>
 
@@ -349,12 +349,12 @@ const CommunityPage = () => {
                   value={editLocation}
                   onChange={(e) => setEditLocation(e.target.value)}
                   placeholder="npr. Vračar, Beograd"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-surface"
                 />
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
-                <button onClick={() => setShowEdit(false)} className="px-4 py-2 rounded-xl border border-border text-[13px] text-text-2 bg-white cursor-pointer hover:bg-surface-2">
+                <button onClick={() => setShowEdit(false)} className="px-4 py-2 rounded-xl border border-border text-[13px] text-text-2 bg-surface cursor-pointer hover:bg-surface-2-2">
                   Otkaži
                 </button>
                 <button
@@ -407,7 +407,7 @@ const CommunityPage = () => {
           </>
         )}
 
-        <div className="absolute bottom-0 left-0 right-0 p-5">
+        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
           <div className="flex items-end gap-3">
             <div className="w-12 h-12 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center text-xl font-bold text-white shrink-0 overflow-hidden backdrop-blur-sm">
               {community.avatar ? (
@@ -417,22 +417,61 @@ const CommunityPage = () => {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <h1 className="font-serif text-[22px] text-white leading-tight">{community.name}</h1>
+              <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                <h1 className="font-serif text-[18px] sm:text-[22px] text-white leading-tight truncate">{community.name}</h1>
                 {community.type !== "public" && (
-                  <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">
+                  <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full backdrop-blur-sm shrink-0">
                     🔒 {TYPE_SR[community.type]}
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[12px] text-white/80">{community.membersCount.toLocaleString("sr-RS")} članova</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[11px] sm:text-[12px] text-white/80">{community.membersCount.toLocaleString("sr-RS")} članova</span>
                 {community.location && (
-                  <><span className="text-white/40">·</span><span className="text-[12px] text-white/70">📍 {community.location}</span></>
+                  <><span className="text-white/40">·</span><span className="text-[11px] sm:text-[12px] text-white/70 truncate">📍 {community.location}</span></>
+                )}
+              </div>
+              {/* Actions row on mobile — shown below title */}
+              <div className="flex gap-1.5 mt-2 sm:hidden flex-wrap">
+                {!isMember ? (
+                  <button
+                    onClick={() => joinMutation.mutate()}
+                    disabled={joinMutation.isPending}
+                    className="px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-[12px] font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors"
+                  >
+                    {joinMutation.isPending ? "..." : "Pridruži se"}
+                  </button>
+                ) : (
+                  <span className="px-3 py-1.5 rounded-lg bg-white/15 text-white text-[12px] border border-white/25 backdrop-blur-sm">
+                    ✓ Član
+                  </span>
+                )}
+                <button
+                  onClick={() => navigate(`/new-post?community=${community.id}`)}
+                  className="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-[12px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors"
+                >
+                  + Objavi
+                </button>
+                {isOwnerOrMod && (
+                  <>
+                    <button
+                      onClick={() => setShowInvite(true)}
+                      className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 text-white border border-white/25 cursor-pointer backdrop-blur-sm flex items-center justify-center transition-colors"
+                    >
+                      <UserPlus size={13} />
+                    </button>
+                    <button
+                      onClick={openEdit}
+                      className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 text-white border border-white/25 cursor-pointer backdrop-blur-sm flex items-center justify-center transition-colors"
+                    >
+                      <Pencil size={13} />
+                    </button>
+                  </>
                 )}
               </div>
             </div>
-            <div className="flex gap-2 shrink-0">
+            {/* Actions — hidden on mobile, shown on sm+ */}
+            <div className="hidden sm:flex gap-2 shrink-0">
               {!isMember ? (
                 <button
                   onClick={() => joinMutation.mutate()}
@@ -459,7 +498,7 @@ const CommunityPage = () => {
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[13px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors"
                   >
                     <UserPlus size={14} />
-                    <span className="hidden sm:inline">Pozovi</span>
+                    <span>Pozovi</span>
                   </button>
                   <button
                     onClick={openEdit}
@@ -475,12 +514,12 @@ const CommunityPage = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-0 mb-4 border-b border-border bg-white rounded-t-xl px-2 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+      <div className="flex gap-0 mb-4 border-b border-border bg-surface rounded-t-xl sm:px-2 shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-x-auto scrollbar-hide">
         {TABS.map(({ value, label, icon: Icon }) => (
           <button
             key={value}
             onClick={() => setActiveTab(value)}
-            className={`flex items-center gap-1.5 px-4 py-3 text-[13px] font-medium border-none bg-transparent cursor-pointer border-b-2 -mb-px transition-colors ${
+            className={`flex items-center gap-1.5 px-2 sm:px-3 sm:px-4 py-3 text-[12px] sm:text-[13px] font-medium border-none bg-transparent cursor-pointer border-b-2 -mb-px transition-colors whitespace-nowrap shrink-0 ${
               activeTab === value
                 ? "border-accent text-accent"
                 : "border-transparent text-text-3 hover:text-text-1"
@@ -502,7 +541,7 @@ const CommunityPage = () => {
                 onClick={() => setActiveFilter(f.value)}
                 className={[
                   "px-3.5 py-1.5 rounded-lg text-[12.5px] border-none cursor-pointer transition-all font-medium",
-                  activeFilter === f.value ? "bg-accent text-white shadow-[0_2px_8px_rgba(26,138,87,0.3)]" : "bg-white text-text-3 hover:bg-surface-2 border border-border",
+                  activeFilter === f.value ? "bg-accent text-white shadow-[0_2px_8px_rgba(26,138,87,0.3)]" : "bg-surface text-text-3 hover:bg-surface-2-2 border border-border",
                 ].join(" ")}
               >
                 {f.label}
@@ -511,7 +550,7 @@ const CommunityPage = () => {
           </div>
           {postsLoading && <div className="text-center p-10 text-text-3">Učitavam postove...</div>}
           {!postsLoading && filtered?.length === 0 && (
-            <div className="text-center p-10 bg-white rounded-2xl border border-border">
+            <div className="text-center p-10 bg-surface rounded-2xl border border-border">
               <div className="text-[32px] mb-3">📭</div>
               <div className="font-serif text-[15px] text-text-1">Nema postova</div>
               <div className="text-[13px] mt-1 text-text-3">Budi prvi koji će nešto objaviti!</div>
@@ -523,7 +562,7 @@ const CommunityPage = () => {
 
       {/* Members tab */}
       {activeTab === "members" && (
-        <div className="bg-white border border-border rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
+        <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
           <div className="px-5 py-4 border-b border-surface-2 flex items-center justify-between">
             <span className="font-semibold text-[14px] text-text-1">
               Članovi ({community.membersCount.toLocaleString("sr-RS")})
@@ -531,7 +570,7 @@ const CommunityPage = () => {
             {isMod && (
               <button
                 onClick={() => setShowInvite(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-[12px] text-text-2 bg-white cursor-pointer hover:bg-accent-soft hover:text-accent hover:border-accent transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-[12px] text-text-2 bg-surface cursor-pointer hover:bg-accent-soft hover:text-accent hover:border-accent transition-colors"
               >
                 <UserPlus size={13} strokeWidth={2} />
                 Pozovi
@@ -542,7 +581,7 @@ const CommunityPage = () => {
             <div className="text-center py-10 text-text-3 text-[13px]">Nema članova</div>
           ) : (
             members.map((m: any) => (
-              <div key={m.id} className="flex items-center gap-3 px-5 py-3 border-b border-surface-2 last:border-b-0 hover:bg-surface-2 transition-colors">
+              <div key={m.id} className="flex items-center gap-3 px-5 py-3 border-b border-surface-2 last:border-b-0 hover:bg-surface-2-2 transition-colors">
                 <div
                   onClick={() => navigate(`/u/${m.user?.username}`)}
                   className="w-9 h-9 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent overflow-hidden border border-border shrink-0 cursor-pointer hover:opacity-80"
@@ -609,7 +648,7 @@ const CommunityPage = () => {
 
           {/* Pending approval — samo za mod/owner */}
           {isMod && (pendingGallery?.length ?? 0) > 0 && (
-            <div className="bg-white border border-border rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
+            <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
               <div className="px-5 py-3.5 border-b border-surface-2 flex items-center gap-2">
                 <span className="font-semibold text-[14px] text-text-1">Na čekanju</span>
                 <span className="px-2 py-0.5 rounded-full bg-warning-soft text-warning text-[11px] font-bold">
@@ -649,7 +688,7 @@ const CommunityPage = () => {
 
           {/* Approved gallery */}
           {!gallery?.length ? (
-            <div className="text-center py-12 bg-white rounded-2xl border border-border">
+            <div className="text-center py-12 bg-surface rounded-2xl border border-border">
               <div className="text-[40px] mb-3">🖼️</div>
               <div className="font-serif text-[15px] text-text-1 mb-1">Galerija je prazna</div>
               <div className="text-[13px] text-text-3">
@@ -690,7 +729,7 @@ const CommunityPage = () => {
 
       {/* About tab */}
       {activeTab === "about" && (
-        <div className="bg-white border border-border rounded-2xl p-6 shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
+        <div className="bg-surface border border-border rounded-2xl p-6 shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
           <div className="font-serif text-[18px] text-text-1 mb-4">O zajednici</div>
           {community.description ? (
             <p className="text-[14px] text-text-2 leading-relaxed mb-5">{community.description}</p>

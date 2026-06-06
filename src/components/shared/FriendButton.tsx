@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+﻿import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { friendsApi } from "@/api/friends";
 import { UserPlus, UserCheck, UserX, Clock } from "lucide-react";
 
@@ -69,7 +69,7 @@ const FriendButton = ({ userId, size = "md" }: Props) => {
         <button
           onClick={() => rejectMutation.mutate()}
           disabled={isPending}
-          className={`${base} bg-white text-text-2 border-border hover:bg-red-50 hover:text-red-500`}
+          className={`${base} bg-surface text-text-2 border-border hover:bg-red-50 hover:text-red-500`}
         >
           <UserX size={size === "sm" ? 12 : 14} strokeWidth={2} />
           Odbij

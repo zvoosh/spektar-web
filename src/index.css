@@ -1,37 +1,42 @@
-@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", sans-serif;
-  --font-serif: "Lora", serif;
+  --font-sans: "Geist", system-ui, sans-serif;
+  --font-serif: "Geist", system-ui, sans-serif;
 
-  --color-bg: #f0f5f2;
-  --color-surface: #ffffff;
-  --color-surface-2: #e8f0eb;
-  --color-border: #cdddd4;
-  --color-border-strong: #a0bfb0;
+  --color-bg: #000000;
+  --color-surface: #16181c;
+  --color-surface-2: #1c1f23;
+  --color-border: #2f3336;
+  --color-border-strong: #3e4347;
 
-  --color-text-1: #121915;
-  --color-text-2: #3d5e4e;
-  --color-text-3: #7a9e8e;
+  --color-text-1: #e7e9ea;
+  --color-text-2: #8b98a5;
+  --color-text-3: #536471;
 
-  --color-accent: #1a8a57;
-  --color-accent-soft: #e2f4ec;
-  --color-accent-hover: #126e43;
-  --color-accent-text: #0d5233;
+  --color-accent: #00ba7c;
+  --color-accent-soft: #001f14;
+  --color-accent-hover: #00a368;
+  --color-accent-text: #00ba7c;
 
-  --color-blue: #2d5fa8;
-  --color-blue-soft: #e3eaf5;
+  --color-blue: #1d9bf0;
+  --color-blue-soft: #031018;
 
-  --color-warning: #c4622d;
-  --color-warning-soft: #f0e6de;
+  --color-warning: #ff7a00;
+  --color-warning-soft: #1f0e00;
 
-  --color-danger: #dc2626;
-  --color-danger-soft: #fee2e2;
+  --color-danger: #f4212e;
+  --color-danger-soft: #200007;
 }
 
 * {
   box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
@@ -40,6 +45,21 @@ body {
   color: var(--color-text-1);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "ss02", "cv01";
+}
+
+/* Geist headings — font-serif klasa se koristi za naslove, dajemo joj bold weight */
+.font-serif {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 ::-webkit-scrollbar {
@@ -49,6 +69,6 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: var(--color-border-strong);
   border-radius: 10px;
 }
