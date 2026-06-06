@@ -8,13 +8,13 @@ import { useAuthStore } from "@/store/authStore";
 import {
   MessageSquare,
   Bookmark,
-  Share2,
   MoreHorizontal,
   ChevronUp,
   ChevronDown,
   MapPin,
   CalendarDays,
 } from "lucide-react";
+import ShareMenu from "@/components/shared/ShareMenu";
 
 const POST_TYPE_CONFIG: Record<
   string,
@@ -281,18 +281,13 @@ const PostCard = ({ post }: { post: Post }) => {
             {!isMobile && <span>{isSaved ? "Sačuvano" : "Sačuvaj"}</span>}
           </button>
 
-          <button
-            onClick={() => {
-              postsApi.share(post.id);
-              navigator.clipboard?.writeText(
-                `${window.location.origin}/post/${post.id}`,
-              );
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] text-text-3 hover:text-text-1 hover:bg-surface-2-2 bg-transparent border-none cursor-pointer transition-all font-medium"
-          >
-            <Share2 size={14} strokeWidth={2} />
-            {!isMobile && <span>Podeli</span>}
-          </button>
+          <ShareMenu
+            url={`${window.location.origin}/post/${post.id}`}
+            title={post.title}
+            text={post.content?.slice(0, 100)}
+            onShare={() => postsApi.share(post.id)}
+            showLabel={!isMobile}
+          />
 
           <div className="ml-auto relative" ref={menuRef}>
             <button

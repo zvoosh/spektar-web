@@ -1,10 +1,10 @@
 ﻿import { useQuery } from "@tanstack/react-query";
-import { communitiesApi } from "@/api/communities";
 import { postsApi } from "@/api/posts";
 import { usersApi } from "@/api/users";
 import { useState } from "react";
 import PostCard from "./PostCard";
-import { Users, Zap, Share2, ChevronDown } from "lucide-react";
+import { Users, Zap, ChevronDown } from "lucide-react";
+import ShareMenu from "@/components/shared/ShareMenu";
 
 const FILTERS = [
   { label: "Svi", value: "" },
@@ -57,10 +57,14 @@ const CommunityBanner = () => {
           </div>
 
           <div className="flex gap-2 shrink-0">
-            <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[13px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors">
-              <Share2 size={14} strokeWidth={2} />
-              <span className="hidden sm:inline">Podeli</span>
-            </button>
+            <ShareMenu
+              url={window.location.origin}
+              title="Spektar Beograda"
+              text="Mesto za povezivanje, deljenje preporuka, događaja i priča iz našeg grada."
+              className="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/25 backdrop-blur-sm hover:text-white"
+              showLabel={true}
+              label="Podeli"
+            />
           </div>
         </div>
       </div>
@@ -71,13 +75,6 @@ const CommunityBanner = () => {
 const FeedPage = () => {
   const [activeFilter, setActiveFilter] = useState("");
 
-  const { data: communities } = useQuery({
-    queryKey: ["communities"],
-    queryFn: communitiesApi.getAll,
-  });
-
-  const firstCommunity = communities?.[0];
-
   const { data: posts, isLoading } = useQuery({
     queryKey: ["posts", "feed"],
     queryFn: postsApi.getFeed,
@@ -87,7 +84,7 @@ const FeedPage = () => {
 
   return (
     <div>
-      <CommunityBanner community={firstCommunity} />
+      <CommunityBanner />
 
       {/* Filter bar */}
       <div className="flex items-center gap-1.5 mb-4 flex-wrap bg-surface border border-border rounded-xl px-3 py-2 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">

@@ -5,6 +5,7 @@ import { postsApi } from "@/api/posts";
 import { useAuthStore } from "@/store/authStore";
 import type { Comment } from "@/types";
 import ImageLightbox from "@/components/shared/ImageLightbox";
+import ShareMenu from "@/components/shared/ShareMenu";
 
 const POST_TYPE_LABELS: Record<string, { label: string; color: string; bg: string }> = {
   announcement: { label: "OBAVEŠTENJE", color: "#C4622D", bg: "#F0E6DE" },
@@ -315,6 +316,13 @@ const PostDetailPage = () => {
           <span className="text-[13px] text-text-3">
             👁 {post.viewsCount} pregleda
           </span>
+
+          <ShareMenu
+            url={`${window.location.origin}/post/${post.id}`}
+            title={post.title}
+            text={post.body?.slice(0, 100)}
+            onShare={() => postsApi.share(post.id)}
+          />
 
           {user?.id === post.authorId && (
             <button
