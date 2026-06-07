@@ -1,10 +1,12 @@
 ﻿import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { communitiesApi } from "@/api/communities";
+import { useAuthStore } from "@/store/authStore";
 
 const CommunitiesPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuthStore();
 
   const { data: communities, isLoading } = useQuery({
     queryKey: ["communities"],
@@ -13,7 +15,8 @@ const CommunitiesPage = () => {
 
   const joinMutation = useMutation({
     mutationFn: (id: string) => communitiesApi.join(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["communities"] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["communities"] }),
   });
 
   return (
@@ -29,7 +32,9 @@ const CommunitiesPage = () => {
       </div>
 
       {isLoading && (
-        <div className="text-center p-10 text-text-3">Učitavam zajednice...</div>
+        <div className="text-center p-10 text-text-3">
+          Učitavam zajednice...
+        </div>
       )}
 
       <div className="grid grid-cols-1 gap-3">
@@ -52,7 +57,9 @@ const CommunitiesPage = () => {
             )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-serif text-[16px] text-text-1">{community.name}</span>
+                <span className="font-serif text-[16px] text-text-1">
+                  {community.name}
+                </span>
                 {community.type !== "public" && (
                   <span className="text-[10px] text-text-3">🔒</span>
                 )}
@@ -63,7 +70,9 @@ const CommunitiesPage = () => {
                 </p>
               )}
               <div className="flex items-center gap-3 text-[11px] text-text-3">
-                <span>{community.membersCount.toLocaleString("sr-RS")} članova</span>
+                <span>
+                  {community.membersCount.toLocaleString("sr-RS")} članova
+                </span>
                 <span>·</span>
                 <span className="capitalize">{community.category}</span>
                 {community.location && (
@@ -82,7 +91,11 @@ const CommunitiesPage = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  joinMutation.mutate(community.id);
+                  if (isAuthenticated) {
+                    joinMutation.mutate(community.id);
+                  } else {
+                    navigate(`/login`);
+                  }
                 }}
                 disabled={joinMutation.isPending}
                 className="self-center px-3.5 py-1.75 rounded-lg border border-accent text-accent text-[12px] font-medium bg-surface cursor-pointer shrink-0 hover:bg-accent-soft disabled:opacity-50"

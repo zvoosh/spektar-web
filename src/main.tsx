@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
 import "./index.css";
+import "@/store/themeStore"; // initialize theme before first render
 
 const queryClient = new QueryClient({
   defaultOptions: {

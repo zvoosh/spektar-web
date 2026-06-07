@@ -1,5 +1,5 @@
 ﻿import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { postsApi } from "@/api/posts";
 import { useAuthStore } from "@/store/authStore";
@@ -61,7 +61,7 @@ const CommentItem = ({
         >
           {comment.user?.avatar
             ? <img src={comment.user.avatar} alt="" className="w-full h-full object-cover" />
-            : comment.user?.username?.slice(0, 2).toUpperCase()}
+            : (comment.user?.displayName || comment.user?.username)?.slice(0, 2).toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
@@ -69,7 +69,7 @@ const CommentItem = ({
               onClick={() => comment.user?.username && navigate(`/u/${comment.user.username}`)}
               className="text-[13px] font-semibold text-text-1 cursor-pointer hover:text-accent transition-colors"
             >
-              {comment.user?.username}
+              {comment.user?.displayName || comment.user?.username}
             </span>
             <span className="text-[11px] text-text-3">{formatDate(comment.createdAt)}</span>
             {comment.isEdited && (
@@ -121,6 +121,7 @@ const CommentItem = ({
 const PostDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const [commentBody, setCommentBody] = useState("");
@@ -197,7 +198,7 @@ const PostDetailPage = () => {
           >
             {post.author?.avatar
               ? <img src={post.author.avatar} alt="" className="w-full h-full object-cover" />
-              : post.author?.username?.slice(0, 2).toUpperCase()}
+              : (post.author?.displayName || post.author?.username)?.slice(0, 2).toUpperCase()}
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -205,7 +206,7 @@ const PostDetailPage = () => {
                 onClick={() => navigate(`/u/${post.author?.username}`)}
                 className="text-[13px] font-medium text-text-1 cursor-pointer hover:text-accent transition-colors"
               >
-                {post.author?.username}
+                {post.author?.displayName || post.author?.username}
               </span>
               <span className="text-xs text-text-3">u</span>
               <span
@@ -278,7 +279,8 @@ const PostDetailPage = () => {
             {post.tags.filter(t => t.trim()).map((t) => (
               <span
                 key={t}
-                className="text-[11px] py-0.75 px-2.25 rounded-full bg-surface-2 text-text-3 border border-border"
+                onClick={() => navigate(`/search?q=${encodeURIComponent(t.trim())}`)}
+                className="text-[11px] py-0.75 px-2.25 rounded-full bg-surface-2 text-text-3 border border-border hover:bg-accent-soft hover:text-accent hover:border-accent cursor-pointer transition-colors"
               >
                 #{t}
               </span>
@@ -290,7 +292,7 @@ const PostDetailPage = () => {
         <div className="flex items-center gap-3 pt-4 border-t border-surface-2 flex-wrap">
           <div className="flex items-center gap-px">
             <button
-              onClick={() => voteMutation.mutate("up")}
+              onClick={() => user ? voteMutation.mutate("up") : navigate("/login", { state: { from: { pathname: `/post/${id}` }, background: location } })}
               className={`w-8 h-8 rounded-[7px_3px_3px_7px] border border-border cursor-pointer text-xs flex items-center justify-center transition-all ${
                 currentUserVote === "up" ? "bg-accent text-white" : "bg-surface text-text-3"
               }`}
@@ -301,7 +303,7 @@ const PostDetailPage = () => {
               {currentVotes}
             </span>
             <button
-              onClick={() => voteMutation.mutate("down")}
+              onClick={() => user ? voteMutation.mutate("down") : navigate("/login", { state: { from: { pathname: `/post/${id}` }, background: location } })}
               className={`w-8 h-8 rounded-[3px_7px_7px_3px] border border-border cursor-pointer text-xs flex items-center justify-center transition-all ${
                 currentUserVote === "down" ? "bg-blue-500 text-white" : "bg-surface text-text-3"
               }`}
@@ -347,7 +349,7 @@ const PostDetailPage = () => {
         </div>
 
         {/* New comment */}
-        {user && (
+        {user ? (
           <div className="flex gap-3 mb-6">
             <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-xs font-semibold text-accent shrink-0 overflow-hidden border border-border">
               {user.avatar
@@ -371,6 +373,24 @@ const PostDetailPage = () => {
                   Objavi komentar
                 </button>
               </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-4 mb-6 px-4 py-3.5 rounded-xl bg-surface-2 border border-border">
+            <span className="text-[13px] text-text-2">Prijavi se da ostaviš komentar</span>
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={() => navigate("/login", { state: { from: { pathname: `/post/${id}` }, background: location } })}
+                className="px-3.5 py-1.5 rounded-lg border border-border text-[13px] text-text-2 bg-surface cursor-pointer hover:bg-surface-2 transition-colors"
+              >
+                Prijavi se
+              </button>
+              <button
+                onClick={() => navigate("/register")}
+                className="px-3.5 py-1.5 rounded-lg bg-accent text-white text-[13px] font-semibold border-none cursor-pointer hover:bg-accent-hover transition-colors"
+              >
+                Registruj se
+              </button>
             </div>
           </div>
         )}

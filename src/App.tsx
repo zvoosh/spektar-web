@@ -1,9 +1,8 @@
 import { useRoutes, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import MainLayout from "./components/shared/MainLayout";
+import AuthModal from "./components/shared/AuthModal";
 import FeedPage from "./pages/Feed/FeedPage";
-import LoginPage from "./pages/Auth/LoginPage";
-import RegisterPage from "./pages/Auth/RegisterPage";
 import PostDetailPage from "./pages/Post/PostDetailPage";
 import CreatePostPage from "./pages/Post/CreatePostPage";
 import CommunityPage from "./pages/Community/CommunityPage";
@@ -16,41 +15,122 @@ import PublicProfilePage from "./pages/Profile/PublicProfilePage";
 import ChatPage from "./pages/Chat/ChatPage";
 import PopularPage from "./pages/Popular/PopularPage";
 import SearchPage from "./pages/Search/SearchPage";
+import SettingsPage from "./pages/Settings/SettingsPage";
+import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 
-const ProtectedLayout = () => {
+// Wrapper za rute koje zahtevaju login
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
-  const location = useLocation();
-  if (!isAuthenticated) return <Navigate to="/login" state={{ from: location }} replace />;
-  return <MainLayout />;
+  if (!isAuthenticated) return <Navigate to="/" replace />;
+  return <>{children}</>;
 };
 
+// Definicija svih child ruta (reuse za oba useRoutes poziva)
+const mainChildren = [
+  { index: true, element: <FeedPage /> },
+  { path: "post/:id", element: <PostDetailPage /> },
+  { path: "c/:slug", element: <CommunityPage /> },
+  { path: "communities", element: <CommunitiesPage /> },
+  { path: "popular", element: <PopularPage /> },
+  { path: "search", element: <SearchPage /> },
+  { path: "u/:username", element: <PublicProfilePage /> },
+  {
+    path: "new-post",
+    element: (
+      <PrivateRoute>
+        <CreatePostPage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "communities/new",
+    element: (
+      <PrivateRoute>
+        <CreateCommunityPage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "saved",
+    element: (
+      <PrivateRoute>
+        <SavedPage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "notifications",
+    element: (
+      <PrivateRoute>
+        <NotificationsPage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "profile",
+    element: (
+      <PrivateRoute>
+        <ProfilePage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "chat",
+    element: (
+      <PrivateRoute>
+        <ChatPage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "chat/:conversationId",
+    element: (
+      <PrivateRoute>
+        <ChatPage />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "settings",
+    element: (
+      <PrivateRoute>
+        <SettingsPage />
+      </PrivateRoute>
+    ),
+  },
+];
+
 const App = () => {
-  const routes = useRoutes([
-    {
-      path: "/",
-      element: <ProtectedLayout />,
-      children: [
-        { index: true, element: <FeedPage /> },
-        { path: "post/:id", element: <PostDetailPage /> },
-        { path: "new-post", element: <CreatePostPage /> },
-        { path: "c/:slug", element: <CommunityPage /> },
-        { path: "communities", element: <CommunitiesPage /> },
-        { path: "communities/new", element: <CreateCommunityPage /> },
-        { path: "saved", element: <SavedPage /> },
-        { path: "notifications", element: <NotificationsPage /> },
-        { path: "profile", element: <ProfilePage /> },
-        { path: "u/:username", element: <PublicProfilePage /> },
-        { path: "chat", element: <ChatPage /> },
-        { path: "chat/:conversationId", element: <ChatPage /> },
-        { path: "popular", element: <PopularPage /> },
-        { path: "search", element: <SearchPage /> },
-      ],
-    },
-    { path: "/login", element: <LoginPage /> },
-    { path: "/register", element: <RegisterPage /> },
+  const location = useLocation();
+  const state = location.state as { background?: Location } | null;
+
+  // Background location — stranica koja ostaje iza auth modala
+  // Ako nema background state (direktna navigacija na /login), koristi "/" kao fallback
+  const isAuthRoute =
+    location.pathname === "/login" || location.pathname === "/register";
+  const backgroundLocation = state?.background ?? (isAuthRoute ? ({ pathname: "/" } as unknown as Location) : location);
+
+  // Glavne rute renderovane na background lokaciji (vidljive iza modala)
+  const mainRoutes = useRoutes(
+    [
+      { path: "/", element: <MainLayout />, children: mainChildren },
+      { path: "/reset-password", element: <ResetPasswordPage /> },
+    ],
+    backgroundLocation
+  );
+
+  // Auth modal rute — renderuju se kao overlay iznad pozadine
+  const authRoutes = useRoutes([
+    { path: "/login", element: <AuthModal mode="login" /> },
+    { path: "/register", element: <AuthModal mode="register" /> },
   ]);
 
-  return routes;
+  return (
+    <>
+      {mainRoutes}
+      {isAuthRoute && authRoutes}
+    </>
+  );
 };
 
 export default App;

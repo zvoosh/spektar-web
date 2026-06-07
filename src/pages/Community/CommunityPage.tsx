@@ -2,11 +2,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { communitiesApi } from "@/api/communities";
-import { postsApi } from "@/api/posts";
 import { uploadApi } from "@/api/upload";
 import { useAuthStore } from "@/store/authStore";
 import PostCard from "@/pages/Feed/PostCard";
-import { Camera, ImagePlus, Users, FileText, Info, Image, Pencil, X, ShieldCheck, ShieldOff, UserPlus, Search, Check } from "lucide-react";
+import { Camera, ImagePlus, Users, FileText, Info, Image, Pencil, X, ShieldCheck, ShieldOff, UserPlus, Search, Check, Loader2 } from "lucide-react";
+import { useCommunityPostsInfinite, useInfiniteScroll } from "@/hooks/useInfinitePosts";
 import { usersApi } from "@/api/users";
 import type { User } from "@/types";
 import ImageLightbox from "@/components/shared/ImageLightbox";
@@ -100,7 +100,7 @@ const CommunityPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const [activeFilter, setActiveFilter] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>("posts");
   const [isMember, setIsMember] = useState<boolean | null>(null);
@@ -126,11 +126,13 @@ const CommunityPage = () => {
 
   if (community && isMember === null) setIsMember(community.isMember ?? false);
 
-  const { data: posts, isLoading: postsLoading } = useQuery({
-    queryKey: ["posts", community?.id],
-    queryFn: () => postsApi.getByCommunity(community!.id),
-    enabled: !!community?.id && activeTab === "posts",
-  });
+  const {
+    posts: allCommunityPosts,
+    isLoading: postsLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useCommunityPostsInfinite(community?.id ?? "");
 
   const { data: members } = useQuery({
     queryKey: ["members", community?.id],
@@ -279,7 +281,8 @@ const CommunityPage = () => {
 
   const isOwnerOrMod = isMod;
 
-  const filtered = activeFilter ? posts?.filter((p) => p.type === activeFilter) : posts;
+  const filtered = activeFilter ? allCommunityPosts.filter((p) => p.type === activeFilter) : allCommunityPosts;
+  const sentinelRef = useInfiniteScroll(fetchNextPage, hasNextPage, isFetchingNextPage);
 
   const TABS = [
     { value: "posts", label: "Postovi", icon: FileText },
@@ -435,7 +438,7 @@ const CommunityPage = () => {
               <div className="flex gap-1.5 mt-2 sm:hidden flex-wrap">
                 {!isMember ? (
                   <button
-                    onClick={() => joinMutation.mutate()}
+                    onClick={() => isAuthenticated ? joinMutation.mutate() : navigate("/login", { state: { from: { pathname: `/c/${slug}` }, background: { pathname: `/c/${slug}` } } })}
                     disabled={joinMutation.isPending}
                     className="px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-[12px] font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors"
                   >
@@ -447,7 +450,7 @@ const CommunityPage = () => {
                   </span>
                 )}
                 <button
-                  onClick={() => navigate(`/new-post?community=${community.id}`)}
+                  onClick={() => isAuthenticated ? navigate(`/new-post?community=${community.id}`) : navigate("/login", { state: { from: { pathname: `/c/${slug}` }, background: { pathname: `/c/${slug}` } } })}
                   className="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-[12px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors"
                 >
                   + Objavi
@@ -474,7 +477,7 @@ const CommunityPage = () => {
             <div className="hidden sm:flex gap-2 shrink-0">
               {!isMember ? (
                 <button
-                  onClick={() => joinMutation.mutate()}
+                  onClick={() => isAuthenticated ? joinMutation.mutate() : navigate("/login", { state: { from: { pathname: `/c/${slug}` }, background: { pathname: `/c/${slug}` } } })}
                   disabled={joinMutation.isPending}
                   className="px-4 py-2 rounded-xl bg-accent hover:bg-accent-hover text-white text-[13px] font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors"
                 >
@@ -486,7 +489,7 @@ const CommunityPage = () => {
                 </span>
               )}
               <button
-                onClick={() => navigate(`/new-post?community=${community.id}`)}
+                onClick={() => isAuthenticated ? navigate(`/new-post?community=${community.id}`) : navigate("/login", { state: { from: { pathname: `/c/${slug}` }, background: { pathname: `/c/${slug}` } } })}
                 className="px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[13px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors"
               >
                 + Objavi
@@ -557,6 +560,16 @@ const CommunityPage = () => {
             </div>
           )}
           {filtered?.map((post) => <PostCard key={post.id} post={post} />)}
+
+          <div ref={sentinelRef} className="h-4" />
+          {isFetchingNextPage && (
+            <div className="flex justify-center py-6">
+              <Loader2 size={20} className="animate-spin text-text-3" />
+            </div>
+          )}
+          {!hasNextPage && filtered.length > 0 && (
+            <div className="text-center py-6 text-[12px] text-text-3">Prikazani su svi postovi</div>
+          )}
         </>
       )}
 

@@ -1,14 +1,36 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/authStore";
-import type { Message } from "@/types";
+import type { Conversation, Message } from "@/types";
 
 export const useChat = (conversationId: string | null) => {
   const { token } = useAuthStore();
+  const queryClient = useQueryClient();
   const socketRef = useRef<Socket | null>(null);
+  const conversationIdRef = useRef<string | null>(conversationId);
+  const deletedIdsRef = useRef<Set<string>>(new Set());
   const [messages, setMessages] = useState<Message[]>([]);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const [connected, setConnected] = useState(false);
+
+  // Drži ref ažurnim
+  useEffect(() => {
+    conversationIdRef.current = conversationId;
+    // Resetuj obrisane ID-ove pri promeni konverzacije
+    deletedIdsRef.current = new Set();
+  }, [conversationId]);
+
+  // Wrapper koji uvek filtrira lokalno obrisane poruke
+  const setMessagesFiltered = useCallback(
+    (updater: Message[] | ((prev: Message[]) => Message[])) => {
+      setMessages((prev) => {
+        const next = typeof updater === "function" ? updater(prev) : updater;
+        return next.filter((m) => !deletedIdsRef.current.has(m.id));
+      });
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!token) return;
@@ -23,14 +45,16 @@ export const useChat = (conversationId: string | null) => {
     socket.on("disconnect", () => setConnected(false));
 
     socket.on("newMessage", (message: Message) => {
-      setMessages((prev) => {
+      setMessagesFiltered((prev) => {
         if (prev.some((m) => m.id === message.id)) return prev;
         return [...prev, message];
       });
     });
 
     socket.on("userTyping", ({ userId }: { userId: string }) => {
-      setTypingUsers((prev) => (prev.includes(userId) ? prev : [...prev, userId]));
+      setTypingUsers((prev) =>
+        prev.includes(userId) ? prev : [...prev, userId],
+      );
     });
 
     socket.on("userStopTyping", ({ userId }: { userId: string }) => {
@@ -38,7 +62,42 @@ export const useChat = (conversationId: string | null) => {
     });
 
     socket.on("messageDeleted", ({ messageId }: { messageId: string }) => {
-      setMessages((prev) => prev.filter((m) => m.id !== messageId));
+      // Zapamti lokalno — sprečava vraćanje poruke čak i ako API vrati stare podatke
+      deletedIdsRef.current.add(messageId);
+
+      setMessagesFiltered((prev) => {
+        const filtered = prev.filter((m) => m.id !== messageId);
+
+        // Optimistički ažuriraj lastMessage samo za aktivnu konverzaciju
+        const convId = conversationIdRef.current;
+        if (convId) {
+          const lastMsg =
+            filtered.length > 0 ? filtered[filtered.length - 1] : null;
+          setTimeout(() => {
+            queryClient.setQueryData<Conversation[]>(
+              ["conversations"],
+              (convs: any) => {
+                if (!convs) return convs;
+                return convs.map((conv: any) => {
+                  if (conv.id !== convId) return conv;
+                  if (lastMsg) {
+                    return {
+                      ...conv,
+                      lastMessage:
+                        lastMsg.content || (lastMsg.imageUrl ? "📷 Slika" : ""),
+                      lastMessageAt: lastMsg.createdAt,
+                    };
+                  } else {
+                    return { ...conv, lastMessage: null, lastMessageAt: null };
+                  }
+                });
+              },
+            );
+          }, 0);
+        }
+
+        return filtered;
+      });
     });
 
     return () => {
@@ -56,9 +115,14 @@ export const useChat = (conversationId: string | null) => {
   const sendMessage = useCallback(
     (content: string, replyToId?: string, imageUrl?: string) => {
       if (!conversationId || !socketRef.current) return;
-      socketRef.current.emit("sendMessage", { conversationId, content, replyToId, imageUrl });
+      socketRef.current.emit("sendMessage", {
+        conversationId,
+        content,
+        replyToId,
+        imageUrl,
+      });
     },
-    [conversationId]
+    [conversationId],
   );
 
   const sendTyping = useCallback(() => {
@@ -83,7 +147,7 @@ export const useChat = (conversationId: string | null) => {
 
   return {
     messages,
-    setMessages,
+    setMessages: setMessagesFiltered,
     typingUsers,
     connected,
     sendMessage,

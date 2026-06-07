@@ -7,7 +7,15 @@ export const usersApi = {
     return res.data;
   },
 
-  updateMe: async (data: { bio?: string; avatar?: string; banner?: string }) => {
+  updateMe: async (data: {
+    username?: string;
+    displayName?: string;
+    location?: string;
+    bio?: string;
+    avatar?: string;
+    banner?: string;
+    notificationPrefs?: Partial<{ comments: boolean; upvotes: boolean; friends: boolean; messages: boolean }>;
+  }) => {
     const res = await api.patch<User>("/users/me", data);
     return res.data;
   },

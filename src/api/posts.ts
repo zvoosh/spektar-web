@@ -1,9 +1,17 @@
 import type { Comment, Post } from "@/types";
 import api from "./axios";
 
+export interface PostsPage {
+  posts: Post[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
+
 export const postsApi = {
-  getByCommunity: async (communityId: string) => {
-    const res = await api.get<Post[]>(`/posts/community/${communityId}`);
+  getByCommunity: async (communityId: string, page = 1) => {
+    const res = await api.get<PostsPage>(`/posts/community/${communityId}?page=${page}&limit=10`);
     return res.data;
   },
 
@@ -60,8 +68,8 @@ export const postsApi = {
     return res.data;
   },
 
-  getFeed: async () => {
-    const res = await api.get<Post[]>('/posts/feed');
+  getFeed: async (page = 1) => {
+    const res = await api.get<PostsPage>(`/posts/feed?page=${page}&limit=10`);
     return res.data;
   },
 

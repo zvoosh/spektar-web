@@ -30,6 +30,24 @@
   --color-danger-soft: #200007;
 }
 
+/* ─── Light theme overrides ────────────────────────────────────────────────── */
+html.light {
+  --color-bg: #ffffff;
+  --color-surface: #f7f9fb;
+  --color-surface-2: #eef1f4;
+  --color-border: #e1e6eb;
+  --color-border-strong: #c8d0d8;
+
+  --color-text-1: #0f1419;
+  --color-text-2: #536471;
+  --color-text-3: #8899a6;
+
+  --color-accent-soft: #e6faf4;
+  --color-blue-soft: #e8f4fd;
+  --color-warning-soft: #fff4e6;
+  --color-danger-soft: #fde8e9;
+}
+
 * {
   box-sizing: border-box;
 }

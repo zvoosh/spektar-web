@@ -1,5 +1,5 @@
 ﻿import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postsApi } from "@/api/posts";
 import type { Post } from "@/types";
@@ -65,13 +65,14 @@ const formatDate = (date: string) => {
 
 const PostCard = ({ post }: { post: Post }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isMobile } = useBreakpoint();
   const [votes, setVotes] = useState(post.votesCount);
   const [userVote, setUserVote] = useState(post.userVote);
   const [isSaved, setIsSaved] = useState(post.isSaved);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -121,7 +122,7 @@ const PostCard = ({ post }: { post: Post }) => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              post.author?.username?.slice(0, 2).toUpperCase()
+              (post.author?.displayName || post.author?.username)?.slice(0, 2).toUpperCase()
             )}
           </div>
           <div className="flex-1 min-w-0">
@@ -133,7 +134,7 @@ const PostCard = ({ post }: { post: Post }) => {
                 }}
                 className="text-[12.5px] font-semibold text-text-1 cursor-pointer hover:text-accent transition-colors"
               >
-                {post.author?.username}
+                {post.author?.displayName || post.author?.username}
               </span>
               <span className="text-[11px] text-text-3">u</span>
               <span
@@ -203,6 +204,7 @@ const PostCard = ({ post }: { post: Post }) => {
                   .map((t) => (
                     <span
                       key={t}
+                      onClick={(e) => { e.stopPropagation(); navigate(`/search?q=${encodeURIComponent(t.trim())}`); }}
                       className="text-[11px] py-0.5 px-2 rounded-md bg-surface-2 text-text-3 hover:bg-accent-soft hover:text-accent cursor-pointer transition-colors"
                     >
                       #{t}
@@ -231,7 +233,7 @@ const PostCard = ({ post }: { post: Post }) => {
           {/* Vote */}
           <div className="flex items-center bg-surface-2 rounded-lg overflow-hidden">
             <button
-              onClick={() => voteMutation.mutate("up")}
+              onClick={() => isAuthenticated ? voteMutation.mutate("up") : navigate("/login", { state: { from: location, background: location } })}
               className={`flex items-center gap-1 px-2.5 py-1.5 text-[12px] font-semibold border-none cursor-pointer transition-all ${
                 userVote === "up"
                   ? "bg-accent text-white"
@@ -243,7 +245,7 @@ const PostCard = ({ post }: { post: Post }) => {
             </button>
             <div className="w-px h-4 bg-border" />
             <button
-              onClick={() => voteMutation.mutate("down")}
+              onClick={() => isAuthenticated ? voteMutation.mutate("down") : navigate("/login", { state: { from: location, background: location } })}
               className={`px-2 py-1.5 border-none cursor-pointer transition-all ${
                 userVote === "down"
                   ? "bg-blue-500 text-white"
@@ -266,7 +268,7 @@ const PostCard = ({ post }: { post: Post }) => {
           </button>
 
           <button
-            onClick={() => saveMutation.mutate()}
+            onClick={() => isAuthenticated ? saveMutation.mutate() : navigate("/login", { state: { from: location, background: location } })}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12.5px] border-none cursor-pointer transition-all font-medium ${
               isSaved
                 ? "text-accent bg-accent-soft"

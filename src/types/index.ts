@@ -1,13 +1,22 @@
 export interface User {
   id: string;
   username: string;
+  displayName?: string | null;
   email: string;
   bio?: string;
+  location?: string | null;
   avatar?: string;
   banner?: string;
   karma: number;
   role: string;
   createdAt: string;
+  isTwoFactorEnabled?: boolean;
+  notificationPrefs?: {
+    comments: boolean;
+    upvotes: boolean;
+    friends: boolean;
+    messages: boolean;
+  } | null;
 }
 
 export interface Community {
@@ -55,6 +64,7 @@ export interface Post {
   userVote?: "up" | "down" | null;
   isSaved?: boolean;
   createdAt: string;
+  content: any;
 }
 
 export interface Comment {

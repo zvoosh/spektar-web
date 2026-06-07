@@ -19,9 +19,15 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const isAuthEndpoint = error.config?.url?.includes("/auth/");
+    const hadToken = !!localStorage.getItem("token");
     if (error.response?.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem("token");
-      window.location.href = "/login";
+      // Redirect na login samo ako je korisnik prethodno bio ulogovan
+      // (token je postojao). Gosti koji pristupaju javnim rutama bez tokena
+      // ne treba da budu redirectovani.
+      if (hadToken) {
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   },

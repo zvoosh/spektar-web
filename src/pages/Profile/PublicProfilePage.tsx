@@ -1,4 +1,4 @@
-﻿import { useParams, useNavigate } from "react-router-dom";
+﻿import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { usersApi } from "@/api/users";
 import { postsApi } from "@/api/posts";
@@ -7,13 +7,14 @@ import { chatApi } from "@/api/chat";
 import { useAuthStore } from "@/store/authStore";
 import PostCard from "@/pages/Feed/PostCard";
 import FriendButton from "@/components/shared/FriendButton";
-import { MessageCircle, ArrowLeft } from "lucide-react";
+import { MessageCircle, ArrowLeft, UserPlus } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 
 const PublicProfilePage = () => {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
-  const { user: me } = useAuthStore();
+  const location = useLocation();
+  const { user: me, isAuthenticated } = useAuthStore();
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["user", username],
@@ -94,20 +95,44 @@ const PublicProfilePage = () => {
 
             {/* Action buttons */}
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => dmMutation.mutate()}
-                disabled={dmMutation.isPending}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border text-[13px] font-semibold text-text-2 bg-surface cursor-pointer hover:bg-surface-2-2 transition-colors disabled:opacity-50"
-              >
-                <MessageCircle size={14} strokeWidth={2} />
-                Poruka
-              </button>
-              <FriendButton userId={user.id} />
+              {isAuthenticated ? (
+                <>
+                  <button
+                    onClick={() => dmMutation.mutate()}
+                    disabled={dmMutation.isPending}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border text-[13px] font-semibold text-text-2 bg-surface cursor-pointer hover:bg-surface-2-2 transition-colors disabled:opacity-50"
+                  >
+                    <MessageCircle size={14} strokeWidth={2} />
+                    Poruka
+                  </button>
+                  <FriendButton userId={user.id} />
+                </>
+              ) : (
+                <button
+                  onClick={() => navigate("/login", { state: { from: location, background: location } })}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-accent text-white text-[13px] font-semibold border-none cursor-pointer hover:bg-accent-hover transition-colors shadow-[0_2px_8px_rgba(0,186,124,0.3)]"
+                >
+                  <UserPlus size={14} strokeWidth={2.5} />
+                  Dodaj prijatelja
+                </button>
+              )}
             </div>
           </div>
 
-          <h1 className="font-serif text-[20px] text-text-1 leading-tight">{user.username}</h1>
-          <div className="text-[12px] text-text-3 mt-0.5 mb-3">Član od {joinedDate}</div>
+          <h1 className="font-serif text-[20px] text-text-1 leading-tight">
+            {user.displayName || user.username}
+          </h1>
+          <div className="text-[12px] text-text-3 mt-0.5 mb-3">
+            {user.displayName && <span className="mr-2">@{user.username}</span>}
+            Član od {joinedDate}
+          </div>
+
+          {user.location && (
+            <div className="flex items-center gap-1.5 text-[12px] text-text-3 mb-2">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              {user.location}
+            </div>
+          )}
 
           {user.bio && (
             <p className="text-[13px] text-text-2 leading-relaxed mb-4">{user.bio}</p>

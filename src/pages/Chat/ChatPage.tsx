@@ -106,7 +106,7 @@ const MessageBubble = ({
         )}
       </div>
     )}
-    <div className={`max-w-[70%] group ${isOwn ? "items-end" : "items-start"} flex flex-col`}>
+    <div className={`max-w-[70%] group ${isOwn ? "items-end" : "items-start"} flex flex-col relative`}>
       {!isOwn && (
         <span className="text-[10px] text-text-3 mb-1 px-1">{message.sender?.username}</span>
       )}
@@ -116,11 +116,11 @@ const MessageBubble = ({
         </div>
       )}
       <div
-        className={`px-3.5 py-2.5 rounded-[14px] text-[13px] leading-relaxed relative ${
+        className={`px-3.5 py-2.5 rounded-[14px] text-[13px] leading-relaxed ${
           isOwn
-            ? "bg-surface-2 text-white rounded-br-[4px]"
+            ? "bg-accent-text text-white rounded-br-[4px]"
             : "bg-surface border border-border text-text-1 rounded-bl-[4px]"
-        }`} 
+        }`}
       >
         {message.imageUrl && (
           <img
@@ -131,15 +131,16 @@ const MessageBubble = ({
           />
         )}
         {message.content}
-        {isOwn && (
-          <button
-            onClick={() => onDelete(message.id)}
-            className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white text-[9px] border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-          >
-            ✕
-          </button>
-        )}
       </div>
+      {isOwn && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(message.id); }}
+          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-danger text-white text-[9px] border-none cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 shadow-sm"
+          title="Obriši poruku"
+        >
+          ✕
+        </button>
+      )}
       <span className={`text-[10px] text-text-3 mt-1 px-1`}>
         {formatTime(message.createdAt)}
       </span>
@@ -335,6 +336,7 @@ const ChatPage = () => {
   const { isMobile } = useBreakpoint();
   const navigate = useNavigate();
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
+  const [pendingConv, setPendingConv] = useState<Conversation | null>(null);
   const [showList, setShowList] = useState(true);
   const [showNewChat, setShowNewChat] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
@@ -352,10 +354,22 @@ const ChatPage = () => {
     refetchInterval: 30_000,
   });
 
-  const { messages, setMessages, typingUsers, sendMessage, sendTyping, sendStopTyping, deleteMessage, markAsRead } =
+  const { messages, setMessages, typingUsers, sendMessage, sendTyping, sendStopTyping, deleteMessage: deleteMessageSocket, markAsRead } =
     useChat(activeConvId);
 
-  const activeConv = conversations?.find((c) => c.id === activeConvId);
+  const deleteMessage = async (messageId: string) => {
+    // Odmah ukloni iz UI-a
+    deleteMessageSocket(messageId);
+    try {
+      // HTTP DELETE — pouzdaniji od WebSocket emita
+      await chatApi.deleteMessage(messageId);
+      setTimeout(() => refetchConversations(), 300);
+    } catch {
+      // ignorisi — WebSocket je vec uklonio iz lokalnog stanja
+    }
+  };
+
+  const activeConv = conversations?.find((c) => c.id === activeConvId) ?? (pendingConv?.id === activeConvId ? pendingConv : null);
   const activeConvInfo = activeConv ? (() => {
     if (activeConv.type === "dm") {
       const other = activeConv.members?.find((m) => m.userId !== user?.id)?.user;
@@ -419,8 +433,9 @@ const ChatPage = () => {
     }
   };
 
-  const openConv = (convId: string) => {
+  const openConv = (convId: string, conv?: Conversation) => {
     setActiveConvId(convId);
+    if (conv) setPendingConv(conv);
     if (isMobile) setShowList(false);
   };
 
@@ -462,7 +477,7 @@ const ChatPage = () => {
           onStart={(conv) => {
             refetchConversations();
             setShowNewChat(false);
-            openConv(conv.id);
+            openConv(conv.id, conv);
           }}
         />
       )}

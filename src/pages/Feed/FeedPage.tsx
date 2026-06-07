@@ -1,10 +1,10 @@
 ﻿import { useQuery } from "@tanstack/react-query";
-import { postsApi } from "@/api/posts";
 import { usersApi } from "@/api/users";
 import { useState } from "react";
 import PostCard from "./PostCard";
-import { Users, Zap, ChevronDown } from "lucide-react";
+import { Users, Zap, ChevronDown, Loader2 } from "lucide-react";
 import ShareMenu from "@/components/shared/ShareMenu";
+import { useFeedInfinite, useInfiniteScroll } from "@/hooks/useInfinitePosts";
 
 const FILTERS = [
   { label: "Svi", value: "" },
@@ -75,12 +75,15 @@ const CommunityBanner = () => {
 const FeedPage = () => {
   const [activeFilter, setActiveFilter] = useState("");
 
-  const { data: posts, isLoading } = useQuery({
-    queryKey: ["posts", "feed"],
-    queryFn: postsApi.getFeed,
-  });
+  const {
+    posts: filtered,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useFeedInfinite(activeFilter);
 
-  const filtered = activeFilter ? posts?.filter((p) => p.type === activeFilter) : posts;
+  const sentinelRef = useInfiniteScroll(fetchNextPage, hasNextPage, isFetchingNextPage);
 
   return (
     <div>
@@ -137,6 +140,21 @@ const FeedPage = () => {
       {filtered?.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
+
+      {/* Infinite scroll sentinel */}
+      <div ref={sentinelRef} className="h-4" />
+
+      {isFetchingNextPage && (
+        <div className="flex justify-center py-6">
+          <Loader2 size={20} className="animate-spin text-text-3" />
+        </div>
+      )}
+
+      {!hasNextPage && filtered.length > 0 && (
+        <div className="text-center py-6 text-[12px] text-text-3">
+          Prikazani su svi postovi
+        </div>
+      )}
     </div>
   );
 };

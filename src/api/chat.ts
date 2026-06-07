@@ -28,4 +28,9 @@ export const chatApi = {
     const res = await api.post(`/chat/${conversationId}/invite/${targetUserId}`);
     return res.data;
   },
+
+  deleteMessage: async (messageId: string) => {
+    const res = await api.delete(`/chat/messages/${messageId}`);
+    return res.data;
+  },
 };
