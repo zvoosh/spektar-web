@@ -86,4 +86,9 @@ export const communitiesApi = {
     const res = await api.get<{ id: string; title: string; eventDate: string; eventLocation?: string; communityName: string; communitySlug: string }[]>('/communities/meta/upcoming-events');
     return res.data;
   },
+
+  deleteCommunity: async (id: string) => {
+    const res = await api.delete(`/communities/${id}`);
+    return res.data;
+  },
 };

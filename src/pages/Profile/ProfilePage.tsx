@@ -132,7 +132,7 @@ const ProfilePage = () => {
 
         <div className="px-5 pb-5">
           {/* Avatar row */}
-          <div className="flex items-end justify-between -mt-10 mb-4">
+          <div className="flex items-end justify-between -mt-8 mb-4">
             <div className="relative">
               <div
                 onClick={() => fileInputRef.current?.click()}

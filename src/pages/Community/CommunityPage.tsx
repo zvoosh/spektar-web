@@ -5,8 +5,27 @@ import { communitiesApi } from "@/api/communities";
 import { uploadApi } from "@/api/upload";
 import { useAuthStore } from "@/store/authStore";
 import PostCard from "@/pages/Feed/PostCard";
-import { Camera, ImagePlus, Users, FileText, Info, Image, Pencil, X, ShieldCheck, ShieldOff, UserPlus, Search, Check, Loader2 } from "lucide-react";
-import { useCommunityPostsInfinite, useInfiniteScroll } from "@/hooks/useInfinitePosts";
+import {
+  Camera,
+  ImagePlus,
+  Users,
+  FileText,
+  Info,
+  Image,
+  Pencil,
+  X,
+  ShieldCheck,
+  ShieldOff,
+  UserPlus,
+  Search,
+  Check,
+  Loader2,
+  Trash2,
+} from "lucide-react";
+import {
+  useCommunityPostsInfinite,
+  useInfiniteScroll,
+} from "@/hooks/useInfinitePosts";
 import { usersApi } from "@/api/users";
 import type { User } from "@/types";
 import ImageLightbox from "@/components/shared/ImageLightbox";
@@ -21,16 +40,24 @@ const FILTERS = [
 ];
 
 const CATEGORY_SR: Record<string, string> = {
-  neighborhood: "Kvart / Komšiluk", hobby: "Hobi", sport: "Sport",
-  food: "Hrana i piće", events: "Događaji", other: "Ostalo",
+  neighborhood: "Kvart / Komšiluk",
+  hobby: "Hobi",
+  sport: "Sport",
+  food: "Hrana i piće",
+  events: "Događaji",
+  other: "Ostalo",
 };
 
 const TYPE_SR: Record<string, string> = {
-  public: "Javna", restricted: "Ograničena", private: "Privatna",
+  public: "Javna",
+  restricted: "Ograničena",
+  private: "Privatna",
 };
 
 const ROLE_SR: Record<string, string> = {
-  owner: "Vlasnik", moderator: "Moderator", member: "Član",
+  owner: "Vlasnik",
+  moderator: "Moderator",
+  member: "Član",
 };
 
 type Tab = "posts" | "members" | "gallery" | "about";
@@ -55,14 +82,22 @@ const InviteUserModal = ({
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[300] flex items-center justify-center p-4">
       <div className="bg-surface rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <span className="font-semibold text-[15px] text-text-1">Pozovi u zajednicu</span>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg bg-surface-2 flex items-center justify-center border-none cursor-pointer text-text-3 hover:bg-border">
+          <span className="font-semibold text-[15px] text-text-1">
+            Pozovi u zajednicu
+          </span>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-lg bg-surface-2 flex items-center justify-center border-none cursor-pointer text-text-3 hover:bg-border"
+          >
             <X size={14} />
           </button>
         </div>
         <div className="p-4">
           <div className="relative mb-3">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-3" />
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-3"
+            />
             <input
               autoFocus
               value={q}
@@ -71,7 +106,11 @@ const InviteUserModal = ({
               className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border text-[13px] outline-none focus:border-accent bg-surface-2"
             />
           </div>
-          {q.length < 2 && <p className="text-[12px] text-text-3 text-center py-4">Unesi bar 2 slova</p>}
+          {q.length < 2 && (
+            <p className="text-[12px] text-text-3 text-center py-4">
+              Unesi bar 2 slova
+            </p>
+          )}
           <div className="space-y-1 max-h-60 overflow-y-auto">
             {users?.map((u: User) => (
               <div
@@ -80,11 +119,25 @@ const InviteUserModal = ({
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-surface-2-2 transition-colors"
               >
                 <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent overflow-hidden shrink-0 border border-border">
-                  {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover" /> : u.username.slice(0, 2).toUpperCase()}
+                  {u.avatar ? (
+                    <img
+                      src={u.avatar}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    u.username.slice(0, 2).toUpperCase()
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[13px] font-medium text-text-1">{u.username}</div>
-                  {u.bio && <div className="text-[11px] text-text-3 truncate">{u.bio}</div>}
+                  <div className="text-[13px] font-medium text-text-1">
+                    {u.username}
+                  </div>
+                  {u.bio && (
+                    <div className="text-[11px] text-text-3 truncate">
+                      {u.bio}
+                    </div>
+                  )}
                 </div>
                 <UserPlus size={14} className="text-accent shrink-0" />
               </div>
@@ -146,14 +199,29 @@ const CommunityPage = () => {
     enabled: !!community?.id && !!user,
   });
 
-  const myRoleStr = typeof myRole === "string" ? myRole : (myRole as any)?.role ?? null;
+  const myRoleStr =
+    typeof myRole === "string" ? myRole : ((myRole as any)?.role ?? null);
   const isOwner = myRoleStr === "owner";
   const isMod = myRoleStr === "moderator" || isOwner;
 
   const roleMutation = useMutation({
-    mutationFn: ({ userId, role }: { userId: string; role: "moderator" | "member" }) =>
-      communitiesApi.setMemberRole(community!.id, userId, role),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["members", community?.id] }),
+    mutationFn: ({
+      userId,
+      role,
+    }: {
+      userId: string;
+      role: "moderator" | "member";
+    }) => communitiesApi.setMemberRole(community!.id, userId, role),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["members", community?.id] }),
+  });
+
+  const deleteCommunityMutation = useMutation({
+    mutationFn: () => communitiesApi.deleteCommunity(community!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["communities"] });
+      navigate("/communities");
+    },
   });
 
   const { data: gallery, refetch: refetchGallery } = useQuery({
@@ -169,8 +237,12 @@ const CommunityPage = () => {
   });
 
   const approveImageMutation = useMutation({
-    mutationFn: (imageId: string) => communitiesApi.approveGalleryImage(imageId),
-    onSuccess: () => { refetchGallery(); refetchPendingGallery(); },
+    mutationFn: (imageId: string) =>
+      communitiesApi.approveGalleryImage(imageId),
+    onSuccess: () => {
+      refetchGallery();
+      refetchPendingGallery();
+    },
   });
 
   const rejectImageMutation = useMutation({
@@ -179,7 +251,8 @@ const CommunityPage = () => {
   });
 
   const addMemberMutation = useMutation({
-    mutationFn: (userId: string) => communitiesApi.directAddMember(community!.id, userId),
+    mutationFn: (userId: string) =>
+      communitiesApi.directAddMember(community!.id, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["members", community?.id] });
       setShowInvite(false);
@@ -187,8 +260,12 @@ const CommunityPage = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: { name?: string; description?: string; location?: string; avatar?: string }) =>
-      communitiesApi.update(community!.id, data),
+    mutationFn: (data: {
+      name?: string;
+      description?: string;
+      location?: string;
+      avatar?: string;
+    }) => communitiesApi.update(community!.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["community", slug] });
       setShowEdit(false);
@@ -203,7 +280,9 @@ const CommunityPage = () => {
     setShowEdit(true);
   };
 
-  const handleEditAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditAvatarUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setEditAvatarUploading(true);
@@ -255,7 +334,9 @@ const CommunityPage = () => {
   //   }
   // };
 
-  const handleGalleryUploadViaApi = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryUploadViaApi = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file || !community) return;
     setGalleryUploading(true);
@@ -271,18 +352,32 @@ const CommunityPage = () => {
     }
   };
 
-  if (isLoading) return <div className="flex items-center justify-center p-20 text-text-3">Učitavam zajednicu...</div>;
-  if (!community) return (
-    <div className="text-center p-20">
-      <div className="text-[32px] mb-3">🔍</div>
-      <div className="font-serif text-[15px] text-text-1">Zajednica nije pronađena</div>
-    </div>
+  const filtered = activeFilter
+    ? allCommunityPosts.filter((p) => p.type === activeFilter)
+    : allCommunityPosts;
+  const sentinelRef = useInfiniteScroll(
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   );
 
-  const isOwnerOrMod = isMod;
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center p-20 text-text-3">
+        Učitavam zajednicu...
+      </div>
+    );
+  if (!community)
+    return (
+      <div className="text-center p-20">
+        <div className="text-[32px] mb-3">🔍</div>
+        <div className="font-serif text-[15px] text-text-1">
+          Zajednica nije pronađena
+        </div>
+      </div>
+    );
 
-  const filtered = activeFilter ? allCommunityPosts.filter((p) => p.type === activeFilter) : allCommunityPosts;
-  const sentinelRef = useInfiniteScroll(fetchNextPage, hasNextPage, isFetchingNextPage);
+  const isOwnerOrMod = isMod;
 
   const TABS = [
     { value: "posts", label: "Postovi", icon: FileText },
@@ -298,8 +393,13 @@ const CommunityPage = () => {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[300] flex items-center justify-center p-4">
           <div className="bg-surface rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-              <span className="font-semibold text-[15px] text-text-1">Uredi zajednicu</span>
-              <button onClick={() => setShowEdit(false)} className="w-7 h-7 rounded-lg bg-surface-2 flex items-center justify-center border-none cursor-pointer text-text-3 hover:bg-border">
+              <span className="font-semibold text-[15px] text-text-1">
+                Uredi zajednicu
+              </span>
+              <button
+                onClick={() => setShowEdit(false)}
+                className="w-7 h-7 rounded-lg bg-surface-2 flex items-center justify-center border-none cursor-pointer text-text-3 hover:bg-border"
+              >
                 <X size={14} />
               </button>
             </div>
@@ -311,14 +411,26 @@ const CommunityPage = () => {
                   className="w-14 h-14 rounded-xl bg-accent-soft border-2 border-dashed border-accent/30 flex items-center justify-center cursor-pointer overflow-hidden hover:border-accent transition-colors"
                 >
                   {editAvatarUrl ? (
-                    <img src={editAvatarUrl} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={editAvatarUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <Camera size={20} className="text-accent/50" />
                   )}
                 </div>
-                <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleEditAvatarUpload} className="hidden" />
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleEditAvatarUpload}
+                  className="hidden"
+                />
                 <div>
-                  <div className="text-[13px] font-medium text-text-1">Avatar zajednice</div>
+                  <div className="text-[13px] font-medium text-text-1">
+                    Avatar zajednice
+                  </div>
                   <div className="text-[11px] text-text-3 mt-0.5">
                     {editAvatarUploading ? "Učitavam..." : "Klikni da promeniš"}
                   </div>
@@ -326,7 +438,9 @@ const CommunityPage = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-text-3 uppercase tracking-wider mb-1.5">Naziv</label>
+                <label className="block text-[11px] font-semibold text-text-3 uppercase tracking-wider mb-1.5">
+                  Naziv
+                </label>
                 <input
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
@@ -336,7 +450,9 @@ const CommunityPage = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-text-3 uppercase tracking-wider mb-1.5">Opis</label>
+                <label className="block text-[11px] font-semibold text-text-3 uppercase tracking-wider mb-1.5">
+                  Opis
+                </label>
                 <textarea
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
@@ -347,7 +463,9 @@ const CommunityPage = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-text-3 uppercase tracking-wider mb-1.5">Lokacija</label>
+                <label className="block text-[11px] font-semibold text-text-3 uppercase tracking-wider mb-1.5">
+                  Lokacija
+                </label>
                 <input
                   value={editLocation}
                   onChange={(e) => setEditLocation(e.target.value)}
@@ -357,16 +475,21 @@ const CommunityPage = () => {
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
-                <button onClick={() => setShowEdit(false)} className="px-4 py-2 rounded-xl border border-border text-[13px] text-text-2 bg-surface cursor-pointer hover:bg-surface-2-2">
+                <button
+                  onClick={() => setShowEdit(false)}
+                  className="px-4 py-2 rounded-xl border border-border text-[13px] text-text-2 bg-surface cursor-pointer hover:bg-surface-2-2"
+                >
                   Otkaži
                 </button>
                 <button
-                  onClick={() => updateMutation.mutate({
-                    name: editName || undefined,
-                    description: editDescription || undefined,
-                    location: editLocation || undefined,
-                    avatar: editAvatarUrl || undefined,
-                  })}
+                  onClick={() =>
+                    updateMutation.mutate({
+                      name: editName || undefined,
+                      description: editDescription || undefined,
+                      location: editLocation || undefined,
+                      avatar: editAvatarUrl || undefined,
+                    })
+                  }
                   disabled={updateMutation.isPending || !editName.trim()}
                   className="px-5 py-2 rounded-xl bg-accent text-white text-[13px] font-semibold border-none cursor-pointer disabled:opacity-50"
                 >
@@ -390,7 +513,11 @@ const CommunityPage = () => {
       {/* Banner */}
       <div className="relative rounded-2xl overflow-hidden mb-5 h-52 shadow-[0_4px_20px_rgba(0,0,0,0.12)] group">
         {community.banner ? (
-          <img src={community.banner} alt={community.name} className="w-full h-full object-cover" />
+          <img
+            src={community.banner}
+            alt={community.name}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-[#0d4f2e] via-[#1a8a57] to-[#3ab878]" />
         )}
@@ -399,7 +526,13 @@ const CommunityPage = () => {
         {/* Banner upload button (owner/mod only) */}
         {isOwnerOrMod && (
           <>
-            <input ref={bannerInputRef} type="file" accept="image/*" onChange={handleBannerUpload} className="hidden" />
+            <input
+              ref={bannerInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleBannerUpload}
+              className="hidden"
+            />
             <button
               onClick={() => bannerInputRef.current?.click()}
               className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/40 text-white text-[12px] border border-white/20 cursor-pointer backdrop-blur-sm hover:bg-black/60 transition-colors opacity-0 group-hover:opacity-100"
@@ -414,14 +547,20 @@ const CommunityPage = () => {
           <div className="flex items-end gap-3">
             <div className="w-12 h-12 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center text-xl font-bold text-white shrink-0 overflow-hidden backdrop-blur-sm">
               {community.avatar ? (
-                <img src={community.avatar} alt={community.name} className="w-full h-full object-cover" />
+                <img
+                  src={community.avatar}
+                  alt={community.name}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 community.name.slice(0, 1)
               )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                <h1 className="font-serif text-[18px] sm:text-[22px] text-white leading-tight truncate">{community.name}</h1>
+                <h1 className="font-serif text-[18px] sm:text-[22px] text-white leading-tight truncate">
+                  {community.name}
+                </h1>
                 {community.type !== "public" && (
                   <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full backdrop-blur-sm shrink-0">
                     🔒 {TYPE_SR[community.type]}
@@ -429,16 +568,32 @@ const CommunityPage = () => {
                 )}
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[11px] sm:text-[12px] text-white/80">{community.membersCount.toLocaleString("sr-RS")} članova</span>
+                <span className="text-[11px] sm:text-[12px] text-white/80">
+                  {community.membersCount.toLocaleString("sr-RS")} članova
+                </span>
                 {community.location && (
-                  <><span className="text-white/40">·</span><span className="text-[11px] sm:text-[12px] text-white/70 truncate">📍 {community.location}</span></>
+                  <>
+                    <span className="text-white/40">·</span>
+                    <span className="text-[11px] sm:text-[12px] text-white/70 truncate">
+                      📍 {community.location}
+                    </span>
+                  </>
                 )}
               </div>
               {/* Actions row on mobile — shown below title */}
               <div className="flex gap-1.5 mt-2 sm:hidden flex-wrap">
                 {!isMember ? (
                   <button
-                    onClick={() => isAuthenticated ? joinMutation.mutate() : navigate("/login", { state: { from: { pathname: `/c/${slug}` }, background: { pathname: `/c/${slug}` } } })}
+                    onClick={() =>
+                      isAuthenticated
+                        ? joinMutation.mutate()
+                        : navigate("/login", {
+                            state: {
+                              from: { pathname: `/c/${slug}` },
+                              background: { pathname: `/c/${slug}` },
+                            },
+                          })
+                    }
                     disabled={joinMutation.isPending}
                     className="px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-[12px] font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors"
                   >
@@ -450,7 +605,16 @@ const CommunityPage = () => {
                   </span>
                 )}
                 <button
-                  onClick={() => isAuthenticated ? navigate(`/new-post?community=${community.id}`) : navigate("/login", { state: { from: { pathname: `/c/${slug}` }, background: { pathname: `/c/${slug}` } } })}
+                  onClick={() =>
+                    isAuthenticated
+                      ? navigate(`/new-post?community=${community.id}`)
+                      : navigate("/login", {
+                          state: {
+                            from: { pathname: `/c/${slug}` },
+                            background: { pathname: `/c/${slug}` },
+                          },
+                        })
+                  }
                   className="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-[12px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors"
                 >
                   + Objavi
@@ -469,6 +633,19 @@ const CommunityPage = () => {
                     >
                       <Pencil size={13} />
                     </button>
+                    {isOwner && (
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Obrisati zajednicu "${community.name}"? Ova akcija je nepovratna.`)) {
+                            deleteCommunityMutation.mutate();
+                          }
+                        }}
+                        disabled={deleteCommunityMutation.isPending}
+                        className="w-8 h-8 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-white border border-red-400/30 cursor-pointer backdrop-blur-sm flex items-center justify-center transition-colors disabled:opacity-50"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
                   </>
                 )}
               </div>
@@ -477,7 +654,16 @@ const CommunityPage = () => {
             <div className="hidden sm:flex gap-2 shrink-0">
               {!isMember ? (
                 <button
-                  onClick={() => isAuthenticated ? joinMutation.mutate() : navigate("/login", { state: { from: { pathname: `/c/${slug}` }, background: { pathname: `/c/${slug}` } } })}
+                  onClick={() =>
+                    isAuthenticated
+                      ? joinMutation.mutate()
+                      : navigate("/login", {
+                          state: {
+                            from: { pathname: `/c/${slug}` },
+                            background: { pathname: `/c/${slug}` },
+                          },
+                        })
+                  }
                   disabled={joinMutation.isPending}
                   className="px-4 py-2 rounded-xl bg-accent hover:bg-accent-hover text-white text-[13px] font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors"
                 >
@@ -489,7 +675,16 @@ const CommunityPage = () => {
                 </span>
               )}
               <button
-                onClick={() => isAuthenticated ? navigate(`/new-post?community=${community.id}`) : navigate("/login", { state: { from: { pathname: `/c/${slug}` }, background: { pathname: `/c/${slug}` } } })}
+                onClick={() =>
+                  isAuthenticated
+                    ? navigate(`/new-post?community=${community.id}`)
+                    : navigate("/login", {
+                        state: {
+                          from: { pathname: `/c/${slug}` },
+                          background: { pathname: `/c/${slug}` },
+                        },
+                      })
+                }
                 className="px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[13px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors"
               >
                 + Objavi
@@ -509,6 +704,20 @@ const CommunityPage = () => {
                   >
                     <Pencil size={14} />
                   </button>
+                  {isOwner && (
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Obrisati zajednicu "${community.name}"? Ova akcija je nepovratna.`)) {
+                          deleteCommunityMutation.mutate();
+                        }
+                      }}
+                      disabled={deleteCommunityMutation.isPending}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/40 text-white text-[13px] border border-red-400/30 cursor-pointer backdrop-blur-sm transition-colors disabled:opacity-50"
+                    >
+                      <Trash2 size={14} />
+                      <span>Obriši</span>
+                    </button>
+                  )}
                 </>
               )}
             </div>
@@ -544,22 +753,34 @@ const CommunityPage = () => {
                 onClick={() => setActiveFilter(f.value)}
                 className={[
                   "px-3.5 py-1.5 rounded-lg text-[12.5px] border-none cursor-pointer transition-all font-medium",
-                  activeFilter === f.value ? "bg-accent text-white shadow-[0_2px_8px_rgba(26,138,87,0.3)]" : "bg-surface text-text-3 hover:bg-surface-2-2 border border-border",
+                  activeFilter === f.value
+                    ? "bg-accent text-white shadow-[0_2px_8px_rgba(26,138,87,0.3)]"
+                    : "bg-surface text-text-3 hover:bg-surface-2-2 border border-border",
                 ].join(" ")}
               >
                 {f.label}
               </button>
             ))}
           </div>
-          {postsLoading && <div className="text-center p-10 text-text-3">Učitavam postove...</div>}
+          {postsLoading && (
+            <div className="text-center p-10 text-text-3">
+              Učitavam postove...
+            </div>
+          )}
           {!postsLoading && filtered?.length === 0 && (
             <div className="text-center p-10 bg-surface rounded-2xl border border-border">
               <div className="text-[32px] mb-3">📭</div>
-              <div className="font-serif text-[15px] text-text-1">Nema postova</div>
-              <div className="text-[13px] mt-1 text-text-3">Budi prvi koji će nešto objaviti!</div>
+              <div className="font-serif text-[15px] text-text-1">
+                Nema postova
+              </div>
+              <div className="text-[13px] mt-1 text-text-3">
+                Budi prvi koji će nešto objaviti!
+              </div>
             </div>
           )}
-          {filtered?.map((post) => <PostCard key={post.id} post={post} />)}
+          {filtered?.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
 
           <div ref={sentinelRef} className="h-4" />
           {isFetchingNextPage && (
@@ -568,7 +789,9 @@ const CommunityPage = () => {
             </div>
           )}
           {!hasNextPage && filtered.length > 0 && (
-            <div className="text-center py-6 text-[12px] text-text-3">Prikazani su svi postovi</div>
+            <div className="text-center py-6 text-[12px] text-text-3">
+              Prikazani su svi postovi
+            </div>
           )}
         </>
       )}
@@ -591,15 +814,28 @@ const CommunityPage = () => {
             )}
           </div>
           {!members?.length ? (
-            <div className="text-center py-10 text-text-3 text-[13px]">Nema članova</div>
+            <div className="text-center py-10 text-text-3 text-[13px]">
+              Nema članova
+            </div>
           ) : (
             members.map((m: any) => (
-              <div key={m.id} className="flex items-center gap-3 px-5 py-3 border-b border-surface-2 last:border-b-0 hover:bg-surface-2-2 transition-colors">
+              <div
+                key={m.id}
+                className="flex items-center gap-3 px-5 py-3 border-b border-surface-2 last:border-b-0 hover:bg-surface-2-2 transition-colors"
+              >
                 <div
                   onClick={() => navigate(`/u/${m.user?.username}`)}
                   className="w-9 h-9 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent overflow-hidden border border-border shrink-0 cursor-pointer hover:opacity-80"
                 >
-                  {m.user?.avatar ? <img src={m.user.avatar} alt="" className="w-full h-full object-cover" /> : m.user?.username?.slice(0, 2).toUpperCase()}
+                  {m.user?.avatar ? (
+                    <img
+                      src={m.user.avatar}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    m.user?.username?.slice(0, 2).toUpperCase()
+                  )}
                 </div>
                 <div className="flex-1">
                   <div
@@ -608,7 +844,9 @@ const CommunityPage = () => {
                   >
                     {m.user?.username}
                   </div>
-                  <div className="text-[11px] text-text-3">{ROLE_SR[m.role] ?? m.role}</div>
+                  <div className="text-[11px] text-text-3">
+                    {ROLE_SR[m.role] ?? m.role}
+                  </div>
                 </div>
                 <div className="text-[11px] text-text-3 mr-2">
                   {new Date(m.joinedAt).toLocaleDateString("sr-RS")}
@@ -616,21 +854,29 @@ const CommunityPage = () => {
                 {/* Promote/demote — samo vlasnik, ne može da menja sebe ni drugog vlasnika */}
                 {isOwner && m.userId !== user?.id && m.role !== "owner" && (
                   <button
-                    onClick={() => roleMutation.mutate({
-                      userId: m.userId,
-                      role: m.role === "moderator" ? "member" : "moderator",
-                    })}
+                    onClick={() =>
+                      roleMutation.mutate({
+                        userId: m.userId,
+                        role: m.role === "moderator" ? "member" : "moderator",
+                      })
+                    }
                     disabled={roleMutation.isPending}
-                    title={m.role === "moderator" ? "Ukloni moderatora" : "Postavi za moderatora"}
+                    title={
+                      m.role === "moderator"
+                        ? "Ukloni moderatora"
+                        : "Postavi za moderatora"
+                    }
                     className={`w-8 h-8 rounded-lg border flex items-center justify-center cursor-pointer transition-colors disabled:opacity-50 ${
                       m.role === "moderator"
                         ? "border-warning/30 bg-warning-soft text-warning hover:bg-red-50"
                         : "border-accent/30 bg-accent-soft text-accent hover:bg-accent hover:text-white"
                     }`}
                   >
-                    {m.role === "moderator"
-                      ? <ShieldOff size={14} strokeWidth={2} />
-                      : <ShieldCheck size={14} strokeWidth={2} />}
+                    {m.role === "moderator" ? (
+                      <ShieldOff size={14} strokeWidth={2} />
+                    ) : (
+                      <ShieldCheck size={14} strokeWidth={2} />
+                    )}
                   </button>
                 )}
               </div>
@@ -644,7 +890,13 @@ const CommunityPage = () => {
         <div className="space-y-4">
           {isMember && (
             <div>
-              <input ref={galleryInputRef} type="file" accept="image/*" onChange={handleGalleryUploadViaApi} className="hidden" />
+              <input
+                ref={galleryInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleGalleryUploadViaApi}
+                className="hidden"
+              />
               <button
                 onClick={() => galleryInputRef.current?.click()}
                 disabled={galleryUploading}
@@ -654,7 +906,9 @@ const CommunityPage = () => {
                 {galleryUploading ? "Učitavam..." : "Dodaj sliku"}
               </button>
               {!isMod && (
-                <p className="text-[11px] text-text-3 mt-1.5">Slike čekaju odobrenje moderatora pre prikazivanja.</p>
+                <p className="text-[11px] text-text-3 mt-1.5">
+                  Slike čekaju odobrenje moderatora pre prikazivanja.
+                </p>
               )}
             </div>
           )}
@@ -663,19 +917,30 @@ const CommunityPage = () => {
           {isMod && (pendingGallery?.length ?? 0) > 0 && (
             <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
               <div className="px-5 py-3.5 border-b border-surface-2 flex items-center gap-2">
-                <span className="font-semibold text-[14px] text-text-1">Na čekanju</span>
+                <span className="font-semibold text-[14px] text-text-1">
+                  Na čekanju
+                </span>
                 <span className="px-2 py-0.5 rounded-full bg-warning-soft text-warning text-[11px] font-bold">
                   {pendingGallery!.length}
                 </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4">
                 {pendingGallery!.map((img: any) => (
-                  <div key={img.id} className="rounded-xl overflow-hidden border border-border relative group">
+                  <div
+                    key={img.id}
+                    className="rounded-xl overflow-hidden border border-border relative group"
+                  >
                     <div className="aspect-square">
-                      <img src={img.imageUrl} alt="" className="w-full h-full object-cover opacity-70" />
+                      <img
+                        src={img.imageUrl}
+                        alt=""
+                        className="w-full h-full object-cover opacity-70"
+                      />
                     </div>
                     <div className="p-2 bg-surface-2 border-t border-border">
-                      <div className="text-[11px] text-text-3 truncate mb-1.5">od {img.uploadedBy?.username}</div>
+                      <div className="text-[11px] text-text-3 truncate mb-1.5">
+                        od {img.uploadedBy?.username}
+                      </div>
                       <div className="flex gap-1.5">
                         <button
                           onClick={() => approveImageMutation.mutate(img.id)}
@@ -703,7 +968,9 @@ const CommunityPage = () => {
           {!gallery?.length ? (
             <div className="text-center py-12 bg-surface rounded-2xl border border-border">
               <div className="text-[40px] mb-3">🖼️</div>
-              <div className="font-serif text-[15px] text-text-1 mb-1">Galerija je prazna</div>
+              <div className="font-serif text-[15px] text-text-1 mb-1">
+                Galerija je prazna
+              </div>
               <div className="text-[13px] text-text-3">
                 {isMember ? "Dodaj prvu sliku!" : "Nema slika još."}
               </div>
@@ -712,11 +979,22 @@ const CommunityPage = () => {
             <>
               {lightboxIndex !== null && (
                 <ImageLightbox
-                  images={gallery.map((img: any) => ({ src: img.imageUrl, caption: img.uploadedBy?.username ? `📸 ${img.uploadedBy.username}` : undefined }))}
+                  images={gallery.map((img: any) => ({
+                    src: img.imageUrl,
+                    caption: img.uploadedBy?.username
+                      ? `📸 ${img.uploadedBy.username}`
+                      : undefined,
+                  }))}
                   index={lightboxIndex}
                   onClose={() => setLightboxIndex(null)}
-                  onPrev={() => setLightboxIndex((i) => Math.max(0, (i ?? 0) - 1))}
-                  onNext={() => setLightboxIndex((i) => Math.min(gallery.length - 1, (i ?? 0) + 1))}
+                  onPrev={() =>
+                    setLightboxIndex((i) => Math.max(0, (i ?? 0) - 1))
+                  }
+                  onNext={() =>
+                    setLightboxIndex((i) =>
+                      Math.min(gallery.length - 1, (i ?? 0) + 1),
+                    )
+                  }
                 />
               )}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -726,10 +1004,16 @@ const CommunityPage = () => {
                     onClick={() => setLightboxIndex(i)}
                     className="aspect-square rounded-xl overflow-hidden border border-border group relative cursor-pointer"
                   >
-                    <img src={img.imageUrl} alt={img.title ?? ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
+                    <img
+                      src={img.imageUrl}
+                      alt={img.title ?? ""}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    />
                     {img.uploadedBy?.username && (
                       <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="text-[11px] text-white truncate">{img.uploadedBy.username}</div>
+                        <div className="text-[11px] text-white truncate">
+                          {img.uploadedBy.username}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -743,30 +1027,60 @@ const CommunityPage = () => {
       {/* About tab */}
       {activeTab === "about" && (
         <div className="bg-surface border border-border rounded-2xl p-6 shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
-          <div className="font-serif text-[18px] text-text-1 mb-4">O zajednici</div>
+          <div className="font-serif text-[18px] text-text-1 mb-4">
+            O zajednici
+          </div>
           {community.description ? (
-            <p className="text-[14px] text-text-2 leading-relaxed mb-5">{community.description}</p>
+            <p className="text-[14px] text-text-2 leading-relaxed mb-5">
+              {community.description}
+            </p>
           ) : (
-            <p className="text-[13px] text-text-3 italic mb-5">Nema opisa zajednice.</p>
+            <p className="text-[13px] text-text-3 italic mb-5">
+              Nema opisa zajednice.
+            </p>
           )}
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-surface-2">
             <div>
-              <div className="text-[10.5px] text-text-3 uppercase tracking-wider font-semibold mb-1">Kategorija</div>
-              <div className="text-[13px] text-text-1 font-medium">{CATEGORY_SR[community.category] ?? community.category}</div>
+              <div className="text-[10.5px] text-text-3 uppercase tracking-wider font-semibold mb-1">
+                Title
+              </div>
+              <div className="text-[13px] text-text-1 font-medium">
+                {community.name}
+              </div>
             </div>
             <div>
-              <div className="text-[10.5px] text-text-3 uppercase tracking-wider font-semibold mb-1">Tip</div>
-              <div className="text-[13px] text-text-1 font-medium">{TYPE_SR[community.type]}</div>
+              <div className="text-[10.5px] text-text-3 uppercase tracking-wider font-semibold mb-1">
+                Kategorija
+              </div>
+              <div className="text-[13px] text-text-1 font-medium">
+                {CATEGORY_SR[community.category] ?? community.category}
+              </div>
+            </div>
+            <div>
+              <div className="text-[10.5px] text-text-3 uppercase tracking-wider font-semibold mb-1">
+                Tip
+              </div>
+              <div className="text-[13px] text-text-1 font-medium">
+                {TYPE_SR[community.type]}
+              </div>
             </div>
             {community.location && (
               <div>
-                <div className="text-[10.5px] text-text-3 uppercase tracking-wider font-semibold mb-1">Lokacija</div>
-                <div className="text-[13px] text-text-1 font-medium">📍 {community.location}</div>
+                <div className="text-[10.5px] text-text-3 uppercase tracking-wider font-semibold mb-1">
+                  Lokacija
+                </div>
+                <div className="text-[13px] text-text-1 font-medium">
+                  📍 {community.location}
+                </div>
               </div>
             )}
             <div>
-              <div className="text-[10.5px] text-text-3 uppercase tracking-wider font-semibold mb-1">Kreirana</div>
-              <div className="text-[13px] text-text-1 font-medium">{new Date(community.createdAt).toLocaleDateString("sr-RS")}</div>
+              <div className="text-[10.5px] text-text-3 uppercase tracking-wider font-semibold mb-1">
+                Kreirana
+              </div>
+              <div className="text-[13px] text-text-1 font-medium">
+                {new Date(community.createdAt).toLocaleDateString("sr-RS")}
+              </div>
             </div>
           </div>
         </div>
