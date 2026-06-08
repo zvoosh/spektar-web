@@ -8,7 +8,7 @@ import { useChat } from "@/hooks/useChat";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import type { Conversation, Message, User } from "@/types";
 import { useNavigate } from "react-router-dom";
-import { PenSquare, Search, X, UserPlus, FileText, Download, CheckCheck } from "lucide-react";
+import { PenSquare, Search, X, UserPlus, Download, CheckCheck, FileText, FileSpreadsheet, Presentation, BookOpen } from "lucide-react";
 import ImageLightbox from "@/components/shared/ImageLightbox";
 
 const formatTime = (date: string) =>
@@ -21,6 +21,41 @@ const formatFileSize = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+type FileKind = "pdf" | "word" | "excel" | "ppt";
+
+const getFileKind = (mimeType?: string, fileName?: string): FileKind => {
+  const m = mimeType ?? "";
+  const n = fileName?.toLowerCase() ?? "";
+  if (m === "application/pdf" || n.endsWith(".pdf")) return "pdf";
+  if (m.includes("spreadsheet") || m.includes("excel") || n.endsWith(".xls") || n.endsWith(".xlsx")) return "excel";
+  if (m.includes("presentation") || m.includes("powerpoint") || n.endsWith(".ppt") || n.endsWith(".pptx")) return "ppt";
+  return "word";
+};
+
+const FILE_META: Record<FileKind, { label: string; icon: React.ReactNode; bg: string; text: string }> = {
+  pdf:   { label: "PDF",        icon: <BookOpen size={15} />,        bg: "bg-red-500/20",    text: "text-red-400" },
+  word:  { label: "Word",       icon: <FileText size={15} />,        bg: "bg-blue-500/20",   text: "text-blue-400" },
+  excel: { label: "Excel",      icon: <FileSpreadsheet size={15} />, bg: "bg-green-500/20",  text: "text-green-400" },
+  ppt:   { label: "PowerPoint", icon: <Presentation size={15} />,    bg: "bg-orange-500/20", text: "text-orange-400" },
+};
+
+const openFile = async (url: string, mimeType?: string, fileName?: string) => {
+  const kind = getFileKind(mimeType, fileName);
+  if (kind === "pdf") {
+    // PDF: fetch → blob → new tab (bypasses Cloudinary CORS for PDF viewer)
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      window.open(URL.createObjectURL(blob), "_blank");
+    } catch {
+      window.open(url, "_blank");
+    }
+  } else {
+    // Word/Excel/PPT: Google Docs Viewer radi odlično za Office fajlove
+    window.open(`https://docs.google.com/viewer?url=${encodeURIComponent(url)}`, "_blank");
+  }
 };
 
 const downloadFile = async (url: string, fileName: string) => {
@@ -153,42 +188,36 @@ const MessageBubble = ({
             className="rounded-lg mb-1.5 max-w-[200px] cursor-zoom-in hover:opacity-90 transition-opacity"
           />
         )}
-        {message.fileUrl && (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                const isPdf = message.mimeType === "application/pdf" || message.fileName?.toLowerCase().endsWith(".pdf");
-                if (isPdf) {
-                  // fetch → blob → new tab so Chrome PDF viewer works
-                  fetch(message.fileUrl!)
-                    .then(r => r.blob())
-                    .then(blob => { window.open(URL.createObjectURL(blob), "_blank"); })
-                    .catch(() => window.open(message.fileUrl, "_blank"));
-                } else {
-                  window.open(message.fileUrl, "_blank");
-                }
-              }}
-              className={`flex items-center gap-2.5 px-1 py-0.5 rounded-lg bg-transparent border-none cursor-pointer flex-1 min-w-0 text-left ${isOwn ? "text-white/90 hover:text-white" : "text-text-2 hover:text-text-1"}`}
-            >
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isOwn ? "bg-white/20" : "bg-surface-2"}`}>
-                <FileText size={16} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[12px] font-medium truncate max-w-[140px]">{message.fileName}</div>
-                {message.fileSize && (
-                  <div className={`text-[10px] ${isOwn ? "text-white/60" : "text-text-3"}`}>{formatFileSize(message.fileSize)}</div>
-                )}
-              </div>
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); downloadFile(message.fileUrl!, message.fileName ?? "file"); }}
-              className={`shrink-0 opacity-60 hover:opacity-100 bg-transparent border-none cursor-pointer p-0 ${isOwn ? "text-white" : "text-text-2"}`}
-              title="Preuzmi"
-            >
-              <Download size={14} />
-            </button>
-          </div>
-        )}
+        {message.fileUrl && (() => {
+          const kind = getFileKind(message.mimeType, message.fileName);
+          const meta = FILE_META[kind];
+          return (
+            <div className="flex items-center gap-2 min-w-0">
+              <button
+                onClick={() => openFile(message.fileUrl!, message.mimeType, message.fileName)}
+                className={`flex items-center gap-2.5 px-1 py-0.5 rounded-lg bg-transparent border-none cursor-pointer flex-1 min-w-0 text-left ${isOwn ? "text-white/90 hover:text-white" : "text-text-2 hover:text-text-1"}`}
+              >
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${isOwn ? "bg-white/20" : meta.bg}`}>
+                  <span className={isOwn ? "text-white" : meta.text}>{meta.icon}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-[10px] font-semibold uppercase tracking-wide mb-0.5 ${isOwn ? "text-white/50" : meta.text}`}>{meta.label}</div>
+                  <div className="text-[12px] font-medium truncate max-w-[140px]">{message.fileName}</div>
+                  {message.fileSize && (
+                    <div className={`text-[10px] ${isOwn ? "text-white/50" : "text-text-3"}`}>{formatFileSize(message.fileSize)}</div>
+                  )}
+                </div>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); downloadFile(message.fileUrl!, message.fileName ?? "file"); }}
+                className={`shrink-0 opacity-50 hover:opacity-100 bg-transparent border-none cursor-pointer p-1 ${isOwn ? "text-white" : "text-text-2"}`}
+                title="Preuzmi"
+              >
+                <Download size={14} />
+              </button>
+            </div>
+          );
+        })()}
         {message.content}
       </div>
       {isOwn && (
@@ -729,7 +758,7 @@ const ChatPage = () => {
               {/* Input */}
               <div className="px-4 py-3 border-t border-border flex items-center gap-2">
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                <input ref={fileInputRef2} type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar" onChange={handleFileUpload} className="hidden" />
+                <input ref={fileInputRef2} type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" onChange={handleFileUpload} className="hidden" />
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={imageUploading}
