@@ -155,11 +155,20 @@ const MessageBubble = ({
         )}
         {message.fileUrl && (
           <div className="flex items-center gap-2">
-            <a
-              href={message.fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex items-center gap-2.5 px-1 py-0.5 rounded-lg no-underline flex-1 min-w-0 ${isOwn ? "text-white/90 hover:text-white" : "text-text-2 hover:text-text-1"}`}
+            <button
+              onClick={() => {
+                const isPdf = message.mimeType === "application/pdf" || message.fileName?.toLowerCase().endsWith(".pdf");
+                if (isPdf) {
+                  // fetch → blob → new tab so Chrome PDF viewer works
+                  fetch(message.fileUrl!)
+                    .then(r => r.blob())
+                    .then(blob => { window.open(URL.createObjectURL(blob), "_blank"); })
+                    .catch(() => window.open(message.fileUrl, "_blank"));
+                } else {
+                  window.open(message.fileUrl, "_blank");
+                }
+              }}
+              className={`flex items-center gap-2.5 px-1 py-0.5 rounded-lg bg-transparent border-none cursor-pointer flex-1 min-w-0 text-left ${isOwn ? "text-white/90 hover:text-white" : "text-text-2 hover:text-text-1"}`}
             >
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isOwn ? "bg-white/20" : "bg-surface-2"}`}>
                 <FileText size={16} />
@@ -170,7 +179,7 @@ const MessageBubble = ({
                   <div className={`text-[10px] ${isOwn ? "text-white/60" : "text-text-3"}`}>{formatFileSize(message.fileSize)}</div>
                 )}
               </div>
-            </a>
+            </button>
             <button
               onClick={(e) => { e.stopPropagation(); downloadFile(message.fileUrl!, message.fileName ?? "file"); }}
               className={`shrink-0 opacity-60 hover:opacity-100 bg-transparent border-none cursor-pointer p-0 ${isOwn ? "text-white" : "text-text-2"}`}
