@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Bell, UserPlus, Heart, MessageSquare, Users, Check } from "lucide-react";
+import { Bell, UserPlus, Heart, MessageSquare, Users, Check, Building2 } from "lucide-react";
 import { notificationsApi } from "@/api/notifications";
+import { communitiesApi } from "@/api/communities";
 import { useAuthStore } from "@/store/authStore";
 import { useSocket } from "@/hooks/useSocket";
 import type { Notification } from "@/types";
@@ -17,6 +18,7 @@ const TYPE_ICON: Record<string, React.ReactNode> = {
   comment_reply: <MessageSquare size={14} className="text-blue-400" />,
   community_join_request: <Users size={14} className="text-amber-400" />,
   community_join_approved: <Users size={14} className="text-accent" />,
+  community_invite: <Building2 size={14} className="text-accent" />,
   chat_invite: <MessageSquare size={14} className="text-text-3" />,
 };
 
@@ -28,10 +30,18 @@ function notifLink(n: Notification): string {
     case "post_vote":
     case "post_comment":
     case "comment_reply":
+    case "new_post":
       return n.entityId ? `/post/${n.entityId}` : "/";
+    case "community_invite":
+      return n.entityId ? `/c/${n.entityId}` : "/communities";
     case "community_join_request":
     case "community_join_approved":
+    case "community_join_rejected":
+    case "gallery_approved":
+    case "gallery_rejected":
       return "/communities";
+    case "chat_invite":
+      return "/chat";
     default:
       return "/";
   }
@@ -68,6 +78,24 @@ const NotificationBell = () => {
 
   const markOneMutation = useMutation({
     mutationFn: (id: string) => notificationsApi.markAsRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notif-count"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+
+  const acceptInviteMutation = useMutation({
+    mutationFn: ({ communityId, notifId }: { communityId: string; notifId: string }) =>
+      communitiesApi.acceptInvite(communityId).then(() => notificationsApi.markAsRead(notifId)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notif-count"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+
+  const rejectInviteMutation = useMutation({
+    mutationFn: ({ communityId, notifId }: { communityId: string; notifId: string }) =>
+      communitiesApi.rejectInvite(communityId).then(() => notificationsApi.markAsRead(notifId)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notif-count"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -148,7 +176,53 @@ const NotificationBell = () => {
                 Nema notifikacija
               </div>
             ) : (
-              notifications.map((n) => (
+              notifications.map((n) => {
+              if (n.type === "community_invite" && !n.isRead) {
+                // Inline accept/reject for community invites
+                return (
+                  <div
+                    key={n.id}
+                    onClick={() => { setOpen(false); navigate(`/c/${n.entityId}`); }}
+                    className={`flex items-start gap-3 px-4 py-3 border-b border-border/50 last:border-0 bg-accent-soft/30 cursor-pointer hover:bg-accent-soft/50 transition-colors`}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent shrink-0 overflow-hidden">
+                      {n.actor?.avatar ? (
+                        <img src={n.actor.avatar} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        n.actor?.username?.slice(0, 2).toUpperCase() ?? "?"
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        {TYPE_ICON["community_invite"]}
+                        <span className="text-[12px] font-semibold text-text-1 truncate">
+                          {n.actor?.displayName || n.actor?.username}
+                        </span>
+                      </div>
+                      <p className="text-[12px] text-text-2 leading-snug line-clamp-2">{n.message}</p>
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); acceptInviteMutation.mutate({ communityId: n.entityId!, notifId: n.id }); }}
+                          disabled={acceptInviteMutation.isPending || rejectInviteMutation.isPending}
+                          className="px-3 py-1 rounded-lg bg-accent text-white text-[11px] font-semibold cursor-pointer hover:bg-accent-hover transition-colors disabled:opacity-50"
+                        >
+                          Prihvati
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); rejectInviteMutation.mutate({ communityId: n.entityId!, notifId: n.id }); }}
+                          disabled={acceptInviteMutation.isPending || rejectInviteMutation.isPending}
+                          className="px-3 py-1 rounded-lg bg-surface-2 text-text-2 text-[11px] font-semibold cursor-pointer hover:bg-surface border border-border transition-colors disabled:opacity-50"
+                        >
+                          Odbij
+                        </button>
+                      </div>
+                    </div>
+                    <div className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
+                  </div>
+                );
+              }
+
+              return (
                 <button
                   key={n.id}
                   onClick={() => handleClick(n)}
@@ -182,7 +256,8 @@ const NotificationBell = () => {
                     <div className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
                   )}
                 </button>
-              ))
+              );
+            })
             )}
           </div>
         </div>

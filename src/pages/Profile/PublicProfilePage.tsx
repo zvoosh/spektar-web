@@ -34,6 +34,14 @@ const PublicProfilePage = () => {
     enabled: !!user?.id,
   });
 
+  const { data: friendStatus } = useQuery({
+    queryKey: ["friend-status", user?.id],
+    queryFn: () => friendsApi.getStatus(user!.id),
+    enabled: !!user?.id && isAuthenticated,
+  });
+
+  const isFriend = friendStatus?.status === "accepted";
+
   const dmMutation = useMutation({
     mutationFn: () => chatApi.createDM(user!.id),
     onSuccess: () => navigate("/chat"),
@@ -111,18 +119,20 @@ const PublicProfilePage = () => {
             <div className="flex items-center gap-2 relative left-2 sm:top-3 sm:left-0">
               {isAuthenticated ? (
                 <>
-                  <button
-                    onClick={() => dmMutation.mutate()}
-                    disabled={dmMutation.isPending}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border text-[13px] font-semibold text-text-1 bg-surface cursor-pointer hover:bg-surface-2 hover:border-border-strong transition-all disabled:opacity-50 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
-                  >
-                    <MessageCircle
-                      size={15}
-                      strokeWidth={2}
-                      className="text-text-3"
-                    />
-                    Poruka
-                  </button>
+                  {isFriend && (
+                    <button
+                      onClick={() => dmMutation.mutate()}
+                      disabled={dmMutation.isPending}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border text-[13px] font-semibold text-text-1 bg-surface cursor-pointer hover:bg-surface-2 hover:border-border-strong transition-all disabled:opacity-50 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
+                    >
+                      <MessageCircle
+                        size={15}
+                        strokeWidth={2}
+                        className="text-text-3"
+                      />
+                      Poruka
+                    </button>
+                  )}
                   <FriendButton userId={user.id} />
                 </>
               ) : (

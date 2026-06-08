@@ -45,10 +45,12 @@ const CreatePostPage = () => {
     }
   };
 
-  const { data: communities } = useQuery({
+  const { data: communitiesAll } = useQuery({
     queryKey: ["communities"],
     queryFn: communitiesApi.getAll,
   });
+  // Prikaži samo zajednice u kojima je korisnik član
+  const communities = communitiesAll?.filter((c: any) => c.isMember);
 
   const createMutation = useMutation({
     mutationFn: () =>
@@ -153,7 +155,7 @@ const CreatePostPage = () => {
           />
         </div>
 
-        {/* Event fields */}
+        {/* Event date fields */}
         {type === "event" && (
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -178,19 +180,21 @@ const CreatePostPage = () => {
                 className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-surface"
               />
             </div>
-            <div className="col-span-2">
-              <label className="block text-[12px] font-semibold text-text-3 uppercase tracking-wider mb-1.5">
-                Lokacija
-              </label>
-              <input
-                value={eventLocation}
-                onChange={(e) => setEventLocation(e.target.value)}
-                placeholder="npr. Kalemegdan, Beograd"
-                className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-surface"
-              />
-            </div>
           </div>
         )}
+
+        {/* Lokacija — opciono za sve tipove */}
+        <div>
+          <label className="block text-[12px] font-semibold text-text-3 uppercase tracking-wider mb-1.5">
+            Lokacija <span className="font-normal normal-case">(opciono)</span>
+          </label>
+          <input
+            value={eventLocation}
+            onChange={(e) => setEventLocation(e.target.value)}
+            placeholder="npr. Kalemegdan, Beograd"
+            className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-surface"
+          />
+        </div>
 
         {/* Image upload */}
         <div>

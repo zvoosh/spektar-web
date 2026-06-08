@@ -21,6 +21,9 @@ import {
   Check,
   Loader2,
   Trash2,
+  UserX,
+  Ban,
+  LogOut,
 } from "lucide-react";
 import {
   useCommunityPostsInfinite,
@@ -157,10 +160,13 @@ const CommunityPage = () => {
   const [activeFilter, setActiveFilter] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>("posts");
   const [isMember, setIsMember] = useState<boolean | null>(null);
+  const [isInvited, setIsInvited] = useState<boolean>(false);
   const [bannerUploading, setBannerUploading] = useState(false);
   const [galleryUploading, setGalleryUploading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [selectedNewOwner, setSelectedNewOwner] = useState("");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -177,7 +183,10 @@ const CommunityPage = () => {
     enabled: !!slug,
   });
 
-  if (community && isMember === null) setIsMember(community.isMember ?? false);
+  if (community && isMember === null) {
+    setIsMember(community.isMember ?? false);
+    setIsInvited((community as any).isInvited ?? false);
+  }
 
   const {
     posts: allCommunityPosts,
@@ -214,6 +223,47 @@ const CommunityPage = () => {
     }) => communitiesApi.setMemberRole(community!.id, userId, role),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["members", community?.id] }),
+  });
+
+  const kickMutation = useMutation({
+    mutationFn: (userId: string) => communitiesApi.kickMember(community!.id, userId),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["members", community?.id] }),
+  });
+
+  const banMutation = useMutation({
+    mutationFn: (userId: string) => communitiesApi.banMember(community!.id, userId),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["members", community?.id] }),
+  });
+
+  const leaveMutation = useMutation({
+    mutationFn: (newOwnerId?: string) => communitiesApi.leaveCommunity(community!.id, newOwnerId),
+    onSuccess: () => {
+      setIsMember(false);
+      setShowLeaveModal(false);
+      setSelectedNewOwner("");
+      queryClient.invalidateQueries({ queryKey: ["community", slug] });
+      queryClient.invalidateQueries({ queryKey: ["communities"] });
+      navigate("/communities");
+    },
+  });
+
+  const acceptInviteMutation = useMutation({
+    mutationFn: () => communitiesApi.acceptInvite(community!.id),
+    onSuccess: () => {
+      setIsMember(true);
+      setIsInvited(false);
+      queryClient.invalidateQueries({ queryKey: ["community", slug] });
+    },
+  });
+
+  const rejectInviteMutation = useMutation({
+    mutationFn: () => communitiesApi.rejectInvite(community!.id),
+    onSuccess: () => {
+      setIsInvited(false);
+      queryClient.invalidateQueries({ queryKey: ["community", slug] });
+    },
   });
 
   const deleteCommunityMutation = useMutation({
@@ -582,43 +632,64 @@ const CommunityPage = () => {
               </div>
               {/* Actions row on mobile — shown below title */}
               <div className="flex gap-1.5 mt-2 sm:hidden flex-wrap">
-                {!isMember ? (
+                {isMember ? (
+                  <>
+                    <span className="px-3 py-1.5 rounded-lg bg-white/15 text-white text-[12px] border border-white/25 backdrop-blur-sm">
+                      ✓ Član
+                    </span>
+                    <button
+                      onClick={() => {
+                        if (isOwner) {
+                          setShowLeaveModal(true);
+                        } else if (window.confirm("Napustiti ovu zajednicu?")) {
+                          leaveMutation.mutate(undefined);
+                        }
+                      }}
+                      disabled={leaveMutation.isPending}
+                      title="Napusti zajednicu"
+                      className="w-7 h-7 rounded-lg bg-white/10 hover:bg-red-500/40 text-white border border-white/20 flex items-center justify-center cursor-pointer transition-colors disabled:opacity-50"
+                    >
+                      <LogOut size={12} />
+                    </button>
+                  </>
+                ) : isInvited ? (
+                  <>
+                    <button
+                      onClick={() => acceptInviteMutation.mutate()}
+                      disabled={acceptInviteMutation.isPending || rejectInviteMutation.isPending}
+                      className="px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-[12px] font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors"
+                    >
+                      {acceptInviteMutation.isPending ? "..." : "✓ Prihvati poziv"}
+                    </button>
+                    <button
+                      onClick={() => rejectInviteMutation.mutate()}
+                      disabled={acceptInviteMutation.isPending || rejectInviteMutation.isPending}
+                      className="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-red-500/40 text-white text-[12px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors"
+                    >
+                      {rejectInviteMutation.isPending ? "..." : "✕ Odbij"}
+                    </button>
+                  </>
+                ) : community.type === "public" ? (
                   <button
                     onClick={() =>
                       isAuthenticated
                         ? joinMutation.mutate()
-                        : navigate("/login", {
-                            state: {
-                              from: { pathname: `/c/${slug}` },
-                              background: { pathname: `/c/${slug}` },
-                            },
-                          })
+                        : navigate("/login", { state: { from: { pathname: `/c/${slug}` } } })
                     }
                     disabled={joinMutation.isPending}
                     className="px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-[12px] font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors"
                   >
                     {joinMutation.isPending ? "..." : "Pridruži se"}
                   </button>
-                ) : (
-                  <span className="px-3 py-1.5 rounded-lg bg-white/15 text-white text-[12px] border border-white/25 backdrop-blur-sm">
-                    ✓ Član
-                  </span>
+                ) : null}
+                {isMember && (
+                  <button
+                    onClick={() => navigate(`/new-post?community=${community.id}`)}
+                    className="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-[12px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors"
+                  >
+                    + Objavi
+                  </button>
                 )}
-                <button
-                  onClick={() =>
-                    isAuthenticated
-                      ? navigate(`/new-post?community=${community.id}`)
-                      : navigate("/login", {
-                          state: {
-                            from: { pathname: `/c/${slug}` },
-                            background: { pathname: `/c/${slug}` },
-                          },
-                        })
-                  }
-                  className="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-[12px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors"
-                >
-                  + Objavi
-                </button>
                 {isOwnerOrMod && (
                   <>
                     <button
@@ -652,43 +723,63 @@ const CommunityPage = () => {
             </div>
             {/* Actions — hidden on mobile, shown on sm+ */}
             <div className="hidden sm:flex gap-2 shrink-0">
-              {!isMember ? (
+              {isMember ? (
+                <>
+                  <span className="px-4 py-2 rounded-xl bg-white/15 text-white text-[13px] border border-white/25 backdrop-blur-sm">
+                    ✓ Član
+                  </span>
+                  <button
+                    onClick={() => {
+                      if (isOwner) {
+                        setShowLeaveModal(true);
+                      } else if (window.confirm("Napustiti ovu zajednicu?")) {
+                        leaveMutation.mutate(undefined);
+                      }
+                    }}
+                    disabled={leaveMutation.isPending}
+                    title="Napusti zajednicu"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-red-500/40 text-white text-[13px] border border-white/20 cursor-pointer backdrop-blur-sm transition-colors disabled:opacity-50"
+                  >
+                    <LogOut size={14} />
+                    <span>Napusti</span>
+                  </button>
+                </>
+              ) : isInvited ? (
+                <>
+                  <button
+                    onClick={() => acceptInviteMutation.mutate()}
+                    disabled={acceptInviteMutation.isPending || rejectInviteMutation.isPending}
+                    className="px-4 py-2 rounded-xl bg-accent hover:bg-accent-hover text-white text-[13px] font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors"
+                  >
+                    {acceptInviteMutation.isPending ? "..." : "✓ Prihvati poziv"}
+                  </button>
+                  <button
+                    onClick={() => rejectInviteMutation.mutate()}
+                    disabled={acceptInviteMutation.isPending || rejectInviteMutation.isPending}
+                    className="px-4 py-2 rounded-xl bg-white/15 hover:bg-red-500/40 text-white text-[13px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors"
+                  >
+                    {rejectInviteMutation.isPending ? "..." : "✕ Odbij poziv"}
+                  </button>
+                </>
+              ) : community.type === "public" ? (
                 <button
                   onClick={() =>
                     isAuthenticated
                       ? joinMutation.mutate()
-                      : navigate("/login", {
-                          state: {
-                            from: { pathname: `/c/${slug}` },
-                            background: { pathname: `/c/${slug}` },
-                          },
-                        })
+                      : navigate("/login", { state: { from: { pathname: `/c/${slug}` } } })
                   }
                   disabled={joinMutation.isPending}
                   className="px-4 py-2 rounded-xl bg-accent hover:bg-accent-hover text-white text-[13px] font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors"
                 >
                   {joinMutation.isPending ? "..." : "Pridruži se"}
                 </button>
-              ) : (
-                <span className="px-4 py-2 rounded-xl bg-white/15 text-white text-[13px] border border-white/25 backdrop-blur-sm">
-                  ✓ Član
-                </span>
-              )}
-              <button
-                onClick={() =>
-                  isAuthenticated
-                    ? navigate(`/new-post?community=${community.id}`)
-                    : navigate("/login", {
-                        state: {
-                          from: { pathname: `/c/${slug}` },
-                          background: { pathname: `/c/${slug}` },
-                        },
-                      })
-                }
+              ) : null}
+              {isMember && <button
+                onClick={() => navigate(`/new-post?community=${community.id}`)}
                 className="px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[13px] border border-white/25 cursor-pointer backdrop-blur-sm transition-colors"
               >
                 + Objavi
-              </button>
+              </button>}
               {isOwnerOrMod && (
                 <>
                   <button
@@ -853,6 +944,7 @@ const CommunityPage = () => {
                 </div>
                 {/* Promote/demote — samo vlasnik, ne može da menja sebe ni drugog vlasnika */}
                 {isOwner && m.userId !== user?.id && m.role !== "owner" && (
+                  <>
                   <button
                     onClick={() =>
                       roleMutation.mutate({
@@ -878,6 +970,29 @@ const CommunityPage = () => {
                       <ShieldCheck size={14} strokeWidth={2} />
                     )}
                   </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(`Kickovati ${m.user?.username}?`))
+                        kickMutation.mutate(m.userId);
+                    }}
+                    disabled={kickMutation.isPending}
+                    title="Kick člana"
+                    className="w-8 h-8 rounded-lg border border-orange-300/50 bg-orange-50 text-orange-500 hover:bg-orange-500 hover:text-white flex items-center justify-center cursor-pointer transition-colors disabled:opacity-50"
+                  >
+                    <UserX size={14} strokeWidth={2} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(`Banovati ${m.user?.username}? Korisnik neće moći da se ponovo pridruži.`))
+                        banMutation.mutate(m.userId);
+                    }}
+                    disabled={banMutation.isPending}
+                    title="Ban člana"
+                    className="w-8 h-8 rounded-lg border border-red-300/50 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center cursor-pointer transition-colors disabled:opacity-50"
+                  >
+                    <Ban size={14} strokeWidth={2} />
+                  </button>
+                  </>
                 )}
               </div>
             ))
@@ -1081,6 +1196,56 @@ const CommunityPage = () => {
               <div className="text-[13px] text-text-1 font-medium">
                 {new Date(community.createdAt).toLocaleDateString("sr-RS")}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal — prenos vlasništva pre napuštanja */}
+      {showLeaveModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface border border-border rounded-2xl shadow-xl w-full max-w-md p-6">
+            <h2 className="font-serif text-[18px] text-text-1 mb-1">Napusti zajednicu</h2>
+            <p className="text-[13px] text-text-2 mb-5">
+              Kao vlasnik, moraš preneti vlasništvo na drugog člana pre nego što napustiš zajednicu.
+            </p>
+
+            <label className="text-[12px] font-medium text-text-2 mb-2 block">
+              Odaberi novog vlasnika
+            </label>
+            <select
+              value={selectedNewOwner}
+              onChange={(e) => setSelectedNewOwner(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-border bg-surface text-text-1 text-[13px] mb-5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/30"
+            >
+              <option value="">-- Odaberi člana --</option>
+              {(members as any[])
+                ?.filter((m: any) => m.userId !== user?.id)
+                .map((m: any) => (
+                  <option key={m.userId} value={m.userId}>
+                    {m.user?.displayName || m.user?.username}
+                    {m.role === "moderator" ? " (moderator)" : ""}
+                  </option>
+                ))}
+            </select>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowLeaveModal(false);
+                  setSelectedNewOwner("");
+                }}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-border text-text-1 text-[13px] font-medium cursor-pointer hover:bg-surface-2 transition-colors"
+              >
+                Otkaži
+              </button>
+              <button
+                onClick={() => leaveMutation.mutate(selectedNewOwner)}
+                disabled={!selectedNewOwner || leaveMutation.isPending}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-[13px] font-semibold cursor-pointer transition-colors disabled:opacity-50"
+              >
+                {leaveMutation.isPending ? "Čekaj..." : "Prenesi i napusti"}
+              </button>
             </div>
           </div>
         </div>

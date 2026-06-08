@@ -1,4 +1,4 @@
-﻿import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { communitiesApi } from "@/api/communities";
 import { useAuthStore } from "@/store/authStore";
@@ -8,13 +8,30 @@ const CommunitiesPage = () => {
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
 
-  const { data: communities, isLoading } = useQuery({
+  const { data: communitiesRaw, isLoading } = useQuery({
     queryKey: ["communities"],
     queryFn: communitiesApi.getAll,
   });
 
+  // Invited zajednice idu prve
+  const communities = communitiesRaw
+    ? [...communitiesRaw].sort((a: any, b: any) => (b.isInvited ? 1 : 0) - (a.isInvited ? 1 : 0))
+    : undefined;
+
   const joinMutation = useMutation({
     mutationFn: (id: string) => communitiesApi.join(id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["communities"] }),
+  });
+
+  const acceptInviteMutation = useMutation({
+    mutationFn: (id: string) => communitiesApi.acceptInvite(id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["communities"] }),
+  });
+
+  const rejectInviteMutation = useMutation({
+    mutationFn: (id: string) => communitiesApi.rejectInvite(id),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["communities"] }),
   });
@@ -38,7 +55,7 @@ const CommunitiesPage = () => {
       )}
 
       <div className="grid grid-cols-1 gap-3">
-        {communities?.map((community) => (
+        {communities?.map((community: any) => (
           <div
             key={community.id}
             onClick={() => navigate(`/c/${community.slug}`)}
@@ -83,11 +100,33 @@ const CommunitiesPage = () => {
                 )}
               </div>
             </div>
+
+            {/* Action badge */}
             {community.isMember ? (
-              <span className="self-center px-3.5 py-1.75 rounded-lg border border-border text-text-3 text-[12px] bg-surface-2 shrink-0">
+              <span className="self-center px-3.5 py-1.5 rounded-lg border border-border text-text-3 text-[12px] bg-surface-2 shrink-0">
                 ✓ Član
               </span>
-            ) : (
+            ) : community.isInvited ? (
+              <div
+                className="self-center flex flex-col gap-1 shrink-0"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={() => acceptInviteMutation.mutate(community.id)}
+                  disabled={acceptInviteMutation.isPending || rejectInviteMutation.isPending}
+                  className="px-3 py-1 rounded-lg bg-accent text-white text-[11px] font-semibold cursor-pointer hover:bg-accent-hover disabled:opacity-50 transition-colors"
+                >
+                  ✓ Prihvati poziv
+                </button>
+                <button
+                  onClick={() => rejectInviteMutation.mutate(community.id)}
+                  disabled={acceptInviteMutation.isPending || rejectInviteMutation.isPending}
+                  className="px-3 py-1 rounded-lg border border-border text-text-3 text-[11px] cursor-pointer hover:bg-surface-2 disabled:opacity-50 transition-colors"
+                >
+                  Odbij
+                </button>
+              </div>
+            ) : community.type === "public" ? (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -98,11 +137,11 @@ const CommunitiesPage = () => {
                   }
                 }}
                 disabled={joinMutation.isPending}
-                className="self-center px-3.5 py-1.75 rounded-lg border border-accent text-accent text-[12px] font-medium bg-surface cursor-pointer shrink-0 hover:bg-accent-soft disabled:opacity-50"
+                className="self-center px-3.5 py-1.5 rounded-lg border border-accent text-accent text-[12px] font-medium bg-surface cursor-pointer shrink-0 hover:bg-accent-soft disabled:opacity-50"
               >
                 Pridruži se
               </button>
-            )}
+            ) : null}
           </div>
         ))}
       </div>

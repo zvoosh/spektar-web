@@ -91,4 +91,36 @@ export const communitiesApi = {
     const res = await api.delete(`/communities/${id}`);
     return res.data;
   },
+
+  leaveCommunity: async (communityId: string, newOwnerId?: string) => {
+    const res = await api.delete(`/communities/${communityId}/leave`, {
+      data: newOwnerId ? { newOwnerId } : {},
+    });
+    return res.data;
+  },
+
+  acceptInvite: async (communityId: string) => {
+    const res = await api.post(`/communities/${communityId}/accept-invite`);
+    return res.data;
+  },
+
+  rejectInvite: async (communityId: string) => {
+    const res = await api.post(`/communities/${communityId}/reject-invite`);
+    return res.data;
+  },
+
+  kickMember: async (communityId: string, userId: string) => {
+    const res = await api.delete(`/communities/${communityId}/members/${userId}/kick`);
+    return res.data;
+  },
+
+  banMember: async (communityId: string, userId: string) => {
+    const res = await api.post(`/communities/${communityId}/members/${userId}/ban`);
+    return res.data;
+  },
+
+  unbanMember: async (communityId: string, userId: string) => {
+    const res = await api.delete(`/communities/${communityId}/members/${userId}/ban`);
+    return res.data;
+  },
 };
