@@ -138,26 +138,42 @@ const MessageBubble = ({
             className="rounded-lg mb-1.5 max-w-[200px] cursor-zoom-in hover:opacity-90 transition-opacity"
           />
         )}
-        {message.fileUrl && (
-          <a
-            href={message.fileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`flex items-center gap-2.5 px-1 py-0.5 rounded-lg no-underline group/file ${isOwn ? "text-white/90 hover:text-white" : "text-text-2 hover:text-text-1"}`}
-            download={message.fileName}
-          >
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isOwn ? "bg-white/20" : "bg-surface-2"}`}>
-              <FileText size={16} />
+        {message.fileUrl && (() => {
+          const isPdf = message.mimeType === "application/pdf" || message.fileName?.toLowerCase().endsWith(".pdf");
+          const viewUrl = isPdf
+            ? `https://docs.google.com/viewer?url=${encodeURIComponent(message.fileUrl)}&embedded=true`
+            : message.fileUrl;
+          return (
+            <div className="flex items-center gap-2">
+              <a
+                href={viewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center gap-2.5 px-1 py-0.5 rounded-lg no-underline group/file flex-1 min-w-0 ${isOwn ? "text-white/90 hover:text-white" : "text-text-2 hover:text-text-1"}`}
+              >
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isOwn ? "bg-white/20" : "bg-surface-2"}`}>
+                  <FileText size={16} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[12px] font-medium truncate max-w-[140px]">{message.fileName}</div>
+                  {message.fileSize && (
+                    <div className={`text-[10px] ${isOwn ? "text-white/60" : "text-text-3"}`}>{formatFileSize(message.fileSize)}</div>
+                  )}
+                </div>
+              </a>
+              <a
+                href={message.fileUrl}
+                download={message.fileName}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`shrink-0 opacity-60 hover:opacity-100 ${isOwn ? "text-white" : "text-text-2"}`}
+                title="Preuzmi"
+              >
+                <Download size={14} />
+              </a>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[12px] font-medium truncate max-w-[160px]">{message.fileName}</div>
-              {message.fileSize && (
-                <div className={`text-[10px] ${isOwn ? "text-white/60" : "text-text-3"}`}>{formatFileSize(message.fileSize)}</div>
-              )}
-            </div>
-            <Download size={13} className="shrink-0 opacity-60 group-hover/file:opacity-100" />
-          </a>
-        )}
+          );
+        })()}
         {message.content}
       </div>
       {isOwn && (
