@@ -1,10 +1,9 @@
 ﻿import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/authStore";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
-import { notificationsApi } from "@/api/notifications";
-import { Bell, PenSquare, Menu, User, Bookmark, LogOut, Settings } from "lucide-react";
+import { PenSquare, Menu, User, Bookmark, LogOut, Settings } from "lucide-react";
+import NotificationBell from "@/components/shared/NotificationBell";
 
 const Navbar = ({
   onMenuClick,
@@ -29,13 +28,6 @@ const Navbar = ({
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
-
-  const { data: unreadCount } = useQuery({
-    queryKey: ["notifications", "unread"],
-    queryFn: notificationsApi.getUnreadCount,
-    enabled: isAuthenticated,
-    refetchInterval: 60_000,
-  });
 
   const handleLogout = () => {
     logout();
@@ -90,17 +82,7 @@ const Navbar = ({
             </button>
 
             {/* Notifications */}
-            <button
-              onClick={() => navigate("/notifications")}
-              className="relative w-9 h-9 rounded-xl border border-border bg-surface flex items-center justify-center cursor-pointer text-text-2 hover:bg-surface-2 hover:text-accent transition-colors"
-            >
-              <Bell size={16} strokeWidth={2} />
-              {(unreadCount ?? 0) > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-accent border-2 border-surface flex items-center justify-center text-[9px] font-bold text-white px-0.5">
-                  {unreadCount! > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </button>
+            <NotificationBell />
           </>
         )}
 
