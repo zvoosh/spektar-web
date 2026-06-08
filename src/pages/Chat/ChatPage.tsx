@@ -596,7 +596,7 @@ const ChatPage = () => {
                       <MessageBubble
                         key={msg.id}
                         message={msg}
-                        isOwn={msg.senderId === user?.id}
+                        isOwn={(msg.senderId ?? msg.sender?.id) === user?.id}
                         onDelete={deleteMessage}
                         onImageClick={setLightboxUrl}
                       />

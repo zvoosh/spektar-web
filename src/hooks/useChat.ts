@@ -34,6 +34,8 @@ export const useChat = (conversationId: string | null) => {
     if (!socket) return;
 
     const onNewMessage = (message: Message) => {
+      // Only add messages that belong to the current conversation
+      if (message.conversationId !== conversationIdRef.current) return;
       setMessagesFiltered((prev) => {
         if (prev.some((m) => m.id === message.id)) return prev;
         return [...prev, message];
@@ -78,16 +80,25 @@ export const useChat = (conversationId: string | null) => {
       });
     };
 
+    // Re-join room on reconnect (server forgets rooms after disconnect)
+    const onReconnect = () => {
+      if (conversationIdRef.current) {
+        socket.emit("joinConversation", { conversationId: conversationIdRef.current });
+      }
+    };
+
     socket.on("newMessage", onNewMessage);
     socket.on("userTyping", onUserTyping);
     socket.on("userStopTyping", onUserStopTyping);
     socket.on("messageDeleted", onMessageDeleted);
+    socket.on("connect", onReconnect);
 
     return () => {
       socket.off("newMessage", onNewMessage);
       socket.off("userTyping", onUserTyping);
       socket.off("userStopTyping", onUserStopTyping);
       socket.off("messageDeleted", onMessageDeleted);
+      socket.off("connect", onReconnect);
     };
   }, [socket]);
 
