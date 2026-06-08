@@ -8,7 +8,7 @@ import { useChat } from "@/hooks/useChat";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import type { Conversation, Message, User } from "@/types";
 import { useNavigate } from "react-router-dom";
-import { PenSquare, Search, X, UserPlus } from "lucide-react";
+import { PenSquare, Search, X, UserPlus, FileText, Download, CheckCheck } from "lucide-react";
 import ImageLightbox from "@/components/shared/ImageLightbox";
 
 const formatTime = (date: string) =>
@@ -16,6 +16,12 @@ const formatTime = (date: string) =>
 
 const formatDay = (date: string) =>
   new Date(date).toLocaleDateString("sr-RS", { day: "numeric", month: "long" });
+
+const formatFileSize = (bytes: number) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
 
 // Izvlači prikaz ime/avatar za konverzaciju
 const useConvInfo = (conv: Conversation, myId?: string) => {
@@ -88,11 +94,13 @@ const ConversationItem = ({
 const MessageBubble = ({
   message,
   isOwn,
+  isRead,
   onDelete,
   onImageClick,
 }: {
   message: Message;
   isOwn: boolean;
+  isRead?: boolean;
   onDelete: (id: string) => void;
   onImageClick: (url: string) => void;
 }) => (
@@ -130,6 +138,26 @@ const MessageBubble = ({
             className="rounded-lg mb-1.5 max-w-[200px] cursor-zoom-in hover:opacity-90 transition-opacity"
           />
         )}
+        {message.fileUrl && (
+          <a
+            href={message.fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`flex items-center gap-2.5 px-1 py-0.5 rounded-lg no-underline group/file ${isOwn ? "text-white/90 hover:text-white" : "text-text-2 hover:text-text-1"}`}
+            download={message.fileName}
+          >
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isOwn ? "bg-white/20" : "bg-surface-2"}`}>
+              <FileText size={16} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[12px] font-medium truncate max-w-[160px]">{message.fileName}</div>
+              {message.fileSize && (
+                <div className={`text-[10px] ${isOwn ? "text-white/60" : "text-text-3"}`}>{formatFileSize(message.fileSize)}</div>
+              )}
+            </div>
+            <Download size={13} className="shrink-0 opacity-60 group-hover/file:opacity-100" />
+          </a>
+        )}
         {message.content}
       </div>
       {isOwn && (
@@ -141,9 +169,12 @@ const MessageBubble = ({
           ✕
         </button>
       )}
-      <span className={`text-[10px] text-text-3 mt-1 px-1`}>
-        {formatTime(message.createdAt)}
-      </span>
+      <div className={`flex items-center gap-1 mt-1 px-1 ${isOwn ? "justify-end" : ""}`}>
+        <span className="text-[10px] text-text-3">{formatTime(message.createdAt)}</span>
+        {isOwn && (
+          <CheckCheck size={12} className={isRead ? "text-accent" : "text-text-3"} />
+        )}
+      </div>
     </div>
   </div>
 );
@@ -343,6 +374,7 @@ const ChatPage = () => {
   const [inputText, setInputText] = useState("");
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
+  const fileInputRef2 = useRef<HTMLInputElement>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -430,6 +462,26 @@ const ChatPage = () => {
       refetchConversations();
     } finally {
       setImageUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageUploading(true);
+    try {
+      const result = await uploadApi.uploadFile(file);
+      sendMessage("", undefined, undefined, {
+        fileUrl: result.url,
+        fileName: result.name,
+        fileSize: result.size,
+        mimeType: result.mimeType,
+      });
+      refetchConversations();
+    } finally {
+      setImageUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -592,15 +644,26 @@ const ChatPage = () => {
                       <span className="text-[11px] text-text-3 shrink-0">{day}</span>
                       <div className="flex-1 h-px bg-surface-2" />
                     </div>
-                    {dayMsgs.map((msg) => (
-                      <MessageBubble
-                        key={msg.id}
-                        message={msg}
-                        isOwn={(msg.senderId ?? msg.sender?.id) === user?.id}
-                        onDelete={deleteMessage}
-                        onImageClick={setLightboxUrl}
-                      />
-                    ))}
+                    {(() => {
+                      // Read receipts: kada je drugi korisnik poslednji pročitao (samo za DM)
+                      const otherLastReadAt = activeConv?.type === "dm"
+                        ? activeConv.members?.find((m) => m.userId !== user?.id)?.lastReadAt
+                        : undefined;
+                      return dayMsgs.map((msg) => {
+                        const isOwn = (msg.senderId ?? msg.sender?.id) === user?.id;
+                        const isRead = isOwn && !!otherLastReadAt && new Date(msg.createdAt) <= new Date(otherLastReadAt);
+                        return (
+                          <MessageBubble
+                            key={msg.id}
+                            message={msg}
+                            isOwn={isOwn}
+                            isRead={isRead}
+                            onDelete={deleteMessage}
+                            onImageClick={setLightboxUrl}
+                          />
+                        );
+                      });
+                    })()}
                   </div>
                 ))}
 
@@ -634,19 +697,23 @@ const ChatPage = () => {
 
               {/* Input */}
               <div className="px-4 py-3 border-t border-border flex items-center gap-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
+                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                <input ref={fileInputRef2} type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar" onChange={handleFileUpload} className="hidden" />
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={imageUploading}
-                  className="w-8 h-8 rounded-lg border border-border bg-surface text-text-3 cursor-pointer text-sm flex items-center justify-center shrink-0 hover:bg-surface-2-2 disabled:opacity-50"
+                  title="Pošalji sliku"
+                  className="w-8 h-8 rounded-lg border border-border bg-surface text-text-3 cursor-pointer text-sm flex items-center justify-center shrink-0 hover:bg-surface-2 disabled:opacity-50"
                 >
                   📷
+                </button>
+                <button
+                  onClick={() => fileInputRef2.current?.click()}
+                  disabled={imageUploading}
+                  title="Pošalji fajl"
+                  className="w-8 h-8 rounded-lg border border-border bg-surface text-text-3 cursor-pointer flex items-center justify-center shrink-0 hover:bg-surface-2 disabled:opacity-50"
+                >
+                  <FileText size={15} />
                 </button>
                 <input
                   value={inputText}

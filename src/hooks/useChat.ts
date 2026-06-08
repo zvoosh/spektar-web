@@ -80,6 +80,22 @@ export const useChat = (conversationId: string | null) => {
       });
     };
 
+    const onMessageRead = ({ userId, conversationId: convId }: { userId: string; conversationId: string }) => {
+      // Update lastReadAt in conversations cache so read receipt ticks update
+      queryClient.setQueryData<any[]>(["conversations"], (convs) => {
+        if (!convs) return convs;
+        return convs.map((conv) => {
+          if (conv.id !== convId) return conv;
+          return {
+            ...conv,
+            members: conv.members?.map((m: any) =>
+              m.userId === userId ? { ...m, lastReadAt: new Date().toISOString() } : m
+            ),
+          };
+        });
+      });
+    };
+
     // Re-join room on reconnect (server forgets rooms after disconnect)
     const onReconnect = () => {
       if (conversationIdRef.current) {
@@ -91,6 +107,7 @@ export const useChat = (conversationId: string | null) => {
     socket.on("userTyping", onUserTyping);
     socket.on("userStopTyping", onUserStopTyping);
     socket.on("messageDeleted", onMessageDeleted);
+    socket.on("messageRead", onMessageRead);
     socket.on("connect", onReconnect);
 
     return () => {
@@ -98,6 +115,7 @@ export const useChat = (conversationId: string | null) => {
       socket.off("userTyping", onUserTyping);
       socket.off("userStopTyping", onUserStopTyping);
       socket.off("messageDeleted", onMessageDeleted);
+      socket.off("messageRead", onMessageRead);
       socket.off("connect", onReconnect);
     };
   }, [socket]);
@@ -111,9 +129,9 @@ export const useChat = (conversationId: string | null) => {
   }, [conversationId, socket]);
 
   const sendMessage = useCallback(
-    (content: string, replyToId?: string, imageUrl?: string) => {
+    (content: string, replyToId?: string, imageUrl?: string, fileData?: { fileUrl: string; fileName: string; fileSize: number; mimeType: string }) => {
       if (!conversationId || !socket) return;
-      socket.emit("sendMessage", { conversationId, content, replyToId, imageUrl });
+      socket.emit("sendMessage", { conversationId, content, replyToId, imageUrl, ...fileData });
     },
     [conversationId, socket],
   );

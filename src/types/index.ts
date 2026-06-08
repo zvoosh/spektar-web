@@ -96,6 +96,7 @@ export interface ConversationMember {
   userId: string;
   user: User;
   role: string;
+  lastReadAt?: string;
   leftAt?: string;
 }
 
@@ -119,6 +120,10 @@ export interface Message {
   sender: User;
   content: string;
   imageUrl?: string;
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: number;
+  mimeType?: string;
   replyToId?: string;
   replyTo?: Message;
   deletedAt?: string;
