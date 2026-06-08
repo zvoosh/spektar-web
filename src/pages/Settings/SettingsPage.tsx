@@ -4,7 +4,8 @@ import { authApi } from "@/api/auth";
 import { usersApi } from "@/api/users";
 import { useAuthStore } from "@/store/authStore";
 import { useThemeStore, type Theme } from "@/store/themeStore";
-import { Shield, ShieldCheck, ShieldOff, CheckCircle, Save, User, MapPin, Bell, Sun, Moon, Monitor } from "lucide-react";
+import { Shield, ShieldCheck, ShieldOff, CheckCircle, Save, User, MapPin, Bell, BellOff, BellRing, Sun, Moon, Monitor } from "lucide-react";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -313,6 +314,65 @@ const NotificationsSection = () => {
           </div>
         ))}
       </div>
+
+      <PushNotificationRow />
+    </div>
+  );
+};
+
+const PushNotificationRow = () => {
+  const { supported, permission, subscribe, unsubscribe, checkSubscribed } = usePushNotifications();
+  const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    checkSubscribed().then(setSubscribed);
+  }, [permission]);
+
+  if (!supported) return null;
+
+  const handleToggle = async () => {
+    setLoading(true);
+    if (subscribed) {
+      await unsubscribe();
+      setSubscribed(false);
+    } else {
+      const ok = await subscribe();
+      setSubscribed(ok);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="border-t border-border px-5 py-4 flex items-center gap-4">
+      <div className="w-9 h-9 rounded-xl bg-surface-2 flex items-center justify-center shrink-0">
+        {subscribed ? <BellRing size={18} className="text-accent" /> : <BellOff size={18} className="text-text-3" />}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[13px] font-medium text-text-1">Push notifikacije</div>
+        <div className="text-[11.5px] text-text-3 mt-0.5">
+          {permission === "denied"
+            ? "Blokirano u podešavanjima browsera"
+            : subscribed
+            ? "Primaš notifikacije čak i kad je app zatvorena"
+            : "Dozvoli da browser šalje notifikacije"}
+        </div>
+      </div>
+      {permission === "denied" ? (
+        <span className="text-[11px] text-danger font-medium">Blokirano</span>
+      ) : (
+        <button
+          onClick={handleToggle}
+          disabled={loading}
+          className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold border cursor-pointer transition-all disabled:opacity-50 ${
+            subscribed
+              ? "bg-surface-2 text-text-2 border-border hover:bg-danger-soft hover:text-danger hover:border-danger/20"
+              : "bg-accent text-white border-accent hover:bg-accent-hover"
+          }`}
+        >
+          {loading ? "..." : subscribed ? "Isključi" : "Uključi"}
+        </button>
+      )}
     </div>
   );
 };

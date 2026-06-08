@@ -125,7 +125,7 @@ const NotificationBell = () => {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-11 w-80 bg-surface border border-border rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.18)] z-50 overflow-hidden">
+        <div className="fixed sm:absolute left-2 right-2 sm:left-auto sm:right-0 top-16 sm:top-11 sm:w-80 bg-surface border border-border rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.18)] z-50 overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <span className="font-semibold text-[14px] text-text-1">Notifikacije</span>
