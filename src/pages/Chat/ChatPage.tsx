@@ -23,6 +23,21 @@ const formatFileSize = (bytes: number) => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
+const downloadFile = async (url: string, fileName: string) => {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch {
+    // fallback — otvori u novom tabu
+    window.open(url, "_blank");
+  }
+};
+
 // Izvlači prikaz ime/avatar za konverzaciju
 const useConvInfo = (conv: Conversation, myId?: string) => {
   if (conv.type === "dm") {
@@ -156,15 +171,13 @@ const MessageBubble = ({
                 )}
               </div>
             </a>
-            <a
-              href={message.fileUrl}
-              download={message.fileName}
-              className={`shrink-0 opacity-60 hover:opacity-100 ${isOwn ? "text-white" : "text-text-2"}`}
+            <button
+              onClick={(e) => { e.stopPropagation(); downloadFile(message.fileUrl!, message.fileName ?? "file"); }}
+              className={`shrink-0 opacity-60 hover:opacity-100 bg-transparent border-none cursor-pointer p-0 ${isOwn ? "text-white" : "text-text-2"}`}
               title="Preuzmi"
-              onClick={(e) => e.stopPropagation()}
             >
               <Download size={14} />
-            </a>
+            </button>
           </div>
         )}
         {message.content}
