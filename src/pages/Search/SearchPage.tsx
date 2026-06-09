@@ -129,10 +129,13 @@ const SearchPage = () => {
       {/* Tag mode — direktna pretraga po tagu */}
       {tagParam && (
         <div className="mb-4 flex items-center gap-2">
-          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent-soft border border-accent/30 text-accent text-[13px] font-semibold">
-            # {tagParam}
-          </span>
-          <span className="text-[12px] text-text-3">— postovi sa ovim tagom</span>
+          <button
+            onClick={() => setSearchParams({}, { replace: true })}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent-soft border border-accent/30 text-accent text-[13px] font-semibold cursor-pointer hover:bg-red-50 hover:border-red-300 hover:text-red-500 transition-colors group"
+          >
+            #{tagParam}
+            <span className="text-[11px] opacity-60 group-hover:opacity-100">✕</span>
+          </button>
         </div>
       )}
 
