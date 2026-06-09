@@ -178,10 +178,10 @@ const ChatArea = ({
           </button>
         )}
         <div
-          onClick={() => convInfo?.user && navigate(`/u/${convInfo.user.username}`)}
-          className={`w-9 h-9 rounded-full bg-accent-soft flex items-center justify-center text-xs font-semibold text-accent overflow-hidden shrink-0 border border-border ${convInfo?.user ? "cursor-pointer hover:opacity-80" : ""}`}
+          onClick={() => !activeConv.isNotes && convInfo?.user && navigate(`/u/${convInfo.user.username}`)}
+          className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold overflow-hidden shrink-0 border border-border ${activeConv.isNotes ? "bg-yellow-100 text-lg" : "bg-accent-soft text-accent"} ${!activeConv.isNotes && convInfo?.user ? "cursor-pointer hover:opacity-80" : ""}`}
         >
-          {convInfo?.avatar ? (
+          {activeConv.isNotes ? "📝" : convInfo?.avatar ? (
             <img loading="lazy" src={convInfo.avatar} alt="" className="w-full h-full object-cover" />
           ) : (
             convInfo?.initials ?? "?"
@@ -189,13 +189,16 @@ const ChatArea = ({
         </div>
         <div className="flex-1">
           <div
-            onClick={() => convInfo?.user && navigate(`/u/${convInfo.user.username}`)}
-            className={`text-[14px] font-semibold text-text-1 ${convInfo?.user ? "cursor-pointer hover:text-accent transition-colors" : ""}`}
+            onClick={() => !activeConv.isNotes && convInfo?.user && navigate(`/u/${convInfo.user.username}`)}
+            className={`text-[14px] font-semibold text-text-1 ${!activeConv.isNotes && convInfo?.user ? "cursor-pointer hover:text-accent transition-colors" : ""}`}
           >
             {convInfo?.name ?? "Poruka"}
           </div>
-          {activeConv.type === "dm" && convInfo?.user && (
+          {activeConv.type === "dm" && !activeConv.isNotes && convInfo?.user && (
             <div className="text-[11px] text-text-3">@{convInfo.user.username}</div>
+          )}
+          {activeConv.isNotes && (
+            <div className="text-[11px] text-text-3">Samo za tebe</div>
           )}
           {isGroupLike && (
             <div className="text-[11px] text-text-3">

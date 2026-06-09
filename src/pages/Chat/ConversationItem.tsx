@@ -18,8 +18,10 @@ const ConversationItem = memo(({ conv, active, myId, onClick }: Props) => {
         active ? "bg-accent-soft" : "hover:bg-surface-2-2"
       }`}
     >
-      <div className="w-10 h-10 rounded-full bg-accent-soft border border-border flex items-center justify-center text-sm font-semibold text-accent shrink-0 overflow-hidden">
-        {info.avatar ? (
+      <div className={`w-10 h-10 rounded-full border border-border flex items-center justify-center text-sm font-semibold shrink-0 overflow-hidden ${"isNotes" in info && info.isNotes ? "bg-yellow-100 dark:bg-yellow-900/30 text-lg" : "bg-accent-soft text-accent"}`}>
+        {("isNotes" in info && info.isNotes) ? (
+          "📝"
+        ) : info.avatar ? (
           <img loading="lazy" src={info.avatar} alt={info.name} className="w-full h-full object-cover" />
         ) : (
           info.initials

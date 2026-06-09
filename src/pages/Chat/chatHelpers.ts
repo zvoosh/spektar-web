@@ -51,14 +51,26 @@ export const downloadFile = async (url: string, fileName: string) => {
 };
 
 /** Returns display name/avatar/initials for a conversation. */
-export const getConvInfo = (conv: { type: string; name?: string | null; avatar?: string | null; members?: any[]; community?: any }, myId?: string) => {
+export const getConvInfo = (conv: { type: string; isNotes?: boolean; name?: string | null; avatar?: string | null; members?: any[]; community?: any }, myId?: string) => {
   if (conv.type === "dm") {
+    // Notes — DM sa samim sobom
+    if (conv.isNotes) {
+      const me = conv.members?.find((m) => m.userId === myId)?.user;
+      return {
+        name: "Beleške",
+        avatar: me?.avatar ?? null,
+        initials: "📝",
+        user: me ?? null,
+        isNotes: true,
+      };
+    }
     const other = conv.members?.find((m) => m.userId !== myId)?.user;
     return {
-      name: other?.username ?? "Direktna poruka",
+      name: other?.displayName || other?.username ?? "Direktna poruka",
       avatar: other?.avatar ?? null,
-      initials: (other?.username ?? "DM").slice(0, 2).toUpperCase(),
+      initials: (other?.displayName || other?.username ?? "DM").slice(0, 2).toUpperCase(),
       user: other ?? null,
+      isNotes: false,
     };
   }
   const baseName = conv.name ?? "Opšti chat";

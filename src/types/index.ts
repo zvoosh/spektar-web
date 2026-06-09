@@ -103,6 +103,7 @@ export interface ConversationMember {
 export interface Conversation {
   id: string;
   type: "dm" | "group" | "community_room";
+  isNotes?: boolean;
   name?: string;
   avatar?: string;
   communityId?: string;
