@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ImagePlus, Check, X } from "lucide-react";
 import { communitiesApi } from "@/api/communities";
@@ -14,7 +14,6 @@ interface Props {
 }
 
 const CommunityGalleryTab = ({ community, isMember, isMod }: Props) => {
-  const queryClient = useQueryClient();
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const [galleryUploading, setGalleryUploading] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);

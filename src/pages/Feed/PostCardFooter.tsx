@@ -10,8 +10,8 @@ import type { Post } from "@/types";
 interface Props {
   post: Post;
   votes: number;
-  userVote: "up" | "down" | null;
-  isSaved: boolean;
+  userVote: "up" | "down" | null | undefined;
+  isSaved: boolean | undefined;
   isMobile: boolean;
   isAuthenticated: boolean;
   isOwn: boolean;
