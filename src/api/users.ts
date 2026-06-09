@@ -20,8 +20,10 @@ export const usersApi = {
     return res.data;
   },
 
-  search: async (q: string) => {
-    const res = await api.get<User[]>(`/users/search?q=${encodeURIComponent(q)}`);
+  search: async (q: string, excludeSelf = false) => {
+    const params = new URLSearchParams({ q });
+    if (excludeSelf) params.set('excludeSelf', 'true');
+    const res = await api.get<User[]>(`/users/search?${params}`);
     return res.data;
   },
 

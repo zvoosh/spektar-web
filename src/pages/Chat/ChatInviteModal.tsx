@@ -30,7 +30,7 @@ const ChatInviteModal = ({ conversationId, onClose }: Props) => {
 
   const { data: users } = useQuery({
     queryKey: ["users", "search", q],
-    queryFn: () => usersApi.search(q),
+    queryFn: () => usersApi.search(q, true),
     enabled: q.length >= 2,
   });
 

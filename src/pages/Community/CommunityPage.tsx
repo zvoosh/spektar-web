@@ -44,7 +44,7 @@ const InviteUserModal = ({
   const [q, setQ] = useState("");
   const { data: users } = useQuery({
     queryKey: ["users", "search-invite", q],
-    queryFn: () => usersApi.search(q),
+    queryFn: () => usersApi.search(q, true),
     enabled: q.length >= 2,
   });
 
