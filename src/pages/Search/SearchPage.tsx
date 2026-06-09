@@ -94,7 +94,7 @@ const SearchPage = () => {
 
   const dmMutation = useMutation({
     mutationFn: (userId: string) => chatApi.createDM(userId),
-    onSuccess: (conv) => { if (mountedRef.current) navigate(`/chat/${conv.id}`); },
+    onSuccess: (conv) => { if (mountedRef.current) navigate(`/chat/${conv.id}`, { state: { conversation: conv } }); },
   });
 
   const isLoading = tagParam ? tagPostsLoading : (postsLoading || communitiesLoading || usersLoading);

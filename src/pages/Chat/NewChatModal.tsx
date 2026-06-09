@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { X, Search } from "lucide-react";
 import { chatApi } from "@/api/chat";
 import { usersApi } from "@/api/users";
+import { useAuthStore } from "@/store/authStore";
 import type { Conversation, User } from "@/types";
 
 const UserRow = ({ u, selected, onClick }: { u: User; selected?: boolean; onClick: () => void }) => (
@@ -31,6 +32,7 @@ const NewChatModal = ({ onClose, onStart }: Props) => {
   const [q, setQ] = useState("");
   const [groupName, setGroupName] = useState("");
   const [selected, setSelected] = useState<User[]>([]);
+  const { user: me } = useAuthStore();
 
   const { data: users } = useQuery({
     queryKey: ["users", "search", q],
@@ -110,6 +112,22 @@ const NewChatModal = ({ onClose, onStart }: Props) => {
               className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border text-[13px] outline-none focus:border-accent bg-surface-2"
             />
           </div>
+
+          {/* Beleške — uvek vidljivo u DM modu */}
+          {mode === "dm" && (
+            <div
+              onClick={() => me && dmMutation.mutate(me.id)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-surface-2-2 transition-colors mb-1"
+            >
+              <div className="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-base shrink-0 border border-border">
+                📝
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[13px] font-medium text-text-1">Beleške</div>
+                <div className="text-[11px] text-text-3">Samo za tebe</div>
+              </div>
+            </div>
+          )}
 
           {q.length < 2 && <p className="text-[12px] text-text-3 text-center py-4">Unesi bar 2 slova</p>}
 

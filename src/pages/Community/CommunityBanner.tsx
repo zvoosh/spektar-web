@@ -1,7 +1,7 @@
 import { memo, useCallback, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Camera, UserPlus, Pencil, Trash2, LogOut } from "lucide-react";
+import { Camera, UserPlus, Pencil, PenSquare, Trash2, LogOut } from "lucide-react";
 import { communitiesApi } from "@/api/communities";
 import { uploadApi } from "@/api/upload";
 import type { Community } from "@/types";
@@ -75,26 +75,23 @@ const CommunityBanner = memo(({
   }, [community.name, onDelete]);
 
   const ActionButtons = ({ compact = false }: { compact?: boolean }) => {
-    const btnBase = compact
-      ? "px-3 py-1.5 rounded-lg text-[12px]"
-      : "px-4 py-2 rounded-xl text-[13px]";
-    const iconBtn = compact ? "w-7 h-7 rounded-lg" : "w-9 h-9 rounded-xl";
+    const btn = "flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13px] font-medium border cursor-pointer backdrop-blur-sm transition-colors disabled:opacity-50";
+    const ico = compact ? 13 : 14;
 
     return (
       <>
         {isMember ? (
           <>
-            <span className={`${btnBase} bg-white/15 text-white border border-white/25 backdrop-blur-sm`}>
-              ✓ Član
+            <span className={`${btn} bg-white/15 text-white border-white/25 pointer-events-none`}>
+              <span className="text-accent">✓</span> Član
             </span>
             <button
               onClick={handleLeaveClick}
               disabled={leavePending}
-              title="Napusti zajednicu"
-              className={`${compact ? "w-7 h-7 rounded-lg" : "flex items-center gap-1.5 px-3 py-2 rounded-xl"} bg-white/10 hover:bg-red-500/40 text-white border border-white/20 cursor-pointer backdrop-blur-sm transition-colors disabled:opacity-50`}
+              className={`${btn} bg-white/10 hover:bg-red-500/40 text-white border-white/20`}
             >
-              <LogOut size={compact ? 12 : 14} />
-              {!compact && <span>Napusti</span>}
+              <LogOut size={ico} />
+              Napusti
             </button>
           </>
         ) : isInvited ? (
@@ -102,14 +99,14 @@ const CommunityBanner = memo(({
             <button
               onClick={onAcceptInvite}
               disabled={acceptPending || rejectPending}
-              className={`${btnBase} bg-accent hover:bg-accent-hover text-white font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors`}
+              className={`${btn} bg-accent hover:bg-accent-hover text-white border-transparent shadow-[0_2px_12px_rgba(26,138,87,0.4)]`}
             >
               {acceptPending ? "..." : "✓ Prihvati poziv"}
             </button>
             <button
               onClick={onRejectInvite}
               disabled={acceptPending || rejectPending}
-              className={`${btnBase} bg-white/15 hover:bg-red-500/40 text-white border border-white/25 cursor-pointer backdrop-blur-sm transition-colors`}
+              className={`${btn} bg-white/15 hover:bg-red-500/40 text-white border-white/25`}
             >
               {rejectPending ? "..." : "✕ Odbij"}
             </button>
@@ -122,7 +119,7 @@ const CommunityBanner = memo(({
                 : navigate("/login", { state: { from: { pathname: `/c/${slug}` } } })
             }
             disabled={joinPending}
-            className={`${btnBase} bg-accent hover:bg-accent-hover text-white font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors`}
+            className={`${btn} bg-accent hover:bg-accent-hover text-white border-transparent shadow-[0_2px_12px_rgba(26,138,87,0.4)]`}
           >
             {joinPending ? "..." : "Pridruži se"}
           </button>
@@ -131,9 +128,10 @@ const CommunityBanner = memo(({
         {isMember && (
           <button
             onClick={() => navigate(`/new-post?community=${community.id}`)}
-            className={`${btnBase} bg-white/15 hover:bg-white/25 text-white border border-white/25 cursor-pointer backdrop-blur-sm transition-colors`}
+            className={`${btn} bg-white/15 hover:bg-white/25 text-white border-white/25`}
           >
-            + Objavi
+            <PenSquare size={ico} />
+            Objavi
           </button>
         )}
 
@@ -141,25 +139,26 @@ const CommunityBanner = memo(({
           <>
             <button
               onClick={onShowInvite}
-              className={`${compact ? "w-7 h-7 rounded-lg flex items-center justify-center" : "flex items-center gap-1.5 px-3 py-2 rounded-xl"} bg-white/15 hover:bg-white/25 text-white border border-white/25 cursor-pointer backdrop-blur-sm transition-colors`}
+              className={`${btn} bg-white/15 hover:bg-white/25 text-white border-white/25`}
             >
-              <UserPlus size={compact ? 13 : 14} />
-              {!compact && <span>Pozovi</span>}
+              <UserPlus size={ico} />
+              Pozovi
             </button>
             <button
               onClick={onShowEdit}
-              className={`${iconBtn} bg-white/15 hover:bg-white/25 text-white border border-white/25 cursor-pointer backdrop-blur-sm flex items-center justify-center transition-colors`}
+              className={`${btn} bg-white/15 hover:bg-white/25 text-white border-white/25`}
             >
-              <Pencil size={compact ? 13 : 14} />
+              <Pencil size={ico} />
+              Uredi
             </button>
             {isOwner && (
               <button
                 onClick={handleDeleteClick}
                 disabled={deletePending}
-                className={`${compact ? "w-7 h-7 rounded-lg flex items-center justify-center" : "flex items-center gap-1.5 px-3 py-2 rounded-xl"} bg-red-500/20 hover:bg-red-500/40 text-white border border-red-400/30 cursor-pointer backdrop-blur-sm transition-colors disabled:opacity-50`}
+                className={`${btn} bg-red-500/20 hover:bg-red-500/40 text-white border-red-400/30`}
               >
-                <Trash2 size={compact ? 13 : 14} />
-                {!compact && <span>Obriši</span>}
+                <Trash2 size={ico} />
+                Obriši
               </button>
             )}
           </>

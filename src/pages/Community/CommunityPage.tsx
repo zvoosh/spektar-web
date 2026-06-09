@@ -315,7 +315,7 @@ const CommunityPage = () => {
       />
 
       {/* Tabs */}
-      <div className="flex gap-0 mb-4 border-b border-border bg-surface rounded-t-xl sm:px-2 shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-x-auto">
+      <div className="flex gap-0 mb-4 border-b border-border bg-surface rounded-t-xl sm:px-2 shadow-[0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden overflow-x-auto">
         {TABS.map(({ value, label, icon: Icon }) => (
           <button
             key={value}

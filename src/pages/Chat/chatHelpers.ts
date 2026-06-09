@@ -66,9 +66,9 @@ export const getConvInfo = (conv: { type: string; isNotes?: boolean; name?: stri
     }
     const other = conv.members?.find((m) => m.userId !== myId)?.user;
     return {
-      name: other?.displayName || other?.username ?? "Direktna poruka",
+      name: (other?.displayName || other?.username) ?? "Direktna poruka",
       avatar: other?.avatar ?? null,
-      initials: (other?.displayName || other?.username ?? "DM").slice(0, 2).toUpperCase(),
+      initials: ((other?.displayName || other?.username) ?? "DM").slice(0, 2).toUpperCase(),
       user: other ?? null,
       isNotes: false,
     };

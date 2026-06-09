@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useParams, useLocation } from "react-router-dom";
 import { chatApi } from "@/api/chat";
 import { useAuthStore } from "@/store/authStore";
 import { useChat } from "@/hooks/useChat";
@@ -14,10 +15,13 @@ import ChatInviteModal from "./ChatInviteModal";
 const ChatPage = () => {
   const { user } = useAuthStore();
   const { isMobile } = useBreakpoint();
+  const { conversationId: urlConvId } = useParams<{ conversationId?: string }>();
+  const location = useLocation();
+  const navConv: Conversation | null = location.state?.conversation ?? null;
 
-  const [activeConvId, setActiveConvId] = useState<string | null>(null);
-  const [pendingConv, setPendingConv] = useState<Conversation | null>(null);
-  const [showList, setShowList] = useState(true);
+  const [activeConvId, setActiveConvId] = useState<string | null>(urlConvId ?? null);
+  const [pendingConv, setPendingConv] = useState<Conversation | null>(navConv);
+  const [showList, setShowList] = useState(!urlConvId);
   const [showNewChat, setShowNewChat] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
 
@@ -37,6 +41,14 @@ const ChatPage = () => {
     deleteMessage: deleteMessageSocket,
     markAsRead,
   } = useChat(activeConvId);
+
+  // Kada se URL promeni (navigacija sa druge stranice), otvori tu konverzaciju
+  useEffect(() => {
+    if (urlConvId && urlConvId !== activeConvId) {
+      setActiveConvId(urlConvId);
+      if (isMobile) setShowList(false);
+    }
+  }, [urlConvId]);
 
   // Load history when switching conversations
   useEffect(() => {
