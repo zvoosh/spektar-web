@@ -341,8 +341,12 @@ const RegisterForm = () => {
       setError("Korisničko ime mora imati između 3 i 30 karaktera");
       return;
     }
-    if (!/^[a-zA-Z0-9_]+$/.test(u)) {
-      setError("Korisničko ime može sadržati samo slova, brojeve i _");
+    if (!/^[\p{L}\p{N}_][\p{L}\p{N}_ ]*[\p{L}\p{N}_]$|^[\p{L}\p{N}_]$/u.test(u)) {
+      setError("Korisničko ime može sadržati slova, brojeve, _ i razmak (ne na početku/kraju)");
+      return;
+    }
+    if (/  /.test(u)) {
+      setError("Korisničko ime ne može sadržati uzastopne razmake");
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {

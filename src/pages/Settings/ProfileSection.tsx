@@ -46,7 +46,7 @@ const ProfileSection = () => {
     const u = form.username.trim();
     if (u.length < 3) return "Korisničko ime mora imati najmanje 3 karaktera.";
     if (u.length > 30) return "Korisničko ime ne može biti duže od 30 karaktera.";
-    if (!/^[a-zA-Z0-9_]+$/.test(u)) return "Korisničko ime može sadržati samo slova, brojeve i _";
+    if (!/^[\p{L}\p{N}_][\p{L}\p{N}_ ]*[\p{L}\p{N}_]$|^[\p{L}\p{N}_]$/u.test(u)) return "Korisničko ime može sadržati slova, brojeve, _ i razmak (ne na početku/kraju).";
     return "";
   };
 
