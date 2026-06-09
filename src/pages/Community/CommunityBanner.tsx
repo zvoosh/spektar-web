@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef, useState } from "react";
+﻿import { memo, useCallback, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Camera, UserPlus, Pencil, Trash2, LogOut } from "lucide-react";
@@ -8,7 +8,7 @@ import type { Community } from "@/types";
 
 const TYPE_SR: Record<string, string> = {
   public: "Javna",
-  restricted: "Ograničena",
+  restricted: "OgraniÄena",
   private: "Privatna",
 };
 
@@ -87,7 +87,7 @@ const CommunityBanner = memo(({
         {isMember ? (
           <>
             <span className={`${btnBase} bg-white/15 text-white border border-white/25 backdrop-blur-sm`}>
-              ✓ Član
+              âœ“ ÄŒlan
             </span>
             <button
               onClick={handleLeaveClick}
@@ -106,14 +106,14 @@ const CommunityBanner = memo(({
               disabled={acceptPending || rejectPending}
               className={`${btnBase} bg-accent hover:bg-accent-hover text-white font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors`}
             >
-              {acceptPending ? "..." : "✓ Prihvati poziv"}
+              {acceptPending ? "..." : "âœ“ Prihvati poziv"}
             </button>
             <button
               onClick={onRejectInvite}
               disabled={acceptPending || rejectPending}
               className={`${btnBase} bg-white/15 hover:bg-red-500/40 text-white border border-white/25 cursor-pointer backdrop-blur-sm transition-colors`}
             >
-              {rejectPending ? "..." : "✕ Odbij"}
+              {rejectPending ? "..." : "âœ• Odbij"}
             </button>
           </>
         ) : (community as any).type === "public" ? (
@@ -126,7 +126,7 @@ const CommunityBanner = memo(({
             disabled={joinPending}
             className={`${btnBase} bg-accent hover:bg-accent-hover text-white font-semibold border-none cursor-pointer disabled:opacity-60 shadow-[0_2px_12px_rgba(26,138,87,0.4)] transition-colors`}
           >
-            {joinPending ? "..." : "Pridruži se"}
+            {joinPending ? "..." : "PridruÅ¾i se"}
           </button>
         ) : null}
 
@@ -161,7 +161,7 @@ const CommunityBanner = memo(({
                 className={`${compact ? "w-7 h-7 rounded-lg flex items-center justify-center" : "flex items-center gap-1.5 px-3 py-2 rounded-xl"} bg-red-500/20 hover:bg-red-500/40 text-white border border-red-400/30 cursor-pointer backdrop-blur-sm transition-colors disabled:opacity-50`}
               >
                 <Trash2 size={compact ? 13 : 14} />
-                {!compact && <span>Obriši</span>}
+                {!compact && <span>ObriÅ¡i</span>}
               </button>
             )}
           </>
@@ -187,7 +187,7 @@ const CommunityBanner = memo(({
             className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/40 text-white text-[12px] border border-white/20 cursor-pointer backdrop-blur-sm hover:bg-black/60 transition-colors opacity-0 group-hover:opacity-100"
           >
             <Camera size={13} />
-            {bannerUploading ? "Učitavam..." : "Promeni sliku"}
+            {bannerUploading ? "UÄitavam..." : "Promeni sliku"}
           </button>
         </>
       )}
@@ -211,19 +211,19 @@ const CommunityBanner = memo(({
               </h1>
               {(community as any).type !== "public" && (
                 <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full backdrop-blur-sm shrink-0">
-                  🔒 {TYPE_SR[(community as any).type]}
+                  ðŸ”’ {TYPE_SR[(community as any).type]}
                 </span>
               )}
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[11px] sm:text-[12px] text-white/80">
-                {community.membersCount.toLocaleString("sr-RS")} članova
+                {community.membersCount.toLocaleString("sr-RS")} Älanova
               </span>
               {(community as any).location && (
                 <>
-                  <span className="text-white/40">·</span>
+                  <span className="text-white/40">Â·</span>
                   <span className="text-[11px] sm:text-[12px] text-white/70 truncate">
-                    📍 {(community as any).location}
+                    ðŸ“ {(community as any).location}
                   </span>
                 </>
               )}
@@ -242,8 +242,6 @@ const CommunityBanner = memo(({
       </div>
     </div>
   );
-};
-
 });
 
 export default CommunityBanner;

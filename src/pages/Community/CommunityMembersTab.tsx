@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+﻿import { memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -9,7 +9,7 @@ import type { Community } from "@/types";
 const ROLE_SR: Record<string, string> = {
   owner: "Vlasnik",
   moderator: "Moderator",
-  member: "Član",
+  member: "ÄŒlan",
 };
 
 interface Props {
@@ -43,7 +43,7 @@ const CommunityMembersTab = memo(({ community, members, isOwner, isMod, currentU
   const kickMutation = useMutation({
     mutationFn: (userId: string) => communitiesApi.kickMember(community.id, userId),
     onSuccess: () => {
-      toast.success("Korisnik je izbačen");
+      toast.success("Korisnik je izbaÄen");
       invalidateMembers();
     },
     onError: () => toast.error("Izbacivanje nije uspelo"),
@@ -62,7 +62,7 @@ const CommunityMembersTab = memo(({ community, members, isOwner, isMod, currentU
     <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.05)]">
       <div className="px-5 py-4 border-b border-surface-2 flex items-center justify-between">
         <span className="font-semibold text-[14px] text-text-1">
-          Članovi ({community.membersCount.toLocaleString("sr-RS")})
+          ÄŒlanovi ({community.membersCount.toLocaleString("sr-RS")})
         </span>
         {isMod && (
           <button
@@ -76,7 +76,7 @@ const CommunityMembersTab = memo(({ community, members, isOwner, isMod, currentU
       </div>
 
       {!members?.length ? (
-        <div className="text-center py-10 text-text-3 text-[13px]">Nema članova</div>
+        <div className="text-center py-10 text-text-3 text-[13px]">Nema Älanova</div>
       ) : (
         members.map((m: any) => (
           <div
@@ -108,7 +108,7 @@ const CommunityMembersTab = memo(({ community, members, isOwner, isMod, currentU
               {new Date(m.joinedAt).toLocaleDateString("sr-RS")}
             </div>
 
-            {/* Moderation buttons — samo vlasnik, ne za sebe ni za drugog vlasnika */}
+            {/* Moderation buttons â€” samo vlasnik, ne za sebe ni za drugog vlasnika */}
             {isOwner && m.userId !== currentUserId && m.role !== "owner" && (
               <>
                 <button
@@ -137,18 +137,18 @@ const CommunityMembersTab = memo(({ community, members, isOwner, isMod, currentU
                     if (confirm(`Kickovati ${m.user?.username}?`)) kickMutation.mutate(m.userId);
                   }}
                   disabled={kickMutation.isPending}
-                  title="Kick člana"
+                  title="Kick Älana"
                   className="w-8 h-8 rounded-lg border border-orange-300/50 bg-orange-50 text-orange-500 hover:bg-orange-500 hover:text-white flex items-center justify-center cursor-pointer transition-colors disabled:opacity-50"
                 >
                   <UserX size={14} strokeWidth={2} />
                 </button>
                 <button
                   onClick={() => {
-                    if (confirm(`Banovati ${m.user?.username}? Korisnik neće moći da se ponovo pridruži.`))
+                    if (confirm(`Banovati ${m.user?.username}? Korisnik neÄ‡e moÄ‡i da se ponovo pridruÅ¾i.`))
                       banMutation.mutate(m.userId);
                   }}
                   disabled={banMutation.isPending}
-                  title="Ban člana"
+                  title="Ban Älana"
                   className="w-8 h-8 rounded-lg border border-red-300/50 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center cursor-pointer transition-colors disabled:opacity-50"
                 >
                   <Ban size={14} strokeWidth={2} />
@@ -160,8 +160,6 @@ const CommunityMembersTab = memo(({ community, members, isOwner, isMod, currentU
       )}
     </div>
   );
-};
-
 });
 
 export default CommunityMembersTab;

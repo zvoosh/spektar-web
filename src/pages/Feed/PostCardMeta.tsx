@@ -52,8 +52,6 @@ const PostCardMeta = memo(({ post }: Props) => {
       </span>
     </div>
   );
-};
-
 });
 
 export default PostCardMeta;

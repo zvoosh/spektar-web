@@ -169,8 +169,6 @@ const PostCardFooter = memo(({
       </div>
     </div>
   );
-};
-
 });
 
 export default PostCardFooter;

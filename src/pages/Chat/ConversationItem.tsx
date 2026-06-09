@@ -1,4 +1,4 @@
-import { memo } from "react";
+﻿import { memo } from "react";
 import { formatTime, getConvInfo } from "./chatHelpers";
 import type { Conversation } from "@/types";
 
@@ -42,8 +42,6 @@ const ConversationItem = memo(({ conv, active, myId, onClick }: Props) => {
       </div>
     </div>
   );
-};
-
 });
 
 export default ConversationItem;

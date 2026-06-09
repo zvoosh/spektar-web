@@ -41,8 +41,6 @@ const ConversationsSidebar = memo(({ conversations, activeConvId, myId, isMobile
       ))}
     </div>
   </div>
-);
-
 ));
 
 export default ConversationsSidebar;

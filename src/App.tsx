@@ -1,135 +1,125 @@
+import { lazy, Suspense } from "react";
 import { useRoutes, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 import MainLayout from "./components/shared/MainLayout";
 import AuthModal from "./components/shared/AuthModal";
-import FeedPage from "./pages/Feed/FeedPage";
-import PostDetailPage from "./pages/Post/PostDetailPage";
-import CreatePostPage from "./pages/Post/CreatePostPage";
-import CommunityPage from "./pages/Community/CommunityPage";
-import CommunitiesPage from "./pages/Communities/CommunitiesPage";
-import CreateCommunityPage from "./pages/Communities/CreateCommunityPage";
-import SavedPage from "./pages/Saved/SavedPage";
-import NotificationsPage from "./pages/Notifications/NotificationsPage";
-import ProfilePage from "./pages/Profile/ProfilePage";
-import PublicProfilePage from "./pages/Profile/PublicProfilePage";
-import ChatPage from "./pages/Chat/ChatPage";
-import PopularPage from "./pages/Popular/PopularPage";
-import SearchPage from "./pages/Search/SearchPage";
-import SettingsPage from "./pages/Settings/SettingsPage";
-import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 
-// Wrapper za rute koje zahtevaju login
+// ─── Eager (needed immediately on first paint) ────────────────────────────────
+import FeedPage from "./pages/Feed/FeedPage";
+
+// ─── Lazy (code-split, loaded on navigation) ─────────────────────────────────
+const PostDetailPage      = lazy(() => import("./pages/Post/PostDetailPage"));
+const CreatePostPage      = lazy(() => import("./pages/Post/CreatePostPage"));
+const CommunityPage       = lazy(() => import("./pages/Community/CommunityPage"));
+const CommunitiesPage     = lazy(() => import("./pages/Communities/CommunitiesPage"));
+const CreateCommunityPage = lazy(() => import("./pages/Communities/CreateCommunityPage"));
+const SavedPage           = lazy(() => import("./pages/Saved/SavedPage"));
+const NotificationsPage   = lazy(() => import("./pages/Notifications/NotificationsPage"));
+const ProfilePage         = lazy(() => import("./pages/Profile/ProfilePage"));
+const PublicProfilePage   = lazy(() => import("./pages/Profile/PublicProfilePage"));
+const ChatPage            = lazy(() => import("./pages/Chat/ChatPage"));
+const PopularPage         = lazy(() => import("./pages/Popular/PopularPage"));
+const SearchPage          = lazy(() => import("./pages/Search/SearchPage"));
+const SettingsPage        = lazy(() => import("./pages/Settings/SettingsPage"));
+const ResetPasswordPage   = lazy(() => import("./pages/Auth/ResetPasswordPage"));
+
+// ─── Fallback spinner ─────────────────────────────────────────────────────────
+const PageLoader = () => (
+  <div className="flex items-center justify-center py-24 text-text-3 text-[13px]">
+    <div className="w-5 h-5 border-2 border-border border-t-accent rounded-full animate-spin mr-3" />
+    Učitavam...
+  </div>
+);
+
+// ─── Auth guard ───────────────────────────────────────────────────────────────
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/" replace />;
   return <>{children}</>;
 };
 
-// Definicija svih child ruta (reuse za oba useRoutes poziva)
+// ─── Route definitions ────────────────────────────────────────────────────────
 const mainChildren = [
   { index: true, element: <FeedPage /> },
-  { path: "post/:id", element: <PostDetailPage /> },
-  { path: "c/:slug", element: <CommunityPage /> },
+  { path: "post/:id",    element: <PostDetailPage /> },
+  { path: "c/:slug",     element: <CommunityPage /> },
   { path: "communities", element: <CommunitiesPage /> },
-  { path: "popular", element: <PopularPage /> },
-  { path: "search", element: <SearchPage /> },
+  { path: "popular",     element: <PopularPage /> },
+  { path: "search",      element: <SearchPage /> },
   { path: "u/:username", element: <PublicProfilePage /> },
   {
     path: "new-post",
-    element: (
-      <PrivateRoute>
-        <CreatePostPage />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute><CreatePostPage /></PrivateRoute>,
   },
   {
     path: "communities/new",
-    element: (
-      <PrivateRoute>
-        <CreateCommunityPage />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute><CreateCommunityPage /></PrivateRoute>,
   },
   {
     path: "saved",
-    element: (
-      <PrivateRoute>
-        <SavedPage />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute><SavedPage /></PrivateRoute>,
   },
   {
     path: "notifications",
-    element: (
-      <PrivateRoute>
-        <NotificationsPage />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute><NotificationsPage /></PrivateRoute>,
   },
   {
     path: "profile",
-    element: (
-      <PrivateRoute>
-        <ProfilePage />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute><ProfilePage /></PrivateRoute>,
   },
   {
     path: "chat",
-    element: (
-      <PrivateRoute>
-        <ChatPage />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute><ChatPage /></PrivateRoute>,
   },
   {
     path: "chat/:conversationId",
-    element: (
-      <PrivateRoute>
-        <ChatPage />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute><ChatPage /></PrivateRoute>,
   },
   {
     path: "settings",
-    element: (
-      <PrivateRoute>
-        <SettingsPage />
-      </PrivateRoute>
-    ),
+    element: <PrivateRoute><SettingsPage /></PrivateRoute>,
   },
 ];
 
+// ─── App ──────────────────────────────────────────────────────────────────────
 const App = () => {
   const location = useLocation();
   const state = location.state as { background?: Location } | null;
 
-  // Background location — stranica koja ostaje iza auth modala
-  // Ako nema background state (direktna navigacija na /login), koristi "/" kao fallback
   const isAuthRoute =
     location.pathname === "/login" || location.pathname === "/register";
-  const backgroundLocation = state?.background ?? (isAuthRoute ? ({ pathname: "/" } as unknown as Location) : location);
+  const backgroundLocation =
+    state?.background ?? (isAuthRoute ? ({ pathname: "/" } as unknown as Location) : location);
 
-  // Glavne rute renderovane na background lokaciji (vidljive iza modala)
   const mainRoutes = useRoutes(
     [
-      { path: "/", element: <MainLayout />, children: mainChildren },
-      { path: "/reset-password", element: <ResetPasswordPage /> },
+      {
+        path: "/",
+        element: <MainLayout />,
+        children: mainChildren,
+      },
+      {
+        path: "/reset-password",
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <ResetPasswordPage />
+          </Suspense>
+        ),
+      },
     ],
     backgroundLocation
   );
 
-  // Auth modal rute — renderuju se kao overlay iznad pozadine
   const authRoutes = useRoutes([
-    { path: "/login", element: <AuthModal mode="login" /> },
+    { path: "/login",    element: <AuthModal mode="login" /> },
     { path: "/register", element: <AuthModal mode="register" /> },
   ]);
 
   return (
-    <>
+    <Suspense fallback={<PageLoader />}>
       {mainRoutes}
       {isAuthRoute && authRoutes}
-    </>
+    </Suspense>
   );
 };
 

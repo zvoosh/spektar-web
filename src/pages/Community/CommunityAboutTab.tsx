@@ -59,8 +59,6 @@ const CommunityAboutTab = memo(({ community }: Props) => (
       </div>
     </div>
   </div>
-);
-
 ));
 
 export default CommunityAboutTab;

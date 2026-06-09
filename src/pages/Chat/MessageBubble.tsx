@@ -117,8 +117,6 @@ const MessageBubble = memo(({ message, isOwn, isRead, onDelete, onImageClick }: 
       </div>
     </div>
   </div>
-);
-
 ));
 
 export default MessageBubble;

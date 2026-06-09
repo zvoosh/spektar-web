@@ -1,4 +1,4 @@
-import { memo } from "react";
+﻿import { memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarDays, MapPin } from "lucide-react";
 import type { Post } from "@/types";
@@ -88,8 +88,6 @@ const PostCardContent = memo(({ post, isMobile }: Props) => {
       )}
     </div>
   );
-};
-
 });
 
 export default PostCardContent;
