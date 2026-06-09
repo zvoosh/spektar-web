@@ -1,8 +1,10 @@
 import { lazy, Suspense } from "react";
 import { useRoutes, Navigate, useLocation } from "react-router-dom";
+import { ErrorBoundary } from "react-error-boundary";
 import { useAuthStore } from "@/store/authStore";
 import MainLayout from "./components/shared/MainLayout";
 import AuthModal from "./components/shared/AuthModal";
+import ErrorFallback from "./components/shared/ErrorFallback";
 
 // ─── Eager (needed immediately on first paint) ────────────────────────────────
 import FeedPage from "./pages/Feed/FeedPage";
@@ -22,6 +24,7 @@ const PopularPage         = lazy(() => import("./pages/Popular/PopularPage"));
 const SearchPage          = lazy(() => import("./pages/Search/SearchPage"));
 const SettingsPage        = lazy(() => import("./pages/Settings/SettingsPage"));
 const ResetPasswordPage   = lazy(() => import("./pages/Auth/ResetPasswordPage"));
+const NotFoundPage        = lazy(() => import("./pages/NotFoundPage"));
 
 // ─── Fallback spinner ─────────────────────────────────────────────────────────
 const PageLoader = () => (
@@ -79,6 +82,7 @@ const mainChildren = [
     path: "settings",
     element: <PrivateRoute><SettingsPage /></PrivateRoute>,
   },
+  { path: "*", element: <NotFoundPage /> },
 ];
 
 // ─── App ──────────────────────────────────────────────────────────────────────
@@ -116,10 +120,12 @@ const App = () => {
   ]);
 
   return (
-    <Suspense fallback={<PageLoader />}>
-      {mainRoutes}
-      {isAuthRoute && authRoutes}
-    </Suspense>
+    <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[location.pathname]}>
+      <Suspense fallback={<PageLoader />}>
+        {mainRoutes}
+        {isAuthRoute && authRoutes}
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 

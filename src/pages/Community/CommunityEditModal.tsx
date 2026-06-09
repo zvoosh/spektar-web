@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+﻿import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Camera, X } from "lucide-react";
@@ -69,7 +69,7 @@ const CommunityEditModal = ({ community, slug, onClose }: Props) => {
               className="w-14 h-14 rounded-xl bg-accent-soft border-2 border-dashed border-accent/30 flex items-center justify-center cursor-pointer overflow-hidden hover:border-accent transition-colors shrink-0"
             >
               {avatarUrl ? (
-                <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                <img loading="lazy" src={avatarUrl} alt="" className="w-full h-full object-cover" />
               ) : (
                 <Camera size={20} className="text-accent/50" />
               )}

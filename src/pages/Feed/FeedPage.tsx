@@ -5,6 +5,8 @@ import PostCard from "./PostCard";
 import { Users, Zap, ChevronDown, Loader2 } from "lucide-react";
 import ShareMenu from "@/components/shared/ShareMenu";
 import { useFeedInfinite, useInfiniteScroll } from "@/hooks/useInfinitePosts";
+import { FeedSkeleton } from "@/components/shared/Skeleton";
+import PageMeta from "@/components/shared/PageMeta";
 
 const FILTERS = [
   { label: "Svi", value: "" },
@@ -87,6 +89,7 @@ const FeedPage = () => {
 
   return (
     <div>
+      <PageMeta path="/" />
       <CommunityBanner />
 
       {/* Filter bar */}
@@ -110,22 +113,7 @@ const FeedPage = () => {
         </button>
       </div>
 
-      {isLoading && (
-        <div className="flex flex-col gap-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-surface border border-border rounded-2xl p-5 animate-pulse">
-              <div className="flex gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-surface-2" />
-                <div className="flex-1">
-                  <div className="h-3 bg-surface-2 rounded w-1/3 mb-2" />
-                </div>
-              </div>
-              <div className="h-4 bg-surface-2 rounded w-3/4 mb-2" />
-              <div className="h-3 bg-surface-2 rounded w-1/2" />
-            </div>
-          ))}
-        </div>
-      )}
+      {isLoading && <FeedSkeleton count={4} />}
 
       {!isLoading && filtered?.length === 0 && (
         <div className="text-center p-12 bg-surface rounded-2xl border border-border shadow-[0_1px_4px_rgba(0,0,0,0.05)]">

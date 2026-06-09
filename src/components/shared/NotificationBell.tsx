@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -216,7 +216,7 @@ const NotificationBell = () => {
                   >
                     <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent shrink-0 overflow-hidden">
                       {n.actor?.avatar ? (
-                        <img src={n.actor.avatar} alt="" className="w-full h-full object-cover" />
+                        <img loading="lazy" src={n.actor.avatar} alt="" className="w-full h-full object-cover" />
                       ) : (
                         n.actor?.username?.slice(0, 2).toUpperCase() ?? "?"
                       )}
@@ -262,7 +262,7 @@ const NotificationBell = () => {
                   {/* Actor avatar */}
                   <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent shrink-0 overflow-hidden">
                     {n.actor?.avatar ? (
-                      <img src={n.actor.avatar} alt="" className="w-full h-full object-cover" />
+                      <img loading="lazy" src={n.actor.avatar} alt="" className="w-full h-full object-cover" />
                     ) : (
                       n.actor?.username?.slice(0, 2).toUpperCase() ?? "?"
                     )}

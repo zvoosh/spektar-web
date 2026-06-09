@@ -18,6 +18,7 @@ import CommunityPostsTab from "./CommunityPostsTab";
 import CommunityMembersTab from "./CommunityMembersTab";
 import CommunityGalleryTab from "./CommunityGalleryTab";
 import CommunityAboutTab from "./CommunityAboutTab";
+import PageMeta from "@/components/shared/PageMeta";
 import LeaveOwnershipModal from "./LeaveOwnershipModal";
 
 type Tab = "posts" | "members" | "gallery" | "about";
@@ -82,7 +83,7 @@ const InviteUserModal = ({
               >
                 <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent overflow-hidden shrink-0 border border-border">
                   {u.avatar ? (
-                    <img src={u.avatar} alt="" className="w-full h-full object-cover" />
+                    <img loading="lazy" src={u.avatar} alt="" className="w-full h-full object-cover" />
                   ) : (
                     u.username.slice(0, 2).toUpperCase()
                   )}
@@ -262,6 +263,12 @@ const CommunityPage = () => {
 
   return (
     <div>
+      <PageMeta
+        title={community.name}
+        description={community.description ?? `Zajednica ${community.name} na Spektru Beograda.`}
+        image={community.banner ?? community.avatar ?? undefined}
+        path={`/c/${slug}`}
+      />
       {/* Modals */}
       {showEdit && (
         <CommunityEditModal community={community} slug={slug!} onClose={handleCloseEdit} />

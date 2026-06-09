@@ -1,4 +1,4 @@
-import { memo } from "react";
+﻿import { memo } from "react";
 
 interface FriendRequest {
   id: string;
@@ -39,7 +39,7 @@ const ProfileFriendsTab = memo(({ friends, pendingRequests, onAccept, onReject, 
           <div key={req.id} className="flex items-center gap-3 px-5 py-3 border-b border-surface-2 last:border-b-0">
             <div className="w-9 h-9 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent overflow-hidden border border-border shrink-0">
               {req.requester?.avatar
-                ? <img src={req.requester.avatar} alt="" className="w-full h-full object-cover" />
+                ? <img loading="lazy" src={req.requester.avatar} alt="" className="w-full h-full object-cover" />
                 : req.requester?.username?.slice(0, 2).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
@@ -85,7 +85,7 @@ const ProfileFriendsTab = memo(({ friends, pendingRequests, onAccept, onReject, 
           <div key={friend.id} className="flex items-center gap-3 px-5 py-3 border-b border-surface-2 last:border-b-0 hover:bg-surface-2-2 transition-colors">
             <div className="w-9 h-9 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent overflow-hidden border border-border shrink-0">
               {friend.avatar
-                ? <img src={friend.avatar} alt="" className="w-full h-full object-cover" />
+                ? <img loading="lazy" src={friend.avatar} alt="" className="w-full h-full object-cover" />
                 : friend.username?.slice(0, 2).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">

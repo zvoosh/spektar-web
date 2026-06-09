@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+﻿import { useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ImagePlus, Check, X } from "lucide-react";
@@ -99,7 +99,7 @@ const CommunityGalleryTab = ({ community, isMember, isMod }: Props) => {
             {pendingGallery!.map((img: any) => (
               <div key={img.id} className="rounded-xl overflow-hidden border border-border relative">
                 <div className="aspect-square">
-                  <img src={img.imageUrl} alt="" className="w-full h-full object-cover opacity-70" />
+                  <img loading="lazy" src={img.imageUrl} alt="" className="w-full h-full object-cover opacity-70" />
                 </div>
                 <div className="p-2 bg-surface-2 border-t border-border">
                   <div className="text-[11px] text-text-3 truncate mb-1.5">od {img.uploadedBy?.username}</div>

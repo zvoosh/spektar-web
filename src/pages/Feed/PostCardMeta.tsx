@@ -1,4 +1,4 @@
-import { memo } from "react";
+﻿import { memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { POST_TYPE_CONFIG, formatDate } from "./postCardHelpers";
 import type { Post } from "@/types";
@@ -16,7 +16,7 @@ const PostCardMeta = memo(({ post }: Props) => {
       {/* Avatar */}
       <div className="w-8 h-8 rounded-full bg-accent-soft border border-accent/20 flex items-center justify-center text-[11px] font-bold text-accent shrink-0 overflow-hidden">
         {post.author?.avatar ? (
-          <img src={post.author.avatar} alt="" className="w-full h-full object-cover" />
+          <img loading="lazy" src={post.author.avatar} alt="" className="w-full h-full object-cover" />
         ) : (
           (post.author?.displayName || post.author?.username)?.slice(0, 2).toUpperCase()
         )}

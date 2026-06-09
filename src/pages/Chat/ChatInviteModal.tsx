@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { X, Search } from "lucide-react";
 import { chatApi } from "@/api/chat";
@@ -11,7 +11,7 @@ const UserRow = ({ u, onClick }: { u: User; onClick: () => void }) => (
     className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-surface-2-2 transition-colors"
   >
     <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent overflow-hidden shrink-0 border border-border">
-      {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover" /> : u.username.slice(0, 2).toUpperCase()}
+      {u.avatar ? <img loading="lazy" src={u.avatar} alt="" className="w-full h-full object-cover" /> : u.username.slice(0, 2).toUpperCase()}
     </div>
     <div className="flex-1 min-w-0">
       <div className="text-[13px] font-medium text-text-1">{u.username}</div>

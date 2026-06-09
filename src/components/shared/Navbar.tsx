@@ -57,7 +57,7 @@ const Navbar = ({
         onClick={() => navigate("/")}
         className="flex items-center gap-2.5 cursor-pointer shrink-0"
       >
-        <img src="/spektarLogo.png" className="w-8 h-8 object-contain"/>
+        <img loading="lazy" src="/spektarLogo.png" className="w-8 h-8 object-contain"/>
         {!isMobile && (
           <div>
             <div className="font-serif font-bold text-[17px] text-text-1 leading-none tracking-tight">
@@ -117,7 +117,7 @@ const Navbar = ({
             >
               <div className="w-6 h-6 rounded-full bg-accent-soft flex items-center justify-center text-[10px] font-bold text-accent shrink-0 overflow-hidden border border-border">
                 {user?.avatar ? (
-                  <img src={user.avatar} alt={user.username} className="w-full h-full object-cover" />
+                  <img loading="lazy" src={user.avatar} alt={user.username} className="w-full h-full object-cover" />
                 ) : (
                   (user?.displayName || user?.username)?.slice(0, 2).toUpperCase()
                 )}

@@ -1,17 +1,17 @@
 import { create } from "zustand";
 
-export type Theme = "dark" | "light" | "system";
+export type Theme = "dark" | "light" | "soft-dark" | "system";
 
 const STORAGE_KEY = "spektar_theme";
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  if (theme === "system") {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    root.classList.toggle("light", !prefersDark);
-  } else {
-    root.classList.toggle("light", theme === "light");
-  }
+  const resolved = theme === "system"
+    ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+    : theme;
+
+  root.classList.toggle("light",     resolved === "light");
+  root.classList.toggle("soft-dark", resolved === "soft-dark");
 }
 
 // Read initial value synchronously

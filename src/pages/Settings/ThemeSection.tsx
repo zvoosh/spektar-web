@@ -1,10 +1,11 @@
 import { useThemeStore, type Theme } from "@/store/themeStore";
-import { Sun, Moon, Monitor } from "lucide-react";
+import { Sun, Moon, Monitor, Sunset } from "lucide-react";
 
 const THEME_OPTIONS: { value: Theme; label: string; desc: string; Icon: React.ElementType }[] = [
-  { value: "dark",   label: "Tamna",  desc: "Uvek tamna tema",            Icon: Moon    },
-  { value: "light",  label: "Svetla", desc: "Uvek svetla tema",           Icon: Sun     },
-  { value: "system", label: "Sistem", desc: "Prati podešavanja uređaja",  Icon: Monitor },
+  { value: "dark",      label: "Tamna",      desc: "Uvek tamna tema",            Icon: Moon    },
+  { value: "soft-dark", label: "Soft dark",  desc: "Topla tamna tema",           Icon: Sunset  },
+  { value: "light",     label: "Svetla",     desc: "Uvek svetla tema",           Icon: Sun     },
+  { value: "system",    label: "Sistem",     desc: "Prati podešavanja uređaja",  Icon: Monitor },
 ];
 
 const ThemeSection = () => {
@@ -22,7 +23,7 @@ const ThemeSection = () => {
         </div>
       </div>
 
-      <div className="px-5 py-4 grid grid-cols-3 gap-3">
+      <div className="px-5 py-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
         {THEME_OPTIONS.map(({ value, label, desc, Icon }) => {
           const active = theme === value;
           return (

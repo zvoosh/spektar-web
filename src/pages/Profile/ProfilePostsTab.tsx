@@ -1,5 +1,6 @@
 import { memo } from "react";
 import PostCard from "@/pages/Feed/PostCard";
+import { FeedSkeleton } from "@/components/shared/Skeleton";
 import type { Post } from "@/types";
 
 interface Props {
@@ -8,9 +9,7 @@ interface Props {
 }
 
 const ProfilePostsTab = memo(({ posts, isLoading }: Props) => {
-  if (isLoading) {
-    return <div className="text-center py-10 text-text-3 text-[13px]">Učitavam...</div>;
-  }
+  if (isLoading) return <FeedSkeleton count={3} />;
 
   if (!posts?.length) {
     return (

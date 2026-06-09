@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -331,15 +331,29 @@ const RegisterForm = () => {
 
   const handleSubmit = () => {
     setError("");
-    if (!form.username || !form.email || !form.password) {
+    const u = form.username.trim();
+    const e = form.email.trim();
+    if (!u || !e || !form.password) {
       setError("Popuni sva polja");
+      return;
+    }
+    if (u.length < 3 || u.length > 30) {
+      setError("Korisničko ime mora imati između 3 i 30 karaktera");
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(u)) {
+      setError("Korisničko ime može sadržati samo slova, brojeve i _");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
+      setError("Unesi ispravnu email adresu");
       return;
     }
     if (form.password.length < 6) {
       setError("Lozinka mora imati najmanje 6 karaktera");
       return;
     }
-    mutation.mutate(form);
+    mutation.mutate({ username: u, email: e, password: form.password });
   };
 
   return (
@@ -465,7 +479,7 @@ const AuthModal = ({ mode }: AuthModalProps) => {
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-border">
           <div className="flex items-center gap-2.5">
-            <img src="/spektarLogo.png" className="w-8 h-8 object-contain" />
+            <img loading="lazy" src="/spektarLogo.png" className="w-8 h-8 object-contain" />
             <span className="font-serif font-bold text-[15px] text-text-1 tracking-tight">
               Spektar
             </span>

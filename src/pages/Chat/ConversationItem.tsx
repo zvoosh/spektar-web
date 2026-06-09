@@ -20,7 +20,7 @@ const ConversationItem = memo(({ conv, active, myId, onClick }: Props) => {
     >
       <div className="w-10 h-10 rounded-full bg-accent-soft border border-border flex items-center justify-center text-sm font-semibold text-accent shrink-0 overflow-hidden">
         {info.avatar ? (
-          <img src={info.avatar} alt={info.name} className="w-full h-full object-cover" />
+          <img loading="lazy" src={info.avatar} alt={info.name} className="w-full h-full object-cover" />
         ) : (
           info.initials
         )}

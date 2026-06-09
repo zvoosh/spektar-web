@@ -40,6 +40,16 @@ const ProfileSection = () => {
     form.location !== (user?.location ?? "") ||
     form.bio !== (user?.bio ?? "");
 
+  const [validationError, setValidationError] = useState("");
+
+  const validate = () => {
+    const u = form.username.trim();
+    if (u.length < 3) return "Korisničko ime mora imati najmanje 3 karaktera.";
+    if (u.length > 30) return "Korisničko ime ne može biti duže od 30 karaktera.";
+    if (!/^[a-zA-Z0-9_]+$/.test(u)) return "Korisničko ime može sadržati samo slova, brojeve i _";
+    return "";
+  };
+
   return (
     <div className="bg-surface border border-border rounded-2xl overflow-hidden">
       <div className="px-5 py-4 border-b border-border flex items-center gap-3">
@@ -111,15 +121,22 @@ const ProfileSection = () => {
           <p className="text-[11px] text-text-3 mt-1 text-right">{form.bio.length}/300</p>
         </div>
 
+        {validationError && (
+          <div className="bg-danger-soft border border-danger/20 rounded-xl px-4 py-3 text-[13px] text-danger">{validationError}</div>
+        )}
+
         <button
-          onClick={() =>
+          onClick={() => {
+            const err = validate();
+            if (err) { setValidationError(err); return; }
+            setValidationError("");
             mutation.mutate({
-              username: form.username || undefined,
-              displayName: form.displayName || undefined,
-              location: form.location || undefined,
-              bio: form.bio || undefined,
-            })
-          }
+              username: form.username.trim() || undefined,
+              displayName: form.displayName.trim() || undefined,
+              location: form.location.trim() || undefined,
+              bio: form.bio.trim() || undefined,
+            });
+          }}
           disabled={!isDirty || mutation.isPending}
           className="self-start flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white text-[13px] font-semibold border-none cursor-pointer disabled:opacity-50 transition-colors shadow-[0_2px_8px_rgba(0,186,124,0.25)]"
         >

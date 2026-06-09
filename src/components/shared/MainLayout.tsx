@@ -292,7 +292,7 @@ const DrawerSidebar = ({
     >
       <div className="flex items-center justify-between px-4 pb-4 mb-2 border-b border-border">
         <div className="flex items-center gap-2">
-          <img src="/spektarLogo.png" className="w-10 h-10 object-contain" />
+          <img loading="lazy" src="/spektarLogo.png" className="w-10 h-10 object-contain" />
           <span className="font-serif font-bold text-[17px] text-text-1">
             Spektar
           </span>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/api/auth";
 import { useAuthStore } from "@/store/authStore";
@@ -107,7 +107,7 @@ const TwoFactorSection = () => {
           <div>
             <div className="flex items-start gap-5 mb-5">
               <div className="bg-white p-2.5 rounded-xl shrink-0">
-                <img src={qrData.qrCodeDataUrl} alt="QR kod" className="w-36 h-36" />
+                <img loading="lazy" src={qrData.qrCodeDataUrl} alt="QR kod" className="w-36 h-36" />
               </div>
               <div className="flex-1">
                 <p className="text-[13px] text-text-2 leading-relaxed mb-3">

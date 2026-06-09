@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from "react-router-dom";
+﻿import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { communitiesApi } from "@/api/communities";
 import { notificationsApi } from "@/api/notifications";
@@ -118,7 +118,7 @@ const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
               >
                 <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0 bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent border border-border">
                   {community.avatar ? (
-                    <img src={community.avatar} alt={community.name} className="w-full h-full object-cover" />
+                    <img loading="lazy" src={community.avatar} alt={community.name} className="w-full h-full object-cover" />
                   ) : (
                     community.name.slice(0, 1).toUpperCase()
                   )}

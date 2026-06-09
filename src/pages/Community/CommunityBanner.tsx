@@ -173,7 +173,7 @@ const CommunityBanner = memo(({
   return (
     <div className="relative rounded-2xl overflow-hidden mb-5 h-52 shadow-[0_4px_20px_rgba(0,0,0,0.12)] group">
       {community.banner ? (
-        <img src={community.banner} alt={community.name} className="w-full h-full object-cover" />
+        <img loading="lazy" src={community.banner} alt={community.name} className="w-full h-full object-cover" />
       ) : (
         <div className="w-full h-full bg-gradient-to-br from-[#0d4f2e] via-[#1a8a57] to-[#3ab878]" />
       )}
@@ -197,7 +197,7 @@ const CommunityBanner = memo(({
           {/* Avatar */}
           <div className="w-12 h-12 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center text-xl font-bold text-white shrink-0 overflow-hidden backdrop-blur-sm">
             {community.avatar ? (
-              <img src={community.avatar} alt={community.name} className="w-full h-full object-cover" />
+              <img loading="lazy" src={community.avatar} alt={community.name} className="w-full h-full object-cover" />
             ) : (
               community.name.slice(0, 1)
             )}

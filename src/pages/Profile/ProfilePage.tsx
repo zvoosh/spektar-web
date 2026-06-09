@@ -11,6 +11,7 @@ import ProfileHeader from "./ProfileHeader";
 import ProfilePostsTab from "./ProfilePostsTab";
 import ProfileSavedTab from "./ProfileSavedTab";
 import ProfileFriendsTab from "./ProfileFriendsTab";
+import PageMeta from "@/components/shared/PageMeta";
 
 type Tab = "posts" | "saved" | "friends";
 
@@ -118,6 +119,12 @@ const ProfilePage = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
+      <PageMeta
+        title={user.displayName || user.username}
+        description={user.bio ?? `Profil korisnika ${user.username} na Spektru Beograda.`}
+        image={user.avatar ?? undefined}
+        path={`/u/${user.username}`}
+      />
       <ProfileHeader
         user={user}
         myPostsCount={myPosts?.length ?? 0}

@@ -7,6 +7,8 @@ import { useAuthStore } from "@/store/authStore";
 import type { Comment } from "@/types";
 import ImageLightbox from "@/components/shared/ImageLightbox";
 import ShareMenu from "@/components/shared/ShareMenu";
+import PageMeta from "@/components/shared/PageMeta";
+import { PostCardSkeleton, SkeletonLine, SkeletonBox } from "@/components/shared/Skeleton";
 
 const POST_TYPE_LABELS: Record<
   string,
@@ -191,8 +193,24 @@ const PostDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-20 text-text-3">
-        Učitavam post...
+      <div className="space-y-4">
+        <div className="bg-surface border border-border rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <SkeletonBox h="h-5" w="w-20" rounded="rounded-full" />
+            <SkeletonLine w="w-32" />
+          </div>
+          <SkeletonLine w="w-3/4" className="mb-2" />
+          <SkeletonLine w="w-1/2" className="mb-5" />
+          <SkeletonLine w="w-full" className="mb-1.5" />
+          <SkeletonLine w="w-full" className="mb-1.5" />
+          <SkeletonLine w="w-4/5" className="mb-6" />
+          <div className="flex gap-3 pt-4 border-t border-surface-2">
+            <SkeletonBox h="h-8" w="w-20" rounded="rounded-xl" />
+            <SkeletonBox h="h-8" w="w-20" rounded="rounded-xl" />
+          </div>
+        </div>
+        <PostCardSkeleton />
+        <PostCardSkeleton />
       </div>
     );
   }
@@ -214,6 +232,13 @@ const PostDetailPage = () => {
 
   return (
     <div>
+      <PageMeta
+        title={post.title}
+        description={post.body ? post.body.slice(0, 160) : `${post.type} na Spektru Beograda`}
+        image={post.images?.[0] ?? undefined}
+        path={`/post/${post.id}`}
+        type="article"
+      />
       {/* Back */}
       <button
         onClick={() => navigate(-1)}

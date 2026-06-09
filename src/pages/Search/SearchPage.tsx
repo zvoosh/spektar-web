@@ -176,7 +176,7 @@ const SearchPage = () => {
                 users?.map((u: User) => (
                   <div key={u.id} onClick={() => navigate(`/u/${u.username}`)} className="bg-surface border border-border rounded-[14px] p-4 flex items-center gap-4 cursor-pointer hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-shadow">
                     <div className="w-12 h-12 rounded-full bg-accent-soft flex items-center justify-center text-base font-bold text-accent shrink-0 overflow-hidden border border-border">
-                      {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover" /> : u.username.slice(0, 2).toUpperCase()}
+                      {u.avatar ? <img loading="lazy" src={u.avatar} alt="" className="w-full h-full object-cover" /> : u.username.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[14px] font-semibold text-text-1">{u.username}</div>
@@ -213,7 +213,7 @@ const SearchPage = () => {
                   >
                     <div className="w-12 h-12 rounded-xl bg-accent-soft flex items-center justify-center text-xl font-semibold text-accent shrink-0 overflow-hidden">
                       {community.avatar ? (
-                        <img src={community.avatar} alt="" className="w-full h-full object-cover" />
+                        <img loading="lazy" src={community.avatar} alt="" className="w-full h-full object-cover" />
                       ) : (
                         community.name.slice(0, 1)
                       )}

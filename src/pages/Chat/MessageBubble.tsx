@@ -1,4 +1,4 @@
-import { memo } from "react";
+﻿import { memo } from "react";
 import { CheckCheck, Download, FileText, FileSpreadsheet, Presentation, BookOpen } from "lucide-react";
 import { formatTime, formatFileSize, getFileKind, openFile, downloadFile } from "./chatHelpers";
 import type { Message } from "@/types";
@@ -25,7 +25,7 @@ const MessageBubble = memo(({ message, isOwn, isRead, onDelete, onImageClick }: 
     {!isOwn && (
       <div className="w-7 h-7 rounded-full bg-accent-soft flex items-center justify-center text-[10px] font-semibold text-accent shrink-0 overflow-hidden">
         {message.sender?.avatar ? (
-          <img src={message.sender.avatar} alt="" className="w-full h-full object-cover" />
+          <img loading="lazy" src={message.sender.avatar} alt="" className="w-full h-full object-cover" />
         ) : (
           message.sender?.username?.slice(0, 2).toUpperCase()
         )}

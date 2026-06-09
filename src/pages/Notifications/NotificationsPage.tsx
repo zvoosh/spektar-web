@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { notificationsApi } from "@/api/notifications";
 import type { Notification } from "@/types";
 import { Trash2 } from "lucide-react";
+import { NotificationSkeleton } from "@/components/shared/Skeleton";
 
 const NOTIF_ICONS: Record<string, string> = {
   vote: "▲",
@@ -70,7 +71,7 @@ const NotificationItem = ({ notif }: { notif: Notification }) => {
         className="w-9 h-9 rounded-full bg-accent-soft flex items-center justify-center text-sm font-semibold text-accent shrink-0 overflow-hidden hover:opacity-80 transition-opacity"
       >
         {notif.actor?.avatar
-          ? <img src={notif.actor.avatar} alt="" className="w-full h-full object-cover" />
+          ? <img loading="lazy" src={notif.actor.avatar} alt="" className="w-full h-full object-cover" />
           : notif.actor
             ? notif.actor.username.slice(0, 2).toUpperCase()
             : (NOTIF_ICONS[notif.type] ?? "🔔")}
@@ -159,11 +160,7 @@ const NotificationsPage = () => {
       </div>
 
       <div className="bg-surface border border-border rounded-[14px] overflow-hidden">
-        {isLoading && (
-          <div className="text-center py-16 text-text-3 text-[13px]">
-            Učitavam obaveštenja...
-          </div>
-        )}
+        {isLoading && <NotificationSkeleton count={6} />}
 
         {!isLoading && notifications.length === 0 && (
           <div className="text-center py-16">

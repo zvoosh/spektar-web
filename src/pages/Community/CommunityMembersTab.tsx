@@ -88,7 +88,7 @@ const CommunityMembersTab = memo(({ community, members, isOwner, isMod, currentU
               className="w-9 h-9 rounded-full bg-accent-soft flex items-center justify-center text-[11px] font-bold text-accent overflow-hidden border border-border shrink-0 cursor-pointer hover:opacity-80"
             >
               {m.user?.avatar ? (
-                <img src={m.user.avatar} alt="" className="w-full h-full object-cover" />
+                <img loading="lazy" src={m.user.avatar} alt="" className="w-full h-full object-cover" />
               ) : (
                 m.user?.username?.slice(0, 2).toUpperCase()
               )}

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+﻿import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileText, UserPlus } from "lucide-react";
 import { uploadApi } from "@/api/upload";
@@ -182,7 +182,7 @@ const ChatArea = ({
           className={`w-9 h-9 rounded-full bg-accent-soft flex items-center justify-center text-xs font-semibold text-accent overflow-hidden shrink-0 border border-border ${convInfo?.user ? "cursor-pointer hover:opacity-80" : ""}`}
         >
           {convInfo?.avatar ? (
-            <img src={convInfo.avatar} alt="" className="w-full h-full object-cover" />
+            <img loading="lazy" src={convInfo.avatar} alt="" className="w-full h-full object-cover" />
           ) : (
             convInfo?.initials ?? "?"
           )}
