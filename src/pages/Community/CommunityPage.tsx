@@ -245,6 +245,7 @@ const CommunityPage = () => {
       setSelectedNewOwner("");
       queryClient.invalidateQueries({ queryKey: ["community", slug] });
       queryClient.invalidateQueries({ queryKey: ["communities"] });
+      queryClient.invalidateQueries({ queryKey: ["posts", "feed", "infinite"] });
       navigate("/communities");
     },
   });
@@ -255,6 +256,8 @@ const CommunityPage = () => {
       setIsMember(true);
       setIsInvited(false);
       queryClient.invalidateQueries({ queryKey: ["community", slug] });
+      queryClient.invalidateQueries({ queryKey: ["communities"] });
+      queryClient.invalidateQueries({ queryKey: ["posts", "feed", "infinite"] });
     },
   });
 
@@ -263,6 +266,7 @@ const CommunityPage = () => {
     onSuccess: () => {
       setIsInvited(false);
       queryClient.invalidateQueries({ queryKey: ["community", slug] });
+      queryClient.invalidateQueries({ queryKey: ["communities"] });
     },
   });
 
@@ -349,6 +353,7 @@ const CommunityPage = () => {
     onSuccess: () => {
       setIsMember(true);
       queryClient.invalidateQueries({ queryKey: ["communities"] });
+      queryClient.invalidateQueries({ queryKey: ["posts", "feed", "infinite"] });
     },
   });
 

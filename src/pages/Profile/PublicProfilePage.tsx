@@ -1,5 +1,6 @@
 ﻿import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useRef, useEffect } from "react";
 import { usersApi } from "@/api/users";
 import { postsApi } from "@/api/posts";
 import { friendsApi } from "@/api/friends";
@@ -13,6 +14,8 @@ import { useMutation } from "@tanstack/react-query";
 const PublicProfilePage = () => {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
+  const mountedRef = useRef(true);
+  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
   const location = useLocation();
   const { user: me, isAuthenticated } = useAuthStore();
 
@@ -44,7 +47,7 @@ const PublicProfilePage = () => {
 
   const dmMutation = useMutation({
     mutationFn: () => chatApi.createDM(user!.id),
-    onSuccess: () => navigate("/chat"),
+    onSuccess: () => { if (mountedRef.current) navigate("/chat"); },
   });
 
   const isOwnProfile = me?.id === user?.id;

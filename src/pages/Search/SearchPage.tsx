@@ -15,6 +15,8 @@ type Tab = "posts" | "communities" | "users";
 
 const SearchPage = () => {
   const navigate = useNavigate();
+  const mountedRef = useRef(true);
+  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
   const [searchParams, setSearchParams] = useSearchParams();
   const [inputValue, setInputValue] = useState(searchParams.get("q") ?? "");
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
@@ -31,13 +33,17 @@ const SearchPage = () => {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
+      if (!mountedRef.current) return;
       setQuery(inputValue.trim());
       if (inputValue.trim()) {
-        setSearchParams({ q: inputValue.trim() });
+        setSearchParams({ q: inputValue.trim() }, { replace: true });
       } else {
-        setSearchParams({});
+        setSearchParams({}, { replace: true });
       }
     }, 400);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, [inputValue]);
 
   const { data: posts, isLoading: postsLoading } = useQuery({
@@ -62,7 +68,7 @@ const SearchPage = () => {
 
   const dmMutation = useMutation({
     mutationFn: (userId: string) => chatApi.createDM(userId),
-    onSuccess: () => navigate(`/chat`),
+    onSuccess: () => { if (mountedRef.current) navigate(`/chat`); },
   });
 
   const isLoading = postsLoading || communitiesLoading || usersLoading;

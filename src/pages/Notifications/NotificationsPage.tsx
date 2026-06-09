@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { notificationsApi } from "@/api/notifications";
 import type { Notification } from "@/types";
+import { Trash2 } from "lucide-react";
 
 const NOTIF_ICONS: Record<string, string> = {
   vote: "▲",
@@ -108,7 +109,15 @@ const NotificationsPage = () => {
     mutationFn: notificationsApi.markAllAsRead,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.setQueryData(["notifications", "unread"], 0);
+      queryClient.setQueryData(["notif-count"], 0);
+    },
+  });
+
+  const clearAllMutation = useMutation({
+    mutationFn: notificationsApi.clearAll,
+    onSuccess: () => {
+      queryClient.setQueryData(["notif-count"], 0);
+      queryClient.setQueryData(["notifications"], { notifications: [], total: 0 });
     },
   });
 
@@ -125,15 +134,28 @@ const NotificationsPage = () => {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-5">
-        {unreadCount > 0 && (
-          <button
-            onClick={() => markAllMutation.mutate()}
-            disabled={markAllMutation.isPending}
-            className="text-[13px] text-accent bg-transparent border-none cursor-pointer font-medium"
-          >
-            Označi sve kao pročitano
-          </button>
-        )}
+        <h1 className="font-serif text-[22px] text-text-1">Obaveštenja</h1>
+        <div className="flex items-center gap-3">
+          {unreadCount > 0 && (
+            <button
+              onClick={() => markAllMutation.mutate()}
+              disabled={markAllMutation.isPending}
+              className="text-[13px] text-accent bg-transparent border-none cursor-pointer font-medium hover:text-accent-hover transition-colors"
+            >
+              Označi sve kao pročitano
+            </button>
+          )}
+          {notifications.length > 0 && (
+            <button
+              onClick={() => clearAllMutation.mutate()}
+              disabled={clearAllMutation.isPending}
+              className="flex items-center gap-1.5 text-[13px] text-text-3 hover:text-red-400 bg-transparent border-none cursor-pointer transition-colors disabled:opacity-50"
+            >
+              <Trash2 size={14} />
+              Obriši sve
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="bg-surface border border-border rounded-[14px] overflow-hidden">

@@ -4,6 +4,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { PenSquare, Menu, User, Bookmark, LogOut, Settings } from "lucide-react";
 import NotificationBell from "@/components/shared/NotificationBell";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Navbar = ({
   onMenuClick,
@@ -15,6 +16,7 @@ const Navbar = ({
   const { user, logout, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { isMobile } = useBreakpoint();
@@ -31,6 +33,7 @@ const Navbar = ({
 
   const handleLogout = () => {
     logout();
+    queryClient.clear();
     navigate("/", { replace: true });
   };
 

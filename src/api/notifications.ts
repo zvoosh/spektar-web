@@ -21,4 +21,9 @@ export const notificationsApi = {
     const res = await api.patch("/notifications/read-all");
     return res.data;
   },
+
+  clearAll: async () => {
+    const res = await api.delete("/notifications");
+    return res.data;
+  },
 };

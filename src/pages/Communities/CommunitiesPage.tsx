@@ -20,14 +20,18 @@ const CommunitiesPage = () => {
 
   const joinMutation = useMutation({
     mutationFn: (id: string) => communitiesApi.join(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["communities"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["communities"] });
+      queryClient.invalidateQueries({ queryKey: ["posts", "feed", "infinite"] });
+    },
   });
 
   const acceptInviteMutation = useMutation({
     mutationFn: (id: string) => communitiesApi.acceptInvite(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["communities"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["communities"] });
+      queryClient.invalidateQueries({ queryKey: ["posts", "feed", "infinite"] });
+    },
   });
 
   const rejectInviteMutation = useMutation({

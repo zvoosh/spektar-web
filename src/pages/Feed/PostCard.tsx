@@ -182,17 +182,29 @@ const PostCard = ({ post }: { post: Post }) => {
               </p>
             )}
 
-            {post.type === "event" && post.eventDate && (
+            {(post.type === "event" && post.eventDate || post.eventLocation) && (
               <div className="flex gap-3 mb-2.5 flex-wrap">
-                <span className="flex items-center gap-1.5 text-[12px] text-accent font-medium bg-accent-soft px-2.5 py-1 rounded-lg">
-                  <CalendarDays size={12} strokeWidth={2.5} />
-                  {new Date(post.eventDate).toLocaleDateString("sr-RS")}
-                </span>
+                {post.type === "event" && post.eventDate && (
+                  <span className="flex items-center gap-1.5 text-[12px] text-accent font-medium bg-accent-soft px-2.5 py-1 rounded-lg">
+                    <CalendarDays size={12} strokeWidth={2.5} />
+                    {new Date(post.eventDate).toLocaleDateString("sr-RS")}
+                  </span>
+                )}
                 {post.eventLocation && (
-                  <span className="flex items-center gap-1.5 text-[12px] text-text-2 bg-surface-2 px-2.5 py-1 rounded-lg">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(
+                        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(post.eventLocation!)}`,
+                        "_blank"
+                      );
+                    }}
+                    className="flex items-center gap-1.5 text-[12px] text-text-2 bg-surface-2 hover:bg-accent-soft hover:text-accent px-2.5 py-1 rounded-lg cursor-pointer border-none transition-colors"
+                    title="Otvori na Google Maps"
+                  >
                     <MapPin size={12} strokeWidth={2.5} />
                     {post.eventLocation}
-                  </span>
+                  </button>
                 )}
               </div>
             )}

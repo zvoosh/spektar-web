@@ -173,14 +173,24 @@ const MessageBubble = ({
           {message.replyTo.content}
         </div>
       )}
+      {/* Slika bez teksta — bez bubble-a */}
+      {message.imageUrl && !message.content && !message.fileUrl && (
+        <img
+          src={message.imageUrl}
+          alt=""
+          onClick={() => onImageClick(message.imageUrl!)}
+          className="rounded-xl max-w-[220px] cursor-zoom-in hover:opacity-90 transition-opacity block"
+        />
+      )}
       <div
         className={`px-3.5 py-2.5 rounded-[14px] text-[13px] leading-relaxed ${
+          !message.content && !message.fileUrl && message.imageUrl ? "hidden" :
           isOwn
             ? "bg-accent-text text-white rounded-br-[4px]"
             : "bg-surface border border-border text-text-1 rounded-bl-[4px]"
         }`}
       >
-        {message.imageUrl && (
+        {message.imageUrl && message.content && (
           <img
             src={message.imageUrl}
             alt=""

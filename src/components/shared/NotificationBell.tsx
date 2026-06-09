@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Bell, UserPlus, Heart, MessageSquare, Users, Check, Building2 } from "lucide-react";
+import { Bell, UserPlus, Heart, MessageSquare, Users, Check, Building2, Trash2 } from "lucide-react";
 import { notificationsApi } from "@/api/notifications";
 import { communitiesApi } from "@/api/communities";
 import { useAuthStore } from "@/store/authStore";
@@ -76,6 +76,14 @@ const NotificationBell = () => {
     },
   });
 
+  const clearAllMutation = useMutation({
+    mutationFn: notificationsApi.clearAll,
+    onSuccess: () => {
+      queryClient.setQueryData(["notif-count"], 0);
+      queryClient.setQueryData(["notifications"], { notifications: [], total: 0 });
+    },
+  });
+
   const markOneMutation = useMutation({
     mutationFn: (id: string) => notificationsApi.markAsRead(id),
     onSuccess: () => {
@@ -90,6 +98,8 @@ const NotificationBell = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notif-count"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["communities"] });
+      queryClient.invalidateQueries({ queryKey: ["posts", "feed", "infinite"] });
     },
   });
 
@@ -99,6 +109,7 @@ const NotificationBell = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notif-count"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["communities"] });
     },
   });
 
@@ -157,15 +168,28 @@ const NotificationBell = () => {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <span className="font-semibold text-[14px] text-text-1">Notifikacije</span>
-            {unread > 0 && (
-              <button
-                onClick={() => markAllMutation.mutate()}
-                className="flex items-center gap-1 text-[11px] text-accent hover:text-accent-hover cursor-pointer bg-transparent border-none transition-colors"
-              >
-                <Check size={12} />
-                Označi sve
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {unread > 0 && (
+                <button
+                  onClick={() => markAllMutation.mutate()}
+                  className="flex items-center gap-1 text-[11px] text-accent hover:text-accent-hover cursor-pointer bg-transparent border-none transition-colors"
+                >
+                  <Check size={12} />
+                  Označi sve
+                </button>
+              )}
+              {notifications.length > 0 && (
+                <button
+                  onClick={() => clearAllMutation.mutate()}
+                  disabled={clearAllMutation.isPending}
+                  title="Obriši sve notifikacije"
+                  className="flex items-center gap-1 text-[11px] text-text-3 hover:text-red-400 cursor-pointer bg-transparent border-none transition-colors disabled:opacity-50"
+                >
+                  <Trash2 size={12} />
+                  Obriši sve
+                </button>
+              )}
+            </div>
           </div>
 
           {/* List */}
