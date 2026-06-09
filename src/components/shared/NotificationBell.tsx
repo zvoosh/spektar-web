@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { Bell, UserPlus, Heart, MessageSquare, Users, Check, Building2, Trash2 } from "lucide-react";
 import { notificationsApi } from "@/api/notifications";
 import { communitiesApi } from "@/api/communities";
@@ -96,21 +97,25 @@ const NotificationBell = () => {
     mutationFn: ({ communityId, notifId }: { communityId: string; notifId: string }) =>
       communitiesApi.acceptInvite(communityId).then(() => notificationsApi.markAsRead(notifId)),
     onSuccess: () => {
+      toast.success("Pridružio/la si se zajednici!");
       queryClient.invalidateQueries({ queryKey: ["notif-count"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({ queryKey: ["communities"] });
       queryClient.invalidateQueries({ queryKey: ["posts", "feed", "infinite"] });
     },
+    onError: () => toast.error("Prihvatanje poziva nije uspelo"),
   });
 
   const rejectInviteMutation = useMutation({
     mutationFn: ({ communityId, notifId }: { communityId: string; notifId: string }) =>
       communitiesApi.rejectInvite(communityId).then(() => notificationsApi.markAsRead(notifId)),
     onSuccess: () => {
+      toast.success("Poziv je odbijen");
       queryClient.invalidateQueries({ queryKey: ["notif-count"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({ queryKey: ["communities"] });
     },
+    onError: () => toast.error("Odbijanje poziva nije uspelo"),
   });
 
   // Real-time: listen for new notification via socket

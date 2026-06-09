@@ -1,6 +1,7 @@
 ﻿import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { postsApi } from "@/api/posts";
 import type { Post } from "@/types";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
@@ -88,25 +89,57 @@ const PostCard = ({ post }: { post: Post }) => {
   const deleteMutation = useMutation({
     mutationFn: () => postsApi.delete(post.id),
     onSuccess: () => {
+      toast.success("Post je obrisan");
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["posts", "feed"] });
       queryClient.invalidateQueries({ queryKey: ["posts", "by-user"] });
     },
+    onError: () => toast.error("Brisanje nije uspelo"),
   });
 
   const cfg = POST_TYPE_CONFIG[post.type] ?? POST_TYPE_CONFIG.discussion;
 
   const voteMutation = useMutation({
     mutationFn: (type: "up" | "down") => postsApi.vote(post.id, type),
-    onSuccess: (data, type) => {
+    onMutate: (type) => {
+      const prevVotes = votes;
+      const prevUserVote = userVote;
+      if (userVote === type) {
+        setUserVote(null);
+        setVotes((v) => v + (type === "up" ? -1 : 1));
+      } else if (userVote === null) {
+        setUserVote(type);
+        setVotes((v) => v + (type === "up" ? 1 : -1));
+      } else {
+        setUserVote(type);
+        setVotes((v) => v + (type === "up" ? 2 : -2));
+      }
+      return { prevVotes, prevUserVote };
+    },
+    onSuccess: (data) => {
       setVotes(data.votesCount);
-      setUserVote((prev) => (prev === type ? null : type));
+    },
+    onError: (_, __, context) => {
+      if (context) {
+        setVotes(context.prevVotes);
+        setUserVote(context.prevUserVote);
+      }
+      toast.error("Glasanje nije uspelo");
     },
   });
 
   const saveMutation = useMutation({
     mutationFn: () => postsApi.toggleSave(post.id),
+    onMutate: () => {
+      const prev = isSaved;
+      setIsSaved(!isSaved);
+      return { prev };
+    },
     onSuccess: (data) => setIsSaved(data.isSaved),
+    onError: (_, __, context) => {
+      if (context) setIsSaved(context.prev);
+      toast.error("Nije uspelo");
+    },
   });
 
   return (

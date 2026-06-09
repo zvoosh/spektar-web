@@ -38,7 +38,7 @@ const LoginForm = () => {
         return;
       }
       if ("token" in data) {
-        setAuth(data.user, data.token);
+        setAuth(data.user, data.token, "refreshToken" in data ? data.refreshToken : undefined);
         queryClient.invalidateQueries();
         navigate(from, { replace: true });
       }
@@ -53,7 +53,7 @@ const LoginForm = () => {
       if (data.deviceToken) {
         localStorage.setItem("spektar_device_token", data.deviceToken);
       }
-      setAuth(data.user, data.token);
+      setAuth(data.user, data.token, (data as any).refreshToken);
       queryClient.invalidateQueries();
       navigate(from, { replace: true });
     },
@@ -321,7 +321,7 @@ const RegisterForm = () => {
   const mutation = useMutation({
     mutationFn: authApi.register,
     onSuccess: (data) => {
-      setAuth(data.user, data.token);
+      setAuth(data.user, data.token, data.refreshToken);
       navigate("/", { replace: true });
     },
     onError: (err: any) => {

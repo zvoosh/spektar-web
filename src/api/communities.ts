@@ -67,7 +67,7 @@ export const communitiesApi = {
     return res.data;
   },
 
-  update: async (id: string, data: { name?: string; description?: string; location?: string; avatar?: string }) => {
+  update: async (id: string, data: { name?: string; description?: string; location?: string; avatar?: string; type?: string; category?: string }) => {
     const res = await api.patch(`/communities/${id}`, data);
     return res.data;
   },

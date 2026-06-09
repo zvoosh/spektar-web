@@ -3,13 +3,13 @@ import api from "./axios";
 
 export const authApi = {
   register: async (data: { username: string; email: string; password: string }) => {
-    const res = await api.post<{ user: User; token: string }>("/auth/register", data);
+    const res = await api.post<{ user: User; token: string; refreshToken: string }>("/auth/register", data);
     return res.data;
   },
 
   login: async (data: { email: string; password: string; deviceToken?: string }) => {
     const res = await api.post<
-      | { user: User; token: string }
+      | { user: User; token: string; refreshToken: string }
       | { requiresTwoFactor: true; userId: string; tempToken: string }
     >("/auth/login", data);
     return res.data;

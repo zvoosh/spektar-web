@@ -1,6 +1,7 @@
 ﻿import { useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { communitiesApi } from "@/api/communities";
 import { uploadApi } from "@/api/upload";
 import { useAuthStore } from "@/store/authStore";
@@ -171,6 +172,8 @@ const CommunityPage = () => {
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editLocation, setEditLocation] = useState("");
+  const [editType, setEditType] = useState("public");
+  const [editCategory, setEditCategory] = useState("other");
   const [editAvatarUploading, setEditAvatarUploading] = useState(false);
   const [editAvatarUrl, setEditAvatarUrl] = useState("");
   const bannerInputRef = useRef<HTMLInputElement>(null);
@@ -227,19 +230,26 @@ const CommunityPage = () => {
 
   const kickMutation = useMutation({
     mutationFn: (userId: string) => communitiesApi.kickMember(community!.id, userId),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["members", community?.id] }),
+    onSuccess: () => {
+      toast.success("Korisnik je izbačen");
+      queryClient.invalidateQueries({ queryKey: ["members", community?.id] });
+    },
+    onError: () => toast.error("Izbacivanje nije uspelo"),
   });
 
   const banMutation = useMutation({
     mutationFn: (userId: string) => communitiesApi.banMember(community!.id, userId),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["members", community?.id] }),
+    onSuccess: () => {
+      toast.success("Korisnik je banovan");
+      queryClient.invalidateQueries({ queryKey: ["members", community?.id] });
+    },
+    onError: () => toast.error("Banovanje nije uspelo"),
   });
 
   const leaveMutation = useMutation({
     mutationFn: (newOwnerId?: string) => communitiesApi.leaveCommunity(community!.id, newOwnerId),
     onSuccess: () => {
+      toast.success("Napustio/la si zajednicu");
       setIsMember(false);
       setShowLeaveModal(false);
       setSelectedNewOwner("");
@@ -248,34 +258,41 @@ const CommunityPage = () => {
       queryClient.invalidateQueries({ queryKey: ["posts", "feed", "infinite"] });
       navigate("/communities");
     },
+    onError: () => toast.error("Napuštanje nije uspelo"),
   });
 
   const acceptInviteMutation = useMutation({
     mutationFn: () => communitiesApi.acceptInvite(community!.id),
     onSuccess: () => {
+      toast.success("Pridružio/la si se zajednici!");
       setIsMember(true);
       setIsInvited(false);
       queryClient.invalidateQueries({ queryKey: ["community", slug] });
       queryClient.invalidateQueries({ queryKey: ["communities"] });
       queryClient.invalidateQueries({ queryKey: ["posts", "feed", "infinite"] });
     },
+    onError: () => toast.error("Prihvatanje poziva nije uspelo"),
   });
 
   const rejectInviteMutation = useMutation({
     mutationFn: () => communitiesApi.rejectInvite(community!.id),
     onSuccess: () => {
+      toast.success("Poziv je odbijen");
       setIsInvited(false);
       queryClient.invalidateQueries({ queryKey: ["community", slug] });
       queryClient.invalidateQueries({ queryKey: ["communities"] });
     },
+    onError: () => toast.error("Odbijanje poziva nije uspelo"),
   });
 
   const deleteCommunityMutation = useMutation({
     mutationFn: () => communitiesApi.deleteCommunity(community!.id),
     onSuccess: () => {
+      toast.success("Zajednica je obrisana");
       queryClient.invalidateQueries({ queryKey: ["communities"] });
       navigate("/communities");
     },
+    onError: () => toast.error("Brisanje zajednice nije uspelo"),
   });
 
   const { data: gallery, refetch: refetchGallery } = useQuery({
@@ -308,9 +325,11 @@ const CommunityPage = () => {
     mutationFn: (userId: string) =>
       communitiesApi.directAddMember(community!.id, userId),
     onSuccess: () => {
+      toast.success("Pozivnica je poslata");
       queryClient.invalidateQueries({ queryKey: ["members", community?.id] });
       setShowInvite(false);
     },
+    onError: () => toast.error("Slanje pozivnice nije uspelo"),
   });
 
   const updateMutation = useMutation({
@@ -319,17 +338,24 @@ const CommunityPage = () => {
       description?: string;
       location?: string;
       avatar?: string;
+      type?: string;
+      category?: string;
     }) => communitiesApi.update(community!.id, data),
     onSuccess: () => {
+      toast.success("Zajednica je ažurirana");
       queryClient.invalidateQueries({ queryKey: ["community", slug] });
+      queryClient.invalidateQueries({ queryKey: ["communities"] });
       setShowEdit(false);
     },
+    onError: () => toast.error("Ažuriranje nije uspelo"),
   });
 
   const openEdit = () => {
     setEditName(community?.name ?? "");
     setEditDescription(community?.description ?? "");
     setEditLocation(community?.location ?? "");
+    setEditType((community as any)?.type ?? "public");
+    setEditCategory((community as any)?.category ?? "other");
     setEditAvatarUrl(community?.avatar ?? "");
     setShowEdit(true);
   };
@@ -351,10 +377,12 @@ const CommunityPage = () => {
   const joinMutation = useMutation({
     mutationFn: () => communitiesApi.join(community!.id),
     onSuccess: () => {
+      toast.success("Pridružio/la si se zajednici!");
       setIsMember(true);
       queryClient.invalidateQueries({ queryKey: ["communities"] });
       queryClient.invalidateQueries({ queryKey: ["posts", "feed", "infinite"] });
     },
+    onError: () => toast.error("Pridruživanje nije uspelo"),
   });
 
   const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -529,6 +557,44 @@ const CommunityPage = () => {
                 />
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold text-text-3 uppercase tracking-wider mb-1.5">
+                    Vidljivost
+                  </label>
+                  <select
+                    value={editType}
+                    onChange={(e) => setEditType(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-border text-[13px] text-text-1 outline-none focus:border-accent bg-surface cursor-pointer"
+                  >
+                    <option value="public">Javna</option>
+                    <option value="restricted">Ograničena</option>
+                    <option value="private">Privatna</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-text-3 uppercase tracking-wider mb-1.5">
+                    Kategorija
+                  </label>
+                  <select
+                    value={editCategory}
+                    onChange={(e) => setEditCategory(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-border text-[13px] text-text-1 outline-none focus:border-accent bg-surface cursor-pointer"
+                  >
+                    <option value="neighborhood">Kvart / Komšiluk</option>
+                    <option value="hobby">Hobi</option>
+                    <option value="sport">Sport</option>
+                    <option value="food">Hrana i piće</option>
+                    <option value="events">Događaji</option>
+                    <option value="other">Ostalo</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-surface-2 border border-border p-3 text-[12px] text-text-3 leading-relaxed">
+                <strong className="text-text-2">Napomena o vidljivosti:</strong> Promena tipa zajednice utiče na ko može da vidi i pristupi zajednici. Javna — svi vide; Ograničena — svi vide ali samo pozvani mogu da se pridruže; Privatna — samo pozvani vide.
+              </div>
+
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   onClick={() => setShowEdit(false)}
@@ -543,12 +609,14 @@ const CommunityPage = () => {
                       description: editDescription || undefined,
                       location: editLocation || undefined,
                       avatar: editAvatarUrl || undefined,
+                      type: editType,
+                      category: editCategory,
                     })
                   }
                   disabled={updateMutation.isPending || !editName.trim()}
                   className="px-5 py-2 rounded-xl bg-accent text-white text-[13px] font-semibold border-none cursor-pointer disabled:opacity-50"
                 >
-                  {updateMutation.isPending ? "Čuvam..." : "Sačuvaj"}
+                  {updateMutation.isPending ? "Čuvam..." : "Sačuvaj promene"}
                 </button>
               </div>
             </div>
