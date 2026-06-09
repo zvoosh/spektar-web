@@ -1,5 +1,6 @@
 ﻿import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { usersApi } from "@/api/users";
 import { uploadApi } from "@/api/upload";
 import { useAuthStore } from "@/store/authStore";
@@ -52,24 +53,32 @@ const ProfilePage = () => {
   const acceptMutation = useMutation({
     mutationFn: (requesterId: string) => friendsApi.accept(requesterId),
     onSuccess: () => {
+      toast.success("Zahtev je prihvaćen");
       queryClient.invalidateQueries({ queryKey: ["friends"] });
       queryClient.invalidateQueries({ queryKey: ["friend-requests"] });
       refetchPending();
     },
+    onError: () => toast.error("Prihvatanje nije uspelo"),
   });
 
   const rejectMutation = useMutation({
     mutationFn: (requesterId: string) => friendsApi.reject(requesterId),
-    onSuccess: () => refetchPending(),
+    onSuccess: () => {
+      toast.success("Zahtev je odbijen");
+      refetchPending();
+    },
+    onError: () => toast.error("Odbijanje nije uspelo"),
   });
 
   const updateMutation = useMutation({
     mutationFn: (data: { bio?: string; avatar?: string; banner?: string }) => usersApi.updateMe(data),
     onSuccess: (updated) => {
+      toast.success("Profil je ažuriran");
       updateUser(updated);
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       setEditing(false);
     },
+    onError: () => toast.error("Ažuriranje profila nije uspelo"),
   });
 
   const handleBannerChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

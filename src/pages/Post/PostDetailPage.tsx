@@ -1,13 +1,17 @@
 ﻿import { useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { postsApi } from "@/api/posts";
 import { useAuthStore } from "@/store/authStore";
 import type { Comment } from "@/types";
 import ImageLightbox from "@/components/shared/ImageLightbox";
 import ShareMenu from "@/components/shared/ShareMenu";
 
-const POST_TYPE_LABELS: Record<string, { label: string; color: string; bg: string }> = {
+const POST_TYPE_LABELS: Record<
+  string,
+  { label: string; color: string; bg: string }
+> = {
   announcement: { label: "OBAVEŠTENJE", color: "#C4622D", bg: "#F0E6DE" },
   discussion: { label: "DISKUSIJA", color: "#2D5FA8", bg: "#E3EAF5" },
   event: { label: "DOGAĐAJ", color: "#2D7A4F", bg: "#E3F0E9" },
@@ -46,37 +50,56 @@ const CommentItem = ({
     mutationFn: () =>
       postsApi.createComment(postId, { body: replyBody, parentId: comment.id }),
     onSuccess: () => {
+      toast.success("Odgovor je dodat");
       queryClient.invalidateQueries({ queryKey: ["comments", postId] });
       setReplyBody("");
       setShowReply(false);
     },
+    onError: () => toast.error("Slanje odgovora nije uspelo"),
   });
 
   return (
     <div className={depth > 0 ? "ml-8 mt-3" : "mt-4"}>
       <div className="flex gap-3">
         <div
-          onClick={() => comment.user?.username && navigate(`/u/${comment.user.username}`)}
+          onClick={() =>
+            comment.user?.username && navigate(`/u/${comment.user.username}`)
+          }
           className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-xs font-semibold text-accent shrink-0 overflow-hidden border border-border cursor-pointer hover:opacity-80 transition-opacity"
         >
-          {comment.user?.avatar
-            ? <img src={comment.user.avatar} alt="" className="w-full h-full object-cover" />
-            : (comment.user?.displayName || comment.user?.username)?.slice(0, 2).toUpperCase()}
+          {comment.user?.avatar ? (
+            <img
+              src={comment.user.avatar}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            (comment.user?.displayName || comment.user?.username)
+              ?.slice(0, 2)
+              .toUpperCase()
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span
-              onClick={() => comment.user?.username && navigate(`/u/${comment.user.username}`)}
+              onClick={() =>
+                comment.user?.username &&
+                navigate(`/u/${comment.user.username}`)
+              }
               className="text-[13px] font-semibold text-text-1 cursor-pointer hover:text-accent transition-colors"
             >
               {comment.user?.displayName || comment.user?.username}
             </span>
-            <span className="text-[11px] text-text-3">{formatDate(comment.createdAt)}</span>
+            <span className="text-[11px] text-text-3">
+              {formatDate(comment.createdAt)}
+            </span>
             {comment.isEdited && (
               <span className="text-[10px] text-text-3">(izmenjeno)</span>
             )}
           </div>
-          <div className="text-[13px] text-text-2 leading-relaxed">{comment.body}</div>
+          <div className="text-[13px] text-text-2 leading-relaxed">
+            {comment.body}
+          </div>
           <div className="flex items-center gap-3 mt-2">
             <button className="text-[11px] text-text-3 bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-accent">
               ▲ {comment.votesCount}
@@ -112,7 +135,12 @@ const CommentItem = ({
       </div>
 
       {comment.replies?.map((reply) => (
-        <CommentItem key={reply.id} comment={reply} postId={postId} depth={depth + 1} />
+        <CommentItem
+          key={reply.id}
+          comment={reply}
+          postId={postId}
+          depth={depth + 1}
+        />
       ))}
     </div>
   );
@@ -127,7 +155,9 @@ const PostDetailPage = () => {
   const [commentBody, setCommentBody] = useState("");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [votes, setVotes] = useState<number | null>(null);
-  const [userVote, setUserVote] = useState<"up" | "down" | null | undefined>(undefined);
+  const [userVote, setUserVote] = useState<"up" | "down" | null | undefined>(
+    undefined,
+  );
 
   const { data: post, isLoading } = useQuery({
     queryKey: ["post", id],
@@ -152,9 +182,11 @@ const PostDetailPage = () => {
   const commentMutation = useMutation({
     mutationFn: () => postsApi.createComment(id!, { body: commentBody }),
     onSuccess: () => {
+      toast.success("Komentar je dodat");
       queryClient.invalidateQueries({ queryKey: ["comments", id] });
       setCommentBody("");
     },
+    onError: () => toast.error("Slanje komentara nije uspelo"),
   });
 
   if (isLoading) {
@@ -169,7 +201,9 @@ const PostDetailPage = () => {
     return (
       <div className="text-center p-20">
         <div className="text-[32px] mb-3">🔍</div>
-        <div className="font-serif text-[15px] text-text-1">Post nije pronađen</div>
+        <div className="font-serif text-[15px] text-text-1">
+          Post nije pronađen
+        </div>
       </div>
     );
   }
@@ -193,12 +227,22 @@ const PostDetailPage = () => {
         {/* Meta */}
         <div className="flex items-center gap-2 mb-4">
           <div
-            onClick={() => post.author?.username && navigate(`/u/${post.author.username}`)}
+            onClick={() =>
+              post.author?.username && navigate(`/u/${post.author.username}`)
+            }
             className="w-9 h-9 rounded-full bg-accent-soft flex items-center justify-center text-xs font-semibold text-accent shrink-0 overflow-hidden border border-border cursor-pointer hover:opacity-80 transition-opacity"
           >
-            {post.author?.avatar
-              ? <img src={post.author.avatar} alt="" className="w-full h-full object-cover" />
-              : (post.author?.displayName || post.author?.username)?.slice(0, 2).toUpperCase()}
+            {post.author?.avatar ? (
+              <img
+                src={post.author.avatar}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              (post.author?.displayName || post.author?.username)
+                ?.slice(0, 2)
+                .toUpperCase()
+            )}
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -239,9 +283,13 @@ const PostDetailPage = () => {
         {/* Event info */}
         {post.type === "event" && post.eventDate && (
           <div className="flex gap-4 mb-3 text-sm text-accent flex-wrap">
-            <span>📅 {new Date(post.eventDate).toLocaleDateString("sr-RS")}</span>
+            <span>
+              📅 {new Date(post.eventDate).toLocaleDateString("sr-RS")}
+            </span>
             {post.eventEndDate && (
-              <span>— {new Date(post.eventEndDate).toLocaleDateString("sr-RS")}</span>
+              <span>
+                — {new Date(post.eventEndDate).toLocaleDateString("sr-RS")}
+              </span>
             )}
             {post.eventLocation && <span>📍 {post.eventLocation}</span>}
           </div>
@@ -274,17 +322,21 @@ const PostDetailPage = () => {
         )}
 
         {/* Tags */}
-        {post.tags?.filter(t => t.trim()).length > 0 && (
+        {post.tags?.filter((t) => t.trim()).length > 0 && (
           <div className="flex gap-1.5 flex-wrap mb-4">
-            {post.tags.filter(t => t.trim()).map((t) => (
-              <span
-                key={t}
-                onClick={() => navigate(`/search?q=${encodeURIComponent(t.trim())}`)}
-                className="text-[11px] py-0.75 px-2.25 rounded-full bg-surface-2 text-text-3 border border-border hover:bg-accent-soft hover:text-accent hover:border-accent cursor-pointer transition-colors"
-              >
-                #{t}
-              </span>
-            ))}
+            {post.tags
+              .filter((t) => t.trim())
+              .map((t) => (
+                <span
+                  key={t}
+                  onClick={() =>
+                    navigate(`/search?q=${encodeURIComponent(t.trim())}`)
+                  }
+                  className="text-[11px] py-0.75 px-2.25 rounded-full bg-surface-2 text-text-3 border border-border hover:bg-accent-soft hover:text-accent hover:border-accent cursor-pointer transition-colors"
+                >
+                  #{t}
+                </span>
+              ))}
           </div>
         )}
 
@@ -292,9 +344,20 @@ const PostDetailPage = () => {
         <div className="flex items-center gap-3 pt-4 border-t border-surface-2 flex-wrap">
           <div className="flex items-center gap-px">
             <button
-              onClick={() => user ? voteMutation.mutate("up") : navigate("/login", { state: { from: { pathname: `/post/${id}` }, background: location } })}
+              onClick={() =>
+                user
+                  ? voteMutation.mutate("up")
+                  : navigate("/login", {
+                      state: {
+                        from: { pathname: `/post/${id}` },
+                        background: location,
+                      },
+                    })
+              }
               className={`w-8 h-8 rounded-[7px_3px_3px_7px] border border-border cursor-pointer text-xs flex items-center justify-center transition-all ${
-                currentUserVote === "up" ? "bg-accent text-white" : "bg-surface text-text-3"
+                currentUserVote === "up"
+                  ? "bg-accent text-white"
+                  : "bg-surface text-text-3"
               }`}
             >
               ▲
@@ -303,9 +366,20 @@ const PostDetailPage = () => {
               {currentVotes}
             </span>
             <button
-              onClick={() => user ? voteMutation.mutate("down") : navigate("/login", { state: { from: { pathname: `/post/${id}` }, background: location } })}
+              onClick={() =>
+                user
+                  ? voteMutation.mutate("down")
+                  : navigate("/login", {
+                      state: {
+                        from: { pathname: `/post/${id}` },
+                        background: location,
+                      },
+                    })
+              }
               className={`w-8 h-8 rounded-[3px_7px_7px_3px] border border-border cursor-pointer text-xs flex items-center justify-center transition-all ${
-                currentUserVote === "down" ? "bg-blue-500 text-white" : "bg-surface text-text-3"
+                currentUserVote === "down"
+                  ? "bg-blue-500 text-white"
+                  : "bg-surface text-text-3"
               }`}
             >
               ▼
@@ -352,9 +426,15 @@ const PostDetailPage = () => {
         {user ? (
           <div className="flex gap-3 mb-6">
             <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-xs font-semibold text-accent shrink-0 overflow-hidden border border-border">
-              {user.avatar
-                ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-                : user.username.slice(0, 2).toUpperCase()}
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                user.username.slice(0, 2).toUpperCase()
+              )}
             </div>
             <div className="flex-1">
               <textarea
@@ -377,10 +457,19 @@ const PostDetailPage = () => {
           </div>
         ) : (
           <div className="flex items-center justify-between gap-4 mb-6 px-4 py-3.5 rounded-xl bg-surface-2 border border-border">
-            <span className="text-[13px] text-text-2">Prijavi se da ostaviš komentar</span>
+            <span className="text-[13px] text-text-2">
+              Prijavi se da ostaviš komentar
+            </span>
             <div className="flex gap-2 shrink-0">
               <button
-                onClick={() => navigate("/login", { state: { from: { pathname: `/post/${id}` }, background: location } })}
+                onClick={() =>
+                  navigate("/login", {
+                    state: {
+                      from: { pathname: `/post/${id}` },
+                      background: location,
+                    },
+                  })
+                }
                 className="px-3.5 py-1.5 rounded-lg border border-border text-[13px] text-text-2 bg-surface cursor-pointer hover:bg-surface-2 transition-colors"
               >
                 Prijavi se
@@ -404,7 +493,9 @@ const PostDetailPage = () => {
         {!commentsLoading && comments?.length === 0 && (
           <div className="text-center py-10">
             <div className="text-[32px] mb-2">💬</div>
-            <div className="text-[14px] text-text-3">Nema komentara još. Budi prvi!</div>
+            <div className="text-[14px] text-text-3">
+              Nema komentara još. Budi prvi!
+            </div>
           </div>
         )}
 

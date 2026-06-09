@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { communitiesApi } from "@/api/communities";
 import { useAuthStore } from "@/store/authStore";
 
@@ -21,23 +22,30 @@ const CommunitiesPage = () => {
   const joinMutation = useMutation({
     mutationFn: (id: string) => communitiesApi.join(id),
     onSuccess: () => {
+      toast.success("Pridružio/la si se zajednici!");
       queryClient.invalidateQueries({ queryKey: ["communities"] });
       queryClient.invalidateQueries({ queryKey: ["posts", "feed", "infinite"] });
     },
+    onError: () => toast.error("Pridruživanje nije uspelo"),
   });
 
   const acceptInviteMutation = useMutation({
     mutationFn: (id: string) => communitiesApi.acceptInvite(id),
     onSuccess: () => {
+      toast.success("Pridružio/la si se zajednici!");
       queryClient.invalidateQueries({ queryKey: ["communities"] });
       queryClient.invalidateQueries({ queryKey: ["posts", "feed", "infinite"] });
     },
+    onError: () => toast.error("Prihvatanje poziva nije uspelo"),
   });
 
   const rejectInviteMutation = useMutation({
     mutationFn: (id: string) => communitiesApi.rejectInvite(id),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["communities"] }),
+    onSuccess: () => {
+      toast.success("Poziv je odbijen");
+      queryClient.invalidateQueries({ queryKey: ["communities"] });
+    },
+    onError: () => toast.error("Odbijanje poziva nije uspelo"),
   });
 
   return (

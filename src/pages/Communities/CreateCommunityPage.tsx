@@ -1,6 +1,7 @@
 ﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { communitiesApi } from "@/api/communities";
 
 const CATEGORIES: { label: string; value: string }[] = [
@@ -24,8 +25,10 @@ const CreateCommunityPage = () => {
     mutationFn: () =>
       communitiesApi.create({ name, description, category, type, location: location || undefined }),
     onSuccess: (community) => {
+      toast.success("Zajednica je kreirana!");
       navigate(`/c/${community.slug}`);
     },
+    onError: () => toast.error("Kreiranje zajednice nije uspelo"),
   });
 
   const isValid = name.trim().length >= 3 && category;
@@ -154,11 +157,6 @@ const CreateCommunityPage = () => {
           </button>
         </div>
 
-        {createMutation.isError && (
-          <div className="text-[13px] text-red-500 text-center">
-            Greška. Pokušaj ponovo.
-          </div>
-        )}
       </div>
     </div>
   );

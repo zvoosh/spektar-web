@@ -1,6 +1,7 @@
 ﻿import { useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { communitiesApi } from "@/api/communities";
 import { postsApi } from "@/api/posts";
 import { uploadApi } from "@/api/upload";
@@ -65,8 +66,10 @@ const CreatePostPage = () => {
         tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
       }),
     onSuccess: (post) => {
+      toast.success("Objava je kreirana!");
       navigate(`/post/${post.id}`);
     },
+    onError: () => toast.error("Kreiranje objave nije uspelo"),
   });
 
   const isValid = title.trim().length > 0 && communityId;
