@@ -22,18 +22,20 @@ const SearchPage = () => {
   // `tag` param — direktno iz trending (pretraga po tagu)
   const tagParam = searchParams.get("tag") ?? "";
 
-  const [inputValue, setInputValue] = useState(searchParams.get("q") ?? (tagParam ? `#${tagParam}` : ""));
+  const [inputValue, setInputValue] = useState(searchParams.get("q") ?? "");
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [activeTab, setActiveTab] = useState<Tab>("posts");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipDebounceRef = useRef(false);
 
-  // Kad se URL promeni spolja (npr. klik na tag u Trending), ažuriraj input i query
+  // Kad se URL promeni spolja (klik na tag u Trending/PostCard)
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
     const tag = searchParams.get("tag") ?? "";
+    skipDebounceRef.current = true; // ne okidaj debounce za ovu promenu
     if (tag) {
-      setInputValue(`#${tag}`);
-      setQuery("");  // tag query koristi getByTag, ne search
+      setInputValue("");  // input prazan — tag se prikazuje kao chip, ne u inputu
+      setQuery("");
     } else {
       setInputValue(q);
       setQuery(q);
@@ -41,11 +43,14 @@ const SearchPage = () => {
   }, [searchParams.get("q"), searchParams.get("tag")]);
 
   useEffect(() => {
+    if (skipDebounceRef.current) {
+      skipDebounceRef.current = false;
+      return;
+    }
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       if (!mountedRef.current) return;
       const trimmed = inputValue.trim();
-      // Ako korisnik ručno menja input, briši tag param i radi text search
       if (trimmed) {
         setSearchParams({ q: trimmed }, { replace: true });
         setQuery(trimmed);

@@ -41,7 +41,7 @@ const RightPanel = () => {
   const { data: trending } = useQuery({
     queryKey: ["trending-tags"],
     queryFn: communitiesApi.getTrendingTags,
-    staleTime: 5 * 60_000,
+    staleTime: 30_000,
   });
 
   const { data: events } = useQuery({
@@ -76,7 +76,7 @@ const RightPanel = () => {
           trending.map((t, i) => (
             <div
               key={t.tag}
-              onClick={() => navigate(`/search?tag=${encodeURIComponent(t.tag)}`)}
+              onClick={() => navigate(`/search?tag=${encodeURIComponent(t.tag.replace(/^#+/, ""))}`)}
               className={`flex items-center py-2 cursor-pointer hover:bg-surface-2-2 rounded-lg px-1 -mx-1 transition-colors ${
                 i < trending.length - 1 ? "border-b border-surface-2" : ""
               }`}
@@ -85,7 +85,7 @@ const RightPanel = () => {
                 #
               </div>
               <span className="text-[13px] text-text-1 flex-1 font-medium">
-                {t.tag}
+                #{t.tag.replace(/^#+/, "")}
               </span>
               <span className="text-[11px] text-text-3 bg-surface-2 px-2 py-0.5 rounded-full">
                 {t.count}
@@ -314,6 +314,14 @@ const DrawerSidebar = ({
 const MainLayout = () => {
   const { isMobile, isTablet } = useBreakpoint();
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Drži trending-tags query aktivan uvek (ne samo kad je RightPanel vidljiv)
+  // Tako invalidateQueries iz CreatePostPage uvek ima aktivnog subscribera
+  useQuery({
+    queryKey: ["trending-tags"],
+    queryFn: communitiesApi.getTrendingTags,
+    staleTime: 30_000,
+  });
 
   const gridCols = isMobile
     ? "grid-cols-1"

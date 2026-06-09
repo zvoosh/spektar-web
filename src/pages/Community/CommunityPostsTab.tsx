@@ -1,4 +1,4 @@
-﻿import { memo, useMemo, useState, type RefObject } from "react";
+import { memo, useMemo, useState, type RefObject } from "react";
 import { Loader2 } from "lucide-react";
 import PostCard from "@/pages/Feed/PostCard";
 import type { Post } from "@/types";
@@ -7,9 +7,9 @@ const FILTERS = [
   { label: "Svi", value: "" },
   { label: "Diskusije", value: "discussion" },
   { label: "Pitanja", value: "question" },
-  { label: "DogaÄ‘aji", value: "event" },
+  { label: "Događaji", value: "event" },
   { label: "Preporuke", value: "recommendation" },
-  { label: "ObaveÅ¡tenja", value: "announcement" },
+  { label: "Obaveštenja", value: "announcement" },
 ];
 
 interface Props {
@@ -48,14 +48,14 @@ const CommunityPostsTab = memo(({ posts, isLoading, hasNextPage, isFetchingNextP
       </div>
 
       {isLoading && (
-        <div className="text-center p-10 text-text-3">UÄitavam postove...</div>
+        <div className="text-center p-10 text-text-3">Učitavam postove...</div>
       )}
 
       {!isLoading && filtered.length === 0 && (
         <div className="text-center p-10 bg-surface rounded-2xl border border-border">
-          <div className="text-[32px] mb-3">ðŸ“­</div>
+          <div className="text-[32px] mb-3">📭</div>
           <div className="font-serif text-[15px] text-text-1">Nema postova</div>
-          <div className="text-[13px] mt-1 text-text-3">Budi prvi koji Ä‡e neÅ¡to objaviti!</div>
+          <div className="text-[13px] mt-1 text-text-3">Budi prvi koji će nešto objaviti!</div>
         </div>
       )}
 

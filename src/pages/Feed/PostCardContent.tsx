@@ -62,15 +62,18 @@ const PostCardContent = memo(({ post, isMobile }: Props) => {
         {/* Tags */}
         {post.tags?.filter((t) => t.trim()).length > 0 && (
           <div className="flex gap-1.5 flex-wrap mb-2">
-            {post.tags.filter((t) => t.trim()).map((t) => (
-              <span
-                key={t}
-                onClick={(e) => { e.stopPropagation(); navigate(`/search?q=${encodeURIComponent(t.trim())}`); }}
-                className="text-[11px] py-0.5 px-2 rounded-md bg-surface-2 text-text-3 hover:bg-accent-soft hover:text-accent cursor-pointer transition-colors"
-              >
-                #{t}
-              </span>
-            ))}
+            {post.tags.filter((t) => t.trim()).map((t) => {
+              const clean = t.trim().replace(/^#+/, "");
+              return (
+                <span
+                  key={t}
+                  onClick={(e) => { e.stopPropagation(); navigate(`/search?tag=${encodeURIComponent(clean)}`); }}
+                  className="text-[11px] py-0.5 px-2 rounded-md bg-surface-2 text-text-3 hover:bg-accent-soft hover:text-accent cursor-pointer transition-colors"
+                >
+                  #{clean}
+                </span>
+              );
+            })}
           </div>
         )}
       </div>

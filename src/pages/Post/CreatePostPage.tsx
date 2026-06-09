@@ -1,6 +1,6 @@
 ﻿import { useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { communitiesApi } from "@/api/communities";
 import { postsApi } from "@/api/posts";
@@ -17,6 +17,7 @@ const POST_TYPES = [
 
 const CreatePostPage = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const preselectedCommunity = searchParams.get("community");
 
@@ -63,10 +64,16 @@ const CreatePostPage = () => {
         eventLocation: eventLocation || undefined,
         eventDate: eventDate || undefined,
         eventEndDate: eventEndDate || undefined,
-        tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
+        tags: tags
+          ? tags
+              .split(",")
+              .map((t) => t.trim().toLowerCase().replace(/^#+/, "").trim())
+              .filter((t) => t.length > 0 && t.length <= 30)
+          : [],
       }),
     onSuccess: (post) => {
       toast.success("Objava je kreirana!");
+      queryClient.invalidateQueries({ queryKey: ["trending-tags"] });
       navigate(`/post/${post.id}`);
     },
     onError: () => toast.error("Kreiranje objave nije uspelo"),
@@ -259,9 +266,27 @@ const CreatePostPage = () => {
           <input
             value={tags}
             onChange={(e) => setTags(e.target.value)}
-            placeholder="beograd, događaj, park (odvojeni zarezom)"
+            placeholder="beograd, vračar, muzika  (bez # , odvojeni zarezom)"
             className="w-full px-3.5 py-2.5 rounded-[10px] border border-border text-[13px] text-text-1 outline-none focus:border-accent font-sans bg-surface"
           />
+          {/* Tag preview chips */}
+          {tags.trim() && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {tags
+                .split(",")
+                .map((t) => t.trim().toLowerCase().replace(/^#+/, "").trim())
+                .filter((t) => t.length > 0)
+                .map((t, i) => (
+                  <span
+                    key={i}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent-soft border border-accent/20 text-accent text-[11px] font-semibold"
+                  >
+                    #{t}
+                  </span>
+                ))}
+            </div>
+          )}
+          <p className="text-[11px] text-text-3 mt-1.5">Tagovi se čuvaju malim slovima. # se dodaje automatski.</p>
         </div>
 
         {/* Submit */}
