@@ -18,7 +18,11 @@ const SearchPage = () => {
   const mountedRef = useRef(true);
   useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [inputValue, setInputValue] = useState(searchParams.get("q") ?? "");
+
+  // `tag` param — direktno iz trending (pretraga po tagu)
+  const tagParam = searchParams.get("tag") ?? "";
+
+  const [inputValue, setInputValue] = useState(searchParams.get("q") ?? (tagParam ? `#${tagParam}` : ""));
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [activeTab, setActiveTab] = useState<Tab>("posts");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -26,19 +30,28 @@ const SearchPage = () => {
   // Kad se URL promeni spolja (npr. klik na tag u Trending), ažuriraj input i query
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
-    setInputValue(q);
-    setQuery(q);
-  }, [searchParams.get("q")]);
+    const tag = searchParams.get("tag") ?? "";
+    if (tag) {
+      setInputValue(`#${tag}`);
+      setQuery("");  // tag query koristi getByTag, ne search
+    } else {
+      setInputValue(q);
+      setQuery(q);
+    }
+  }, [searchParams.get("q"), searchParams.get("tag")]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       if (!mountedRef.current) return;
-      setQuery(inputValue.trim());
-      if (inputValue.trim()) {
-        setSearchParams({ q: inputValue.trim() }, { replace: true });
+      const trimmed = inputValue.trim();
+      // Ako korisnik ručno menja input, briši tag param i radi text search
+      if (trimmed) {
+        setSearchParams({ q: trimmed }, { replace: true });
+        setQuery(trimmed);
       } else {
         setSearchParams({}, { replace: true });
+        setQuery("");
       }
     }, 400);
     return () => {
@@ -46,10 +59,18 @@ const SearchPage = () => {
     };
   }, [inputValue]);
 
+  // Tag search (kada dođe iz Trending)
+  const { data: tagPosts, isLoading: tagPostsLoading } = useQuery({
+    queryKey: ["search", "tag", tagParam],
+    queryFn: () => postsApi.getByTag(tagParam),
+    enabled: !!tagParam,
+  });
+
+  // Text search
   const { data: posts, isLoading: postsLoading } = useQuery({
     queryKey: ["search", "posts", query],
     queryFn: () => postsApi.search(query),
-    enabled: query.length >= 2,
+    enabled: !tagParam && query.length >= 2,
   });
 
   const { data: communities, isLoading: communitiesLoading } = useQuery({
@@ -71,8 +92,10 @@ const SearchPage = () => {
     onSuccess: () => { if (mountedRef.current) navigate(`/chat`); },
   });
 
-  const isLoading = postsLoading || communitiesLoading || usersLoading;
-  const hasResults = (posts?.length ?? 0) + (communities?.length ?? 0) + (users?.length ?? 0) > 0;
+  const isLoading = tagParam ? tagPostsLoading : (postsLoading || communitiesLoading || usersLoading);
+  const hasResults = tagParam
+    ? (tagPosts?.length ?? 0) > 0
+    : (posts?.length ?? 0) + (communities?.length ?? 0) + (users?.length ?? 0) > 0;
 
   return (
     <div>
@@ -90,7 +113,7 @@ const SearchPage = () => {
         />
         {inputValue && (
           <button
-            onClick={() => { setInputValue(""); setQuery(""); }}
+            onClick={() => { setInputValue(""); setQuery(""); setSearchParams({}, { replace: true }); }}
             className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-3 bg-transparent border-none cursor-pointer text-lg"
           >
             ✕
@@ -98,8 +121,18 @@ const SearchPage = () => {
         )}
       </div>
 
+      {/* Tag mode — direktna pretraga po tagu */}
+      {tagParam && (
+        <div className="mb-4 flex items-center gap-2">
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent-soft border border-accent/30 text-accent text-[13px] font-semibold">
+            # {tagParam}
+          </span>
+          <span className="text-[12px] text-text-3">— postovi sa ovim tagom</span>
+        </div>
+      )}
+
       {/* Empty state */}
-      {!query && (
+      {!query && !tagParam && (
         <div className="text-center py-16">
           <div className="text-[48px] mb-3">🔍</div>
           <div className="font-serif text-[17px] text-text-1 mb-1">Pretraži Spektar</div>
@@ -109,13 +142,28 @@ const SearchPage = () => {
         </div>
       )}
 
-      {query.length === 1 && (
+      {!tagParam && query.length === 1 && (
         <div className="text-center py-8 text-text-3 text-[13px]">
           Unesi bar 2 slova...
         </div>
       )}
 
-      {query.length >= 2 && (
+      {/* Tag results */}
+      {tagParam && (
+        <>
+          {isLoading && <div className="text-center py-10 text-text-3">Pretražujem...</div>}
+          {!isLoading && !hasResults && (
+            <div className="text-center py-12 bg-surface rounded-[14px] border border-border">
+              <div className="text-[40px] mb-3">🏷️</div>
+              <div className="font-serif text-[15px] text-text-1 mb-1">Nema postova sa tagom „{tagParam}"</div>
+              <div className="text-[13px] text-text-3">Budi prvi koji će ga koristiti</div>
+            </div>
+          )}
+          {!isLoading && tagPosts?.map((post) => <PostCard key={post.id} post={post} />)}
+        </>
+      )}
+
+      {!tagParam && query.length >= 2 && (
         <>
           {/* Tabs */}
           <div className="flex gap-1 mb-4 border-b border-border">

@@ -235,7 +235,7 @@ const PostDetailPage = () => {
       <PageMeta
         title={post.title}
         description={post.body ? post.body.slice(0, 160) : `${post.type} na Spektru Beograda`}
-        image={post.images?.[0] ?? undefined}
+        image={post.imageUrl ?? undefined}
         path={`/post/${post.id}`}
         type="article"
       />

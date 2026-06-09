@@ -82,4 +82,9 @@ export const postsApi = {
     const res = await api.get<Post[]>(`/posts/search?q=${encodeURIComponent(q)}`);
     return res.data;
   },
+
+  getByTag: async (tag: string) => {
+    const res = await api.get<Post[]>(`/posts/by-tag/${encodeURIComponent(tag)}`);
+    return res.data;
+  },
 };

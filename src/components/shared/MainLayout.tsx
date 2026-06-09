@@ -76,7 +76,7 @@ const RightPanel = () => {
           trending.map((t, i) => (
             <div
               key={t.tag}
-              onClick={() => navigate(`/search?q=${t.tag}`)}
+              onClick={() => navigate(`/search?tag=${encodeURIComponent(t.tag)}`)}
               className={`flex items-center py-2 cursor-pointer hover:bg-surface-2-2 rounded-lg px-1 -mx-1 transition-colors ${
                 i < trending.length - 1 ? "border-b border-surface-2" : ""
               }`}

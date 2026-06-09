@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 
 interface Props {
-  error: Error;
+  error: unknown;
   resetErrorBoundary: () => void;
 }
 
@@ -22,7 +22,7 @@ const ErrorFallback = ({ error, resetErrorBoundary }: Props) => {
         Desila se neočekivana greška. Pokušaj ponovo ili se vrati na početnu stranicu.
       </p>
 
-      {import.meta.env.DEV && (
+      {import.meta.env.DEV && error instanceof Error && (
         <details className="mt-3 mb-5 text-left max-w-md w-full">
           <summary className="text-[11px] text-text-3 cursor-pointer select-none hover:text-text-2 transition-colors">
             Detalji greške (dev only)
